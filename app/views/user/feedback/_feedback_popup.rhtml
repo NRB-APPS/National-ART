@@ -1,0 +1,122 @@
+<style>
+
+/*
+.table-main {
+  display: table;
+}
+
+.table-row {
+  display: table-row;
+}
+
+.table-cell {
+  display: table-cell;
+}
+*/
+
+.table-div {
+	width: 100%;
+  font-family: "Times New Roman", Times, serif;
+  font-style: normal;
+  font-size: 14px;
+}
+
+.table-div td {
+  border-style: solid;
+  border-width: 1px;
+}
+
+.charts {
+	width: 30%;
+}
+
+.stats-numbers {
+	/*width: 65%;*/
+  vertical-align: top;
+}
+
+.control-div {
+  bottom: 10px;
+  position: absolute;
+	width: 99%;
+  height: 120px;
+  border-style: solid;
+  border-width: 0px;
+}
+
+.control-div a {
+	color: white;
+	border-radius: 4px;
+	text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+	height: 60px;
+	float: right;
+	font-size: 20px;
+  text-align: center;
+  text-decoration: none;
+  padding:20px 10px 10px 10px;
+  vertical-align: bottom;
+  width: 320px;
+}
+
+.success {
+	background: rgb(28, 184, 65); /* this is a green */
+	margin-right: 10px;
+}
+
+.general {
+	background: rgb(66, 184, 221); /* this is a light blue */
+	margin-right: 20px;
+}
+
+.controls {
+  vertical-align:middle;
+}
+
+.main-container-alert {
+  width: 99%;
+  font-size: 10px;
+}
+
+</style>
+
+<%start_date = (Date.today - 1.day)%>
+
+<script>
+  var startDate = "<%=(start_date)%>";
+  var startDateDisplay = "<%=(start_date).strftime('%d/%b/%Y')%>";
+</script>
+
+<div class="main-container-alert">
+
+  <table class="table-main table-div">
+    <tr>
+      <td style="width: 35%;"><%= render :partial => "user/feedback/pie" %></td>
+      <td style="width: 65%;"><%= render :partial => "user/feedback/table" %></td>
+    </tr>
+  </table>
+
+</div>
+
+<div class="table-main control-div">
+  <div class="table-row">
+    <div class="table-cell controls">
+      <a href="#" class="success" onmousedown="viewIndividualStats()">Individual performance stats<br /> 
+      (<%=(start_date).to_date.strftime('%d/%b/%Y') %>)</a>
+			<a href="#" class="general" onmousedown="hideFeedback()">Show main<br />dashboard</a>
+    </div>
+  </div>
+</div>
+
+<script>
+
+function adjustHeight() {
+  var w = (screen.width*0.32) + 'px';
+  document.getElementById('container-pie').style.maxWidth = w;
+
+  var w = (screen.width*0.65) + 'px';
+  document.getElementById('container-trends').style.maxWidth = w;
+
+}
+
+adjustHeight();
+</script>

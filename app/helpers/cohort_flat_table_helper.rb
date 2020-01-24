@@ -1,0 +1,2 @@
+module CohortFlatTableHelper
+end

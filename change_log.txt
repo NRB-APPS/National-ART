@@ -1,0 +1,186 @@
+/*
+-This is a sample on how to write to this file
+Version (v 1.0.0)
+	subversion (v 1.0.1 Tag name)
+		
+*/
+
+Version (1.0.0)
+	subversion (v 1.0.0 )
+		Added stock management reports
+		Fixed a few issues with flat tables
+		Fixed age for starting 5A regimen
+		Fixed mastercard so that it should not crash on adherence
+		Harmonised resetting of sessions on home page
+		Fixed error with cpr calculation and Exit From Care Rebuild
+		Fixed the mastercard for Transfer Ins
+		improved the display of reports (Survival Analysis)
+		Fixed survival analysis labels and the saving of drugs
+		Improved the guardian Visit work flow
+		Changed alternative drugs to Normal drugs
+		Changed the measurements for some drugs i.e. CPT 960 mg
+		Added API for pulling data to Martenity System
+		fixed arc script
+		Updated API for pulling data to maternity system
+		Added British date formats in stock reports in drug management
+		Added Stock movement report to Drug Management
+		Added date range to cohort selection
+		Modified the recalculate_adherence script
+		Added the after migration scripts
+		Moved the after migration scripts to a separate folder within scripts
+		Updated fix_for_equivalent_daily_dose script
+		fixed misspelled Isoniazid drug
+		Changed summary page scrolling style 
+		fixed pulling of patients without states
+		Added scripts to help with data migration
+		changed source from http to https
+		added gems in vendor for local bundle installation
+		Updated cohort_regimen_fix script
+		Added Current_Location to void_adherence script to prevent openmrs model from crushing 
+		Managing display of TB and ART mastercard
+------------------------------------------------------------------------------------------
+		updated the way defaulters are being exported in flat_tables
+----
+		updated the way defaulted dates are being calculated
+		updated the way patients outcomes are being pulled
+    improved the way we search locations: 
+		updated the way regimen_category and adherence are exported
+----
+    - added a script to void 'Has the patient taken ARVs in the past 2 months' observation
+      if and only if the patient also have 'Date ART last taken' observation on the same visit.
+    - added chichewa translations for some questions in hiv_clinic_registration view
+    - added a condition in ever_registered_obs view to get the latest observation
+    - updated patients_reinitiated query
+----
+    - defaulted frequency to unknown for orders having no frequency in batch_flat_table_initialization
+    - added descriptive messages to indicate the progress of batch_flat_table_initialization script
+    - updated patients_reinitiated query
+    - changed the way gender is exported to mysql files
+---
+    - improved the query pulling all orders in batch_flat_table_initialization script
+    - Defaulted the current_state_for_program to 'Unknown' if patient has no state during that visit
+      in batch_flat_table_initialization
+---
+    - added death_date field in batch_flat_table_initialization script
+---
+    - added a age_in_days field in earliest_start_date view which will be used in pulling age_groups
+    - reverted patients_reinitiated query back to 56 days
+    - also reverted ever_registered_obs to get all patient's hiv_clinic_registration encounters
+---
+    - updated the way demographics are exported in batch_flat_table_initialization script
+.....
+    - Adding mastercard list menu for TB and ART
+    - Worked on  fonts for bart2 cohort printer version
+    - Resolved issues on missed appointments pulling visit dates instead of appointment dates
+----
+    - Ensured that the nil start reasons when pulling cohort report are handled effectively so that the should not cause the thread to abort
+    - Defaulted patient state to Unknown, for patients having no program id (HIV Program)
+---
+   - added a patient_defaulted_dates model
+   - added 'age_in_days' field in batch_flat_cohort_table_initiliazation script
+---
+   - updated patient_defaulted_dates model
+   - added patient_max_defaulted_date function in bart2_views_schema_additions
+   - replaced 'defaulted_date' with 'start_date' in patient_max_defaulted_date
+---
+   - added cohort controller as part of integrating bart2_cohort with bart2 
+   - updated patient_defaulted_dates model
+---
+   - added flat_tables models
+   - modified applications_controller to accomodate the addition of flat tables cohort report
+   - updated routes.rb to accommodate the additions of flat_tables routes
+--- 
+   - intergrated flat tables reports with bart2
+   - modified cohort.rb in model to categorise patients without start reason in unknown reason group
+---
+   - changed defaulted query in flat_tables
+---
+   - removed a logger for survival analysis values
+2014/07/31
+   DN- removed defaulted query in batch_flat_table_initialization script   
+   PB-*** testing email service for QA ****-
+   DN- updated the way death_date is being exported in batch_flat_table_initialization script
+   DN- replaced 'age_at_initiation' with 'age_in_days' when pulling age groups in flat_table cohort
+2014-08-04
+   PB - Added a how to document for initializing flat tables in doc folder
+   PB - Updated, rather rearranged the steps for initializing flat tables in the document provided i
+2014-08-05
+   PB - Added a script to fix reason for starting issues for Thyolo
+2014-08-13 
+   KK - Added a new UI for entering verified drug values
+2014-08--15
+   KK - Added new UI for entering drug deliveries/receipts
+   DN - Script management: organized and put scripts into appropriate folders
+2014-08-18
+   DN - Script management: organized and put scripts into appropriate folders
+   DN - Added a script to run all scripts that are needed to be run before pulling cohort.
+2014-07-23
+   EM - Added migrations for drug_order_barcodes table
+   EM - Creating drug tins
+<<<<<<< HEAD
+   EM - aking sure we prescribe and dispense complete available packs
+   EM - Making sure we prescribe and dispense complete available packs
+   EM - aking sure we prescribe and dispense complete available packs
+2014-09-03
+   KK - Resolved changes observed by QA =~ recepits and verification of drugs, also added a new table to pharmacy table
+   DN - Updated the flat_table initialization document
+2014-09-09
+   DN - updated cd4_count and cd4_count_modifier fields to get the correct values from obs in batch_flat_table_initialization script
+2014-08-21
+   PB - Merged with filling_number_fix branch. Has a fix to ensure that we 
+	re-assign filing numbers for patients that are not active
+      - removed branch filling_number_fix
+2014-09-05
+   PB - moved initial setup db scripts to initial_setup older within db folder
+      - changed the script/initial_database_setup.sh to point to the initial_setup folder
+2014-09-08
+   KK - Fixed demographics mapping on creating patient as remote app
+2014-09-16
+   DN - Updated flat_table_initialization script
+2014-09-17
+	 FC	-	Enabled email configuration
+   DN - added guardian_present_unknown field 
+2014-09-03
+   KK - Resolved changes observed by QA =~ recepits and verification of drugs, also added a new table to pharmacy table
+   DN - Updated the flat_table initialization document
+2014-09-09
+   DN - updated cd4_count and cd4_count_modifier fields to get the correct values from obs in batch_flat_table_initialization script
+   KK - Resolved changes observed by QA =~ recepits and verification of drugs, also added a new table to pharmacy table 
+   EM - Making sure we prescribe and dispense complete available packs
+2014-09-02
+	 TM - Changed validation rule checking whether each art patient < 18 has height and weight on each visit to work with flat tables 
+2014-09-03
+	 TM - Changed validation rule for checking whether patients have reason for starting to work with flat tables
+	 TM - Changed validation rule checking tha each outcome is tied to a date to work on flat tables
+2014-09-04
+	 TM - Changed validation rule requiring that each art patient has a clinic registration encounter to use flat tables
+   KK - Rewrote validation rule queries to suite flat tables for checking age against birth date and death date; and for checking vitals enc without weight
+   TM - Changed validation rule for checking whether patients have reason for starting to work with flat tables
+   TM - Changed validation rule checking tha each outcome is tied to a date to work on flat tables
+   DN - added guardian_present_unknown field
+2014-09-29
+   DN - commented out side_effects visit_date fields
+2014-10-14
+   DN - uncommented the section of HIV staging observations in mastercard_demographics method
+   DN - added 0A and 0P to cohort_validation model. Also included 0A and 0P to the calculation of non-standard regimen
+        cohort model
+   PB - Added a check to ensure that patients with no start reason are added to unknown reason in reason for starting in app/models/cohort.rb
+2014-10-16
+   PB - Fixed list_patients_details.rhtml not to crash on patients with unknown age
+2014-12-16
+   KK - Added functionality for running htn application as a plugin from vendor/plugins
+2014-12-11
+   DN - Updated batch_flat_table_initialization script to include missing stage defining conditions
+2015-03-05
+   DN - added voided = 0 to all the queries pulling patients in batch_flat_table_initialization
+2015-03-06
+   DN - Added a condition to the query pulling patients from flat_table1 to only pull patients in earliest_start_table
+        in batch_flat_cohort_load.rb
+2015-03-11
+   DN - flat_table_cohort report: updated side_effects and unknown adherence queries in cohort_controller, index 
+        and drill_down views in app/cohort folder. 
+2015-03-12
+   DN - Added group by to the query pulling guardians in batch_flat_table_initialization.rb  
+2015-03-25
+	 FC - Managed Pregnant patients being asked family planning methods
+	 FC - Managed patients trying to loop through empty TB encounters 

@@ -1,0 +1,36 @@
+<style>
+    #space { display:inline; font-size:1.2em; }
+
+    #tt_page_identifier .touchscreenTextInput {
+        top: 46px;
+    }
+    .options {
+        display:none;
+    }
+
+</style>
+
+<script>
+    var tt_cancel_destination = "/clinic";
+</script>
+
+<form method='post' action='/properties/set_cervical_cancer_age_limits'>
+  <input type='text' id='min_age'
+         name='min_age'
+         value="<%= @global_property_min %>"
+         helpText='Set Cervical Cancer Min screening age threshold'
+         field_type="number"
+         min = 10
+         max = 250
+         tt_pageStyleClass = "Numeric NumbersOnly"/>
+
+  <input type='text' id='max_age'
+         name='max_age'
+         value="<%= @global_property_max %>"
+         helpText='Set Cervical Cancer Max screening age threshold'
+         field_type="number"
+         min = 10
+         max = 250
+         tt_pageStyleClass = "Numeric NumbersOnly"/>
+
+</form>

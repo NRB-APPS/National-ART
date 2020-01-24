@@ -1,0 +1,59 @@
+
+<style type="text/css">
+
+  .tt_controls_start_month .keyboard{display:none;}
+  #tt_page_start_month .options{height:515px;}
+  #tt_page_start_month .options li{font-size:30px;}
+
+  .tt_controls_end_month .keyboard{display:none;}
+  #tt_page_end_month .options{height:515px;}
+  #tt_page_end_month .options li{font-size:30px;}
+
+  #tt_page_select_age_group_s .options{height:515px;}
+
+  .tt_controls_start_day #Unknown { display:none; }
+  .tt_controls_end_day #Unknown { display:none; }
+
+</style>
+
+<form method='GET' action="/cohort_tool/process_dha_fast_track_report">
+  <% month_names = month_name_options.gsub('<option value="Unknown">Unknown</option>', '') %>
+
+  <%= text_field_tag "start_year", nil, {
+    :helpText => 'Start Year',
+    :field_type => 'number',
+    :min => "2015",
+    :absoluteMax => Date.today.year,
+    :tt_pageStyleClass => "Numeric NumbersOnly"
+  }  %>
+
+  <%= select_tag "start_month", options_for_select(month_names), {
+    :helpText => 'Start Month',
+    :tt_onLoad => "__$('keyboard').style.display = 'none'"
+  } %>
+
+  <%= text_field_tag "start_day",  nil, {
+    :field_type => 'number',
+    :tt_onLoad => "__$('keyboard').style.display = 'inline'",
+    :helpText => "Start Day"
+  } %>
+
+  <%= text_field_tag "end_year", nil, {
+    :helpText => 'End Year',
+    :field_type => 'number',
+    :absoluteMax => Date.today.year,
+    :tt_pageStyleClass => "Numeric NumbersOnly"
+  }  %>
+
+  <%= select_tag "end_month", options_for_select(month_names), {
+    :helpText => 'End Month',
+    :tt_onLoad => "__$('keyboard').style.display = 'none'"
+  } %>
+
+  <%= text_field_tag "end_day",  nil, {
+    :field_type => 'number',
+    :tt_onLoad => "__$('keyboard').style.display = 'inline'",
+    :helpText => "End Day"
+  } %>
+
+</form>

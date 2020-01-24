@@ -1,0 +1,25 @@
+<style>
+    #space { display:inline; font-size:1.2em; }
+
+    #tt_page_identifier .touchscreenTextInput {
+        top: 46px;
+    }
+    .options {
+        display:none;
+    }
+
+</style>
+
+<script>
+    var tt_cancel_destination = "/clinic";
+</script>
+
+<form method='post' action='/properties/set_daily_referral_limit'>
+  <input type='text' id='min_age'
+         name='daily_referral_limit'
+         value="<%= @global_property_referral_limit %>"
+         helpText='Set Daily Referral Limit'
+         field_type="number"
+         tt_pageStyleClass = "Numeric NumbersOnly"/>
+
+</form>

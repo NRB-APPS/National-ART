@@ -1,0 +1,59 @@
+<%= javascript_include_tag "prototype" %>
+<% set_prefix =  CoreService.get_global_property_value('filing.number.prefix') %>
+<script type="text/javascript">
+  var tt_cancel_destination = "/clinic"
+
+  function filingNumberPrefix(){
+    inputElement = document.getElementById('tt_page_enter_filing_number').getElementsByTagName("input")[0]
+    prefix = document.createElement("span")
+    style = document.createAttribute("style")
+    style.value = "position: absolute; z-index: 100; left: 0px; font-size: 35px;"
+    prefix.setAttributeNode(style)
+    inputElement.setAttribute("style","text-align:right;width:99%;")
+    <% 
+    active = set_prefix.split(',')[0]
+    dormant = set_prefix.split(',')[1]
+    if params[:id].match(/active/i) %>
+        prefix.innerHTML = "<%= active %>"
+    <% else %>
+        prefix.innerHTML = "<%= dormant %>"
+    <% end %>
+    inputElement.parentNode.insertBefore(prefix, inputElement)
+    style.value+= 'left:30px;'
+    prefix.setAttributeNode(style)
+
+    other_identifiers = document.getElementById('Unknown')
+    other_identifiers.innerHTML = '<span>Search by other</span>'
+    other_identifiers.setAttribute('onmousedown','searchByOther()')
+  }
+
+  function searchByOther(){
+    document.location = '/people/search_by_identifier'
+  }
+</script>
+
+<style>
+
+#qwerty,#date,#star,#abc,#slash,#percent,#comma,#minus,#plus,#decimal {
+  display:none;
+}
+
+</style>
+
+<form method = 'post' action = 'find_by_filing_number'>
+   <%= text_field_tag :filing_number, nil , 
+    :field_type => 'number' , 
+    :helpText => "Enter filing number",
+    :tt_onLoad =>'filingNumberPrefix()'%>
+  
+  <% 
+    active = set_prefix.split(',')[0]
+    dormant = set_prefix.split(',')[1]
+    if params[:id].match(/active/i) 
+      px = active
+    else
+      px = dormant
+    end %>
+    
+    <input type='hidden' name="prefix" value="<%= px %>" />
+</form> 

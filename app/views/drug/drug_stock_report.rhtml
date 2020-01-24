@@ -1,0 +1,106 @@
+<script type="text/javascript">
+
+</script>
+
+<style type="text/css">
+  .link {
+    border-width: 0 1px 4px;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 8px 12px 7px;
+    text-transform: uppercase;
+  }
+
+  .btn-danger {
+    background-color: #ff4136;
+    border-color: #ff291c;
+    color: #ffffff;
+  }
+  .link {
+    -moz-user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 2.429;
+    margin-bottom: 0;
+    padding: 6px 12px;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    width: 86%;
+  }
+
+  a {
+    color: #158cba;
+    text-decoration: none;
+  }
+  a {
+    background: transparent none repeat scroll 0 0;
+  }
+
+  table tbody td{
+    border-bottom-width: 2px !important;
+    border: 1px solid #dddddd;
+  }
+
+  .alert {
+    border-width: 0 1px 4px;
+  }
+  .alert-info {
+    background-color: #75caeb;
+    border-color: #40b5e3;
+    color: #ffffff;
+  }
+  .alert {
+    border: 1px solid transparent;
+    margin-bottom: 20px;
+    padding: 15px;
+    font-weight: bold;
+    font-size: 16pt;
+  }
+
+  .drug-name{
+    font-size: 14pt;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.drug-stock{
+  font-size: 14pt;
+  font-weight: bold;
+}
+
+.theader{
+  font-size: 14pt;
+  font-weight: bold;
+}
+
+</style>
+<div class="alert alert-info">
+  <center>DRUG STOCK REPORT</u></i></center>
+</div>
+<div style="overflow: auto; height: 550px;">
+  <table style="padding-left: 5%; width: 96%;">
+    <thead>
+      <tr>
+        <th style="text-align: left;" class="theader">Drug Name</th>
+        <th style="text-align: right;" class="theader">Current Drug Stock(Tabs)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @stock_hash.each do |drug_id, values| %>
+        <tr>
+          <td class="drug-name"><%= values["name"] %></td>
+          <td style="text-align: right;" class="drug-stock"><%= values["latest_drug_stock"] %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+<div id="buttons" class="buttonsDiv">
+  <button onmousedown="window.location='/'" class="button green navButton" id="nextButton"><span>Finish</span></button>
+</div>

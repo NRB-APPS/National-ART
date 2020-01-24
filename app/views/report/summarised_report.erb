@@ -1,0 +1,1226 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <title><%= @title = "#{controller.controller_name.humanize} #{controller.action_name.humanize}" rescue ""  %></title>
+
+    <script language="javascript">
+        tstUsername = "<%= current_user.username unless current_user.nil? %>";
+        tstCurrentDate = "<%= Time.now.strftime("%Y-%m-%d") %>";
+        var tt_cancel_destination = null;
+    </script>
+    <%= stylesheet_link_tag fancy_or_high_contrast_touch %>
+    <%= stylesheet_link_tag "dashboard" %>
+    <%= javascript_include_tag "barcode" %>
+    <%= javascript_include_tag "prototype" %>
+    <%= javascript_include_tag 'jquery' %>
+    <%= stylesheet_link_tag 'extra_buttons' %>
+    <%= javascript_include_tag 'jquery_data_table.js' %>
+    <%= stylesheet_link_tag 'jquery.dataTables' %>
+    <%=javascript_include_tag "jquery.table2CSV.min" %>
+    <script type="text/javascript" charset="utf8" src="/javascripts/jquery.dataTables.min.js"></script>
+   
+    <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            $('#logout').click(function() {
+                window.location = '/clinic';
+            })
+            $('#find').click(function() {
+                history.go(-1);// /report/data_cleaning';
+
+            })
+        })
+
+        jQuery(document).ready(function($) {
+            $('#table_id').dataTable({
+                "bAutoWidth": true,
+                "bProcessing": true,
+                "sScrollY": "441px",
+                "bInfo": true,
+                "bPaginate": false
+            });
+            search_box = $('#table_id').dataTable()
+            search = document.getElementsByTagName("input")[0];
+            search.setAttribute("id","search");
+            document.getElementById('search').setAttribute("onclick","showKeyboard();");
+            document.getElementById("find").innerHTML = "<span>Back</span>";
+            document.getElementById("find").style.cssFloat = "left";
+            //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+            keyboard = document.getElementsByClassName("keypad")[0]
+            function getCharButtonSetID(character,id){
+                return '<button onMouseDown="press(\''+character+'\');" class="keyboardButton" id="'+id+'">' +"<span style='width:32px'>"+character+"</span>"+ "</button>";
+            }
+            function getButtonString(id,string){
+                return "<button \
+                            onMouseDown='press(this.id);' \
+                            class='keyboardButton' \
+                            id='"+id+"'>"+
+                        string +
+                        "</button>";
+            }
+
+            function getButtons(chars){
+                var buttonLine = "";
+                for(var i=0; i<chars.length; i++){
+                    character = chars.substring(i,i+1)
+                    buttonLine += getCharButtonSetID(character,character)
+                }
+                return buttonLine;
+            }
+
+            showAlphaKeypad();
+
+            function showAlphaKeypad(){
+                document.getElementById("keypad").style.height = "280";
+                keyboard.innerHTML= getButtons("0123456789") + "</br>"
+                keyboard.innerHTML+= getButtons("QWERTYUIOP") + "</br>"
+                keyboard.innerHTML+= getButtons("ASDFGHJKL:") + "</br>"
+                keyboard.innerHTML+= getButtons("ZXCVBNM,.?")
+                keyboard.innerHTML+= getButtonString('backspace','<span>Bksp</span>')
+                keyboard.innerHTML+= getButtonString('Space','<span>Space</span>')
+                keyboard.innerHTML+= getButtonString('clear','<span>Clear</span>')
+            }
+
+            function showNumericKeypad(){
+                document.getElementById("keypad").style.height = "145";
+                keyboard.innerHTML = getButtons("123")
+                keyboard.innerHTML+= getButtons("456")
+                keyboard.innerHTML+= getButtons("7890")
+                keyboard.innerHTML+= getButtonString('space','<span>Space</span>')
+                keyboard.innerHTML+= getButtonString('clear','<span>Clear</span>')
+                keyboard.innerHTML+= getButtonString('backspace','<span>Bksp</span>')
+                keyboard.innerHTML+= getButtonString('abc','<span>abc</span>')
+                keyboard.innerHTML+= getButtonString('dash','<span>-</span>')
+                keyboard.innerHTML+= getButtonString('slash','<span>/</span>')
+            }
+
+            //data_table_length =document.getElementsByName('table_id_length')[0];
+            //data_table_length.setAttribute("style","font-size:20px;");
+
+            //table_length = document.getElementById("table_id_length");
+            //table_length.setAttribute("style","width:100px;");
+
+        })
+    </script>
+
+    <script>
+    var select = '';
+        for (i=1;i<=100;i++){
+        select += '<option val=' + i + '>' + i + '</option>';
+        }
+            $('#some_select').html(select);
+    </script>
+    <style>
+        #backspace{
+            position:absolute;
+            left:100px;
+            bottom:2px;
+        }
+
+        #Space{
+            position:absolute;
+            left:220px;
+            bottom:2px;
+            width:200px;
+        }
+
+        #clear{
+            position:absolute;
+            left:470px;
+            bottom:2px;
+        }
+        #num{
+            position:absolute;
+            left:470px;
+            bottom:2px;
+            width:200px;
+        }
+        .create_button a{
+            background-color: #7784AE;
+            border-bottom: 1px outset black;
+            border-radius: 7px 7px 7px 7px;
+            border-style: outset;
+            border-top: 1px outset black;
+            color: #E8EAF1;
+            display: block;
+            padding: 10px 16px 10px 10px;
+            text-align: center;
+            text-decoration: none !important;
+        }
+        #keypad{
+            background-color: #FFFFFF;
+            border: 2px solid #9999FF;
+            border-radius: 15px 15px 15px 15px;
+            display: none;
+            height: 304px;
+            padding: 5px;
+            position: absolute;
+            right: 13px;
+            top: 194px;
+            width: 672px;
+        }
+    </style>
+    <style>
+        div {
+            -moz-user-select: none;
+        }
+        .basic_span {
+            position:relative;
+            width:50%;
+            display:block;
+            float:left;
+        }
+
+        .logo {
+            float:left
+        }
+
+        #table_id {
+            width: 100%;
+        }
+
+        #table_id_filter{
+            position:absolute;
+            top:0px;
+            right:1%;
+            margin-top:-40px;
+        }
+
+        #table_id_filter input{
+            padding:0.5em;
+        }
+
+
+        .dataTables_length select {
+            font-size: 25px;
+        }
+        .horizontal_line hr{
+            position:absolute;
+            bottom:104px;
+        }
+        #table_id_info{
+            left: 10px;
+            position: absolute;
+            top: 491px;
+            font-weight:bold;
+        }
+        #table_id_length{
+            display:none;
+        }
+        #table_id_paginate{
+            display:none;
+        }
+        #num{ display:none; }
+        #char{ display:none; }
+
+    </style>
+
+
+<script>
+
+    
+
+    function __$(id){
+        return document.getElementById(id);
+    }
+</script>
+
+
+<style type="text/css">
+        #tab {
+            height:312px;
+        }
+        #barcode {
+            background:transparent none repeat scroll 0 0;
+            border-color:-moz-use-text-color -moz-use-text-color silver;
+            border-style:none none solid;
+            border-width:medium medium 1px;
+            font-family:"Nimbus Sans L","Arial Narrow",sans-serif;
+            font-size:2.2em;
+            padding-left:5px;
+            width:400px;
+        }
+        #header div {
+            font-weight:normal;
+            float:none;
+            clear:both;
+        }
+
+        #list{
+        height: 400px;
+        overflow: auto;
+        }
+
+        .thead{
+        display: table-header-group;
+        vertical-align: middle;
+        border-color: inherit;
+        padding: 0;
+        }
+
+        #list table{
+        width: 100%;
+        }
+
+        .summary{
+            position:relative;
+            float:center;
+            width:100%;
+            padding-left:10px;
+            padding-right:10px;
+        }
+
+        .summary td , th{
+            border-style:solid;
+            border-width:thin;
+            padding:5px;
+        }
+
+        .summary tbody{
+            position:relative;
+            height:500px;
+            overflow:auto;
+            overflow-x: hidden;
+        }
+
+        .summary>tbody tr {
+            position:relative;
+            height:12px;
+        }
+        .summary>thead tr {
+            position:relative;
+            height:12px;
+        }
+
+        .ind{
+            font-weight: bold;
+            font-size: 20;
+
+        }
+        .td1{
+            border-style: solid;
+            width: 5%;
+        }
+
+        #table1{
+            border-style: solid;
+            border-width: 5px;
+        }
+        
+        .button1 {
+            background-color: blue; /* Green */
+            border: none;
+            color: white;
+            padding: 10px 26px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            
+}
+
+    </style>
+
+</head>
+
+
+<meta charset="utf-8">
+    
+</head>
+
+<body id="mateme">
+<div id="container">
+    <div id="content" style = "position : relative; width : 0%; margin-left : -70%">
+       
+        <table id="table_id" width="99%">
+            <table style="width:70%">
+                <h2>Brief Report</h2>
+                 
+                <%= image_tag("mw.gif", :class => "logo")%>
+                 
+            </table>
+            
+        </table>
+         
+        
+        <div id="keypad">
+          <span class="keypad">
+
+          </span>
+        </div>
+       
+        <td style="width: 80%;">
+        <div id="list" style="overflow-x:auto; text-transform:capitalize; width: 80%;height: 400px;">
+            &nbsp;
+            
+            <table  style="border: 1px solid black; padding-right: 80px;">
+            
+                <thead class="thead" >
+                    
+                    <tr style="border: thick solid black;">
+                         <td style="font-weight: bold; font-size: 20px; r ">Indicator</td>
+                         
+                         <td style="font-weight: bold; font-size: 80px; padding-right: 80px; ">
+                         <%= @quarter %>
+                        </td>
+                        <td>
+                          Quarterly
+                        </td>
+                        <td rowspan="3">
+                        &nbsp;
+                         </td>
+                          
+                        <td style="font-weight: bold; font-size: 20px;">
+                        <%= @quart %>
+                        </td>
+                           
+                        </tr>
+                        <tr>
+                        <td >
+                        &nbsp;
+                        </td>
+                         
+                        
+                        <tr><td colspan="9"><hr style="size:1; width:60%; border: thin solid black; float: right" /></td></tr>
+                        <td >
+                          
+                        <td>
+                        Cumulative
+                        </td>
+                        
+                        <td>
+                            Quartely
+                        </td>
+                        <td >
+                            Cumulative
+                        </td>
+                        </td>
+                        
+                    </tr>
+                    <tr sty><td colspan="5"><hr style="size:1; width:80%; border: thin solid grey;" /></td></tr>
+                                                            
+                </thead>
+
+                <tbody>
+                        <tr>
+                            <div>
+                            <td >
+                                Total registered
+                            </td>
+                            <td id="prevquart_total_registered"></td>
+                            <td id="prevcum_total_registered"></td>
+                            <td><span id="curquart_total_registered"></span></td>
+                            
+                            <td><span id="curcum_total_registered"></span></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%">
+                                Patients initiated on ART first time
+                            </td>
+                            <td id="prevquart_patients_initiated_on_ART_first_time">
+                             <td id="prevcum_patients_initiated_on_ART_first_time"></td>   
+                            </td>
+                            <td><span id="curquart_patients_initiated_on_ART_first_time"></span></td>
+                            <td><span id="curcum_patients_initiated_on_ART_first_time"></span></td>
+                            
+                            
+                        </tr>
+                        <tr>
+                            <td style="width: 50%">
+                                Patients re-initiated on ART 
+                            </td>
+                            <td 
+                            id="prevquart_patients_re_initiated_on_ART"></td>
+                            <td id="prevcum_patients_re_initiated_on_ART"></td>
+                            <td><span id="curquart_patients_re_initiated_on_ART"></span></td>
+                            
+                            <td><span id="curcum_patients_re_initiated_on_ART"></span></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%">
+                                Patients transferred in on ART
+                            </td>
+                            <td id="prevquart_patients_transferred_in_on_ART"></td>
+                            <td id="prevcum_patients_transferred_in_on_ART"></td>
+                            <td>
+                            <span id="curquart_patients_transferred_in_on_ART"></span></td>
+                            
+                            <td><span id="curcum_patients_transferred_in_on_ART"></span></td>
+                        </tr>
+                        <tr><td colspan="6"><hr size="1" width="80%" /></td></tr>
+                        <tr>
+                            <td style="width: 50%">
+                                Males (all ages)
+                            </td>
+                            <td id="prevquart_males_all_ages"></td>
+                            <td id="prevcum_males_all_ages"></td>
+                            <td><span id="curquart_males_all_ages"></span></td>
+                            
+                            <td><span id="curcum_males_all_ages"></span></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%">
+                                Non-pregnant Females (all ages)
+                            </td>
+                            <td id="prevquart_non_pregnant_females"></td>
+                            <td id="prevcum_non_pregnant_females"></td>
+                            <td><span id="curquart_non_pregnant_females"></span></td>
+                            
+                            <td><span id="curcum_non_pregnant_females"></span></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%">
+                                Pregnant Females (all ages)
+                            </td>
+                            <td id="prevquart_pregnant_females"></td>
+                            <td id="prevcum_pregnant_females"></td>
+                            <td><span id="curquart_pregnant_females"></span></td>
+                            
+                            <td><span id="curcum_pregnant_females"></span></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%">
+                                Children below 24 m at ART initiation
+                            </td>
+                            <td id="prevquart_children_below_24m_at_ART_ initiation"></td>
+                            <td id="prevcum_children_below_24m_at_ART_ initiation"></td>
+                            <td><span id="curquart_children_below_24m_at_ART_ initiation"></span></td>
+                           
+                            <td><span id="curcum_children_below_24m_at_ART_ initiation"></span></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%">
+                                Children 24 m - 14 yrs at ART initiation
+                            </td>
+                            <td id="prevquart_children_24m_14_yrs_at_ART_ initiation"></td>
+                            <td id="prevcum_children_24m_14_yrs_at_ART_ initiation"></td>
+                            <td><span id="curquart_children_24m_14_yrs_at_ART_ initiation"></span></td>
+                            
+                            <td><span id="curcum_children_24m_14_yrs_at_ART_ initiation"></span></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%">
+                                Adults 15 years or older at ART initiation
+                            </td>
+                            <td id="prevquart_adults_15_years_or_older_at_ART_ initiation"></td>
+                            <td id="prevcum_adults_15_years_or_older_at_ART_ initiation"></td>
+                            <td><span id="curquart_adults_15_years_or_older_at_ART_ initiation"></span></td>
+                            <td><span id="curcum_adults_15_years_or_older_at_ART_ initiation"></span></td>
+                        </tr>
+                        <tr><td colspan="9"><hr size="1" width="100%" /></td></tr>
+                        <tr>
+                            <td style="width: 50%">
+                                Unknown age
+                            </td>
+                            <td id="prevquart_unknown_age"></td>
+                            <td id="prevcum_unknown_age"></td>
+                            <td><span id="curquart_unknown_age"></span></td>
+                            <td><span id="curcum_unknown_age"></span></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%">
+                                 Pres. Sev. HIV disease age < 12 m
+                            </td>
+                            <td id="prevquart_pres_sev_HIV_disease_age<12m"></td>
+                            <td id="prevcum_pres_sev_HIV_disease_age<12m"></td>
+                            <td><span id="curquart_prev_pres_sev_HIV_disease_age<12m"></span></td>
+                            
+                            <td><span id="curcum_prev_pres_sev_HIV_disease_age<12m"></span></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%">
+                                Infants < 12 mths PCR+
+                            </td>
+                            <td id="prevquart_infants<12mths_PCR"></td>
+                            <td id="prevcum_infants<12mths_PCR"></td>
+                            <td><span id="curquart_infants<12mths_PCR"></span></td>
+                            <td><span id="curcum_infants<12mths_PCR"></span></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%">
+                                Children 12-59 mths
+                            </td>
+                            <td id="prevquart_children_12_59_mths"></td>
+                            <td id="prevcum_children_12_59_mths"></td>
+                            <td><span id="curquart_children_12_59_mths"></span></td>
+                            <td><span id="curcum_children_12_59_mths"></span></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%">
+                                Pregnant women
+                            </td>
+                            <td id="prevquart_pregnant_women"></td>
+                            <td id="prevcum_pregnant_women"></td>
+                            <td><span id="curquart_pregnant_women"></span></td>
+                            <td><span id="curcum_pregnant_women"></span></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%">
+                                Breastfeeding mothers
+                            </td>
+                            <td id="prevquart_breastfeeding_mothers"></td>
+                            <td id="prevcum_breastfeeding_mothers"></td>
+                            <td><span id="curquart_breastfeeding_mothers"></span></td>
+                            <td><span id="curcum_breastfeeding_mothers"></span></td>
+
+                        </tr>
+                        <tr>
+                            <td style="width: 50%">
+                                CD4 below threshold
+                            </td>
+                            <td id="prevquart_cd4_below_threshold"></td>
+                            <td id="prevcum_cd4_below_threshold"></td>
+                            <td><span id="curquart_cd4_below_threshold"></span></td>
+                            <td><span id="curcum_cd4_below_threshold"></span></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%">
+                                Asymptomatic / mild
+                            </td>
+                            <td id="prevquart_asymptomatic_mild"></td>
+                            <td id="prevcum_asymptomatic_mild"></td>
+                            <td><span id="curquart_asymptomatic_mild"></span></td>
+                            <td><span id="curcum_asymptomatic_mild"></span></td>
+                        </tr>
+                        <tr><td colspan="9"><hr size="1" width="100%" /></td></tr>
+                        <tr>
+                            <td style="width: 50%">
+                                 WHO stage 3
+                            </td>
+                            <td id="prevquart_who_stage3"></td>
+                            <td id="prevcum_who_stage3"></td>
+                            <td><span id="curquart_who_stage3"></span></td>
+                            <td><span id="curcum_who_stage3"></span></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%">
+                                WHO stage 4
+                            </td>
+                            <td id="prevquart_who_stage4"></td>
+                            <td id="prevcum_who_stage4"></td>
+                            <td><span id="curquart_who_stage4"></span></td>
+                            <td><span id="curcum_who_stage4"></span></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%">
+                                Unknown / reason outside guidelines
+                            </td>
+                           <td id="prevquart_unknown_outside_guidelines"></td>
+                           <td id="prevcum_unknown_outside_guidelines"></td>
+                            <td><span id="curquart_unknown_outside_guidelines"></span></td>
+                            <td><span id="curcum_unknown_outside_guidelines"></span></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%">
+                                Never TB or TB over 2 years ago
+                            </td>
+                            <td id="prevquart_never_tb"></td>
+                            <td id="prevcum_never_tb"></td>
+                            <td><span id="curquart_never_tb"></span></td>
+                            <td><span id="curcum_never_tb"></span></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%">
+                                TB within the last 2 years 
+                            </td>
+                            <td id="prevquart_tb_within_the_last_2yrs"></td>
+                            <td id="prevcum_tb_within_the_last_2yrs"></td>
+                            <td><span id="curquart_tb_within_the_last_2yrs"></span></td>
+                            <td><span id="curcum_tb_within_the_last_2yrs"></span></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%">
+                                Current episode of TB 
+                            </td>
+                            <td id="prevquart_current_episode_of_tb"></td>
+                            <td id="prevcum_current_episode_of_tb"></td>
+                            <td><span id="curquart_current_episode_of_tb"></span></td>
+                            <td><span id="curcum_current_episode_of_tb"></span></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%">
+                                 Kaposi's Sarcoma
+                            </td>
+                            <td id="prevquart_kaposi_sarcoma"></td>
+                            <td id="prevcum_kaposi_sarcoma"></td>
+                            <td><span id="curquart_kaposi_sarcoma"></span></td>
+                            <td><span id="curcum_kaposi_sarcoma"></span></td>
+                        </tr>
+                        
+                </tbody>
+            </table>
+           
+                <!--
+                table.style.width = "100%";
+                
+                table.style.border = "thick solid black";
+                
+                __$('list').appendChild(table);
+
+                for(var i = 0; i < result.length; i++){
+                    var row = document.createElement('tr');
+
+                    table.appendChild(row);
+
+                    var td1 = document.createElement('td');
+                    
+                    td1.innerHTML =  i + 1;
+                    td1.innerHTML =  result[i]['name'].gsub('_',' ');
+                    row.appendChild(td1);
+
+                    var td2 = document.createElement('td');
+                    
+                    td2.innerHTML = result[i]['contents'];
+                    row.appendChild(td2);
+
+                    var td3 = document.createElement('td');
+                    
+                    td3.innerHTML = result[i]['contents'];
+                    row.appendChild(td3); -->
+        </div>
+        </td>
+        <div id="footer" class="dark">
+
+            <div id="buttons" class="buttons" style="top:0px">
+                <button id="logout" class="green left" style="position :relative; float:right;"><span>Finish</span></button>
+               
+                
+            </div>
+        </div>
+    
+
+<script type="text/javascript">
+   // alert("hello")
+</script>
+
+<script type="text/javascript">
+
+    function __$(id){
+        return document.getElementById(id);
+    }
+  
+   
+    function compare(){
+        
+        var prevquart_desc = "<%= @quarter %>";
+        var prevcum_desc = "<%= @quarter %>";
+        var currquart_desc = "<%= @quart %>";
+        var currcum_desc = "<%= @quart %>";
+        var result = <%= @results %>;
+        
+        
+        for(var i = 0; i < result.length; i++){
+           
+           
+                    //for previous Quarter-Quarterly
+                    if (result[i]["description"] == prevquart_desc ){
+
+                        var indicator = result[i]['name']
+                        
+                        if (indicator.toLowerCase() == "total registered"){
+                                document.getElementById('prevquart_total_registered').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "patients re-initiated on art"){
+                                document.getElementById('prevquart_patients_re_initiated_on_ART').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "patients initiated on art first time"){
+                                document.getElementById('prevquart_patients_initiated_on_ART_first_time').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "who stage 3"){
+                                document.getElementById('prevquart_who_stage3').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "patients transferred in on art"){
+                                document.getElementById('prevquart_patients_transferred_in_on_ART').innerHTML = result[i]['contents'];
+                        }
+
+                         if (indicator.toLowerCase() == "males (all ages)"){
+                                document.getElementById('prevquart_males_all_ages').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "fnp: non-pregnant females (all ages)"){
+                                document.getElementById('prevquart_non_pregnant_females').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "children below 24 m at art initiation"){
+                                document.getElementById('prevquart_children_below_24m_at_ART_ initiation').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "children below 24 m at art initiation"){
+                                document.getElementById('prevquart_children_below_24m_at_ART_ initiation').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "children 24 m - 14 yrs at art initiation"){
+                                document.getElementById('prevquart_children_24m_14_yrs_at_ART_ initiation').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "adults 15 years or older at art initiation"){
+                                document.getElementById('prevquart_adults_15_years_or_older_at_ART_ initiation').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "unknown age"){
+                                document.getElementById('prevquart_unknown_age').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "pcr:infants < 12 mths pcr+"){
+                                document.getElementById('prevquart_infants<12mths_PCR').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "children 12-59 mths"){
+                                document.getElementById('prevquart_children_12_59_mths').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "pregnant women"){
+                                document.getElementById('prevquart_pregnant_women').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "breastfeeding mothers"){
+                                document.getElementById('prevquart_breastfeeding_mothers').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == " cd4 below threshold"){
+                                document.getElementById('prevquart_cd4_below_threshold').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "asy:asymptomatic/mild"){
+                                document.getElementById('prevquart_asymptomatic_mild').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "who stage 4"){
+                                document.getElementById('prevquart_who_stage4').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "unknown / reason outside guidelines"){
+                                document.getElementById('prevquart_unknown_outside_guidelines').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "never tb or tb over 2 years ago"){
+                                document.getElementById('prevquart_never_tb').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "tb within the last 2 years"){
+                                document.getElementById('prevquart_tb_within_the_last_2yrs').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "current episode of tb"){
+                                document.getElementById('prevquart_current_episode_of_tb').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "kaposi's sarcoma"){
+                                document.getElementById('prevquart_kaposi_sarcoma').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative female pregnant patients (all ages)"){
+                                document.getElementById('prevquart_pregnant_females').innerHTML = result[i]['contents'];
+                        }
+
+                       
+
+                        if (indicator.toLowerCase() == "pres.sev.hiv disease age < 12 m"){
+                                 document.getElementById('prevquart_pres_sev_HIV_disease_age').innerHTML = result[i]['contents'];
+                         }
+
+
+                    }
+
+                    if (result[i]["description"] == currquart_desc) {
+                         var indicator = result[i]['name']
+                        
+                        if (indicator.toLowerCase() == "total registered"){
+                                document.getElementById('curquart_total_registered').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "kaposi's sarcoma"){
+                                document.getElementById('curquart_kaposi_sarcoma').innerHTML = result[i]['contents'];
+                        }
+
+
+                        if (indicator.toLowerCase() == "patients initiated on art first time"){
+                                document.getElementById('curquart_patients_initiated_on_ART_first_time').innerHTML = result[i]['contents'];
+                        }
+
+                         if (indicator.toLowerCase() == "who stage 3"){
+                                document.getElementById('curquart_who_stage3').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "patients transferred in on art"){
+                                document.getElementById('curquart_patients_transferred_in_on_ART').innerHTML = result[i]['contents'];
+                        }
+
+                         if (indicator.toLowerCase() == "males (all ages)"){
+                                document.getElementById('curquart_males_all_ages').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "fnp: non-pregnant females (all ages)"){
+                                document.getElementById('curquart_non_pregnant_females').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "children below 24 m at art initiation"){
+                                document.getElementById('curquart_children_below_24m_at_ART_ initiation').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "children below 24 m at art initiation"){
+                                document.getElementById('curquart_children_below_24m_at_ART_ initiation').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "children 24 m - 14 yrs at art initiation"){
+                                document.getElementById('curquart_children_24m_14_yrs_at_ART_ initiation').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "adults 15 years or older at art initiation"){
+                                document.getElementById('curquart_adults_15_years_or_older_at_ART_ initiation').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "unknown age"){
+                                document.getElementById('curquart_unknown_age').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "pcr:infants < 12 mths pcr+"){
+                                document.getElementById('curquart_infants<12mths_PCR').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "children 12-59 mths"){
+                                document.getElementById('curquart_children_12_59_mths').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "pregnant women"){
+                                document.getElementById('curquart_pregnant_women').innerHTML = result[i]['contents'];
+                        }
+
+
+
+                        if (indicator.toLowerCase() == "breastfeeding mothers"){
+                                document.getElementById('curquart_breastfeeding_mothers').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == " cd4 below threshold"){
+                                document.getElementById('curquart_cd4_below_threshold').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "asy:asymptomatic/mild"){
+                                document.getElementById('curquart_asymptomatic_mild').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "who stage 4"){
+                                document.getElementById('curquart_who_stage4').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "unknown / reason outside guidelines"){
+                                document.getElementById('curquart_unknown_outside_guidelines').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "never tb or tb over 2 years ago"){
+                                document.getElementById('curquart_never_tb').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "tb within the last 2 years"){
+                                document.getElementById('curquart_tb_within_the_last_2yrs').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "current episode of tb"){
+                                document.getElementById('curquart_current_episode_of_tb').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "kaposi's sarcoma"){
+                                document.getElementById('curquart_kaposi_sarcoma').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative female pregnant patients (all ages)"){
+                                document.getElementById('curquart_pregnant_females').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative patients re-initiated on art"){
+                                document.getElementById('curquart_patients_re_initiated_on_ART').innerHTML = result[i]['contents'];
+                        }
+
+                       
+                        // if (indicator.toLowerCase() == "pres. sev. hiv disease age < 12 m"){
+                        //         document.getElementById('curquart_pres_sev_HIV_disease_age').innerHTML = result[i]['contents'];
+                        // }
+                    }
+
+                    //Previous Quarter-cumulative
+
+                    if (result[i]["description"] == prevcum_desc) {
+                         var indicator = result[i]['name']
+                        
+                        if (indicator.toLowerCase() == "cumulative total registered"){
+                                document.getElementById('prevcum_total_registered').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative patients initiated on art first time"){
+                                document.getElementById('prevcum_patients_initiated_on_ART_first_time').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative patients transferred in on art "){
+                                document.getElementById('prevcum_patients_transferred_in_on_ART').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative patients re-initiated on art"){
+                                document.getElementById('prevcum_patients_re_initiated_on_ART').innerHTML = result[i]['contents'];
+                        }
+
+
+                        if (indicator.toLowerCase() == "cumulative males (all ages)"){
+                                document.getElementById('prevcum_males_all_ages').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative fnp:non-pregnant females (all ages)"){
+                                document.getElementById('prevcum_non_pregnant_females').innerHTML = result[i]['contents'];
+                        }
+
+                         if (indicator.toLowerCase() == "cumulative pcr:infants < 12 mths pcr+"){
+                                document.getElementById('prevcum_infants<12mths_PCR').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative female pregnant patients (all ages)"){
+                                document.getElementById('prevcum_non_pregnant_females').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative female pregnant patients (all ages)"){
+                                document.getElementById('prevcum_non_pregnant_females').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative female pregnant patients (all ages)"){
+                                document.getElementById('prevcum_non_pregnant_females').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative fnp:non-pregnant females (all ages)"){
+                                document.getElementById('prevcum_non_pregnant_females').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative children below 24 m at art initiation"){
+                                document.getElementById('prevcum_children_below_24m_at_ART_ initiation').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative children 24 m - 14 yrs at art initiation"){
+                                document.getElementById('prevcum_children_24m_14_yrs_at_ART_ initiation').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative adults 15 years or older at art initiation"){
+                                document.getElementById('prevcum_adults_15_years_or_older_at_ART_ initiation').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative unknown age"){
+                                document.getElementById('prevcum_unknown_age').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative Pres.Sev.HIV disease age < 12 m"){
+                                document.getElementById('prevcum_pres_sev_HIV_disease_age<12m').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative pcr: infants <12 mths pcr+"){
+                                document.getElementById('prevcum_infants<12mths_PCR').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative children 12-59 months"){
+                                document.getElementById('prevcum_children_12_59_mths').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative pregnant women"){
+                                document.getElementById('prevcum_pregnant_women').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative breastfeeding mothers "){
+                                document.getElementById('prevcum_breastfeeding_mothers').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative cd4 below threshold"){
+                                document.getElementById('prevcum_cd4_below_threshold').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative cd4 below threshold"){
+                                document.getElementById('prevcum_cd4_below_threshold').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative asymptomatic/mild"){
+                                document.getElementById('prevcum_asymptomatic_mild').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative who stage 3"){
+                                document.getElementById('prevcum_who_stage3').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative  who stage 4"){
+                                document.getElementById('prevcum_who_stage4').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative unknown / reason outside guidelines"){
+                                document.getElementById('prevcum_unknown_outside_guidelines').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative never tb or tb over 2 years ago"){
+                                document.getElementById('prevcum_never_tb').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative tb within the last 2 years"){
+                                document.getElementById('prevcum_tb_within_the_last_2yrs').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative current episode of tb"){
+                                document.getElementById('prevcum_current_episode_of_tb').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative kaposi's sarcoma"){
+                                document.getElementById('prevcum_kaposi_sarcoma').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative female pregnant patients (all ages)"){
+                                document.getElementById('prevcum_pregnant_females').innerHTML = result[i]['contents'];
+                        }
+
+                        
+
+
+
+
+
+
+                       
+                        
+                    }
+
+                    if (result[i]["description"] == currcum_desc) {
+                         var indicator = result[i]['name']
+                        
+                        if (indicator.toLowerCase() == "cumulative total registered"){
+                                document.getElementById('curcum_total_registered').innerHTML = result[i]['contents'];
+                        }
+
+                         if (indicator.toLowerCase() == "cumulative patients initiated on art first time"){
+                                document.getElementById('curcum_patients_initiated_on_ART_first_time').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative patients re-initiated on art"){
+                                document.getElementById('curcum_patients_re_initiated_on_ART').innerHTML = result[i]['contents'];
+                        }
+
+
+                        if (indicator.toLowerCase() == "cumulative patients transferred in on art "){
+                                document.getElementById('curcum_patients_transferred_in_on_ART').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative males (all ages)"){
+                                document.getElementById('curcum_males_all_ages').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative fnp:non-pregnant females (all ages)"){
+                                document.getElementById('curcum_non_pregnant_females').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative female pregnant patients (all ages)"){
+                                document.getElementById('curcum_pregnant_females').innerHTML = result[i]['contents'];
+                        }
+
+                        
+
+                       
+
+                       
+
+                        if (indicator.toLowerCase() == "cumulative children below 24 m at art initiation"){
+                                document.getElementById('curcum_children_below_24m_at_ART_ initiation').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative children 24 m - 14 yrs at art initiation"){
+                                document.getElementById('curcum_children_24m_14_yrs_at_ART_ initiation').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative adults 15 years or older at art initiation"){
+                                document.getElementById('curcum_adults_15_years_or_older_at_ART_ initiation').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative unknown age"){
+                                document.getElementById('curcum_unknown_age').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative Pres.Sev.HIV disease age < 12 m"){
+                                document.getElementById('curcum_pres_sev_HIV_disease_age<12m').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "Cumulative PCR: Infants < 12 mths PCR+"){
+                                document.getElementById('curcum_infants<12mths_PCR').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative children 12-59 months"){
+                                document.getElementById('curcum_children_12_59_mths').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative pregnant women"){
+                                document.getElementById('curcum_pregnant_women').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative breastfeeding mothers "){
+                                document.getElementById('curcum_breastfeeding_mothers').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative cd4 below threshold"){
+                                document.getElementById('curcum_cd4_below_threshold').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative cd4 below threshold"){
+                                document.getElementById('curcum_cd4_below_threshold').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative asymptomatic/mild"){
+                                document.getElementById('curcum_asymptomatic_mild').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative who stage 3"){
+                                document.getElementById('curcum_who_stage3').innerHTML = result[i]['contents'];
+                        }
+
+                       if (indicator.toLowerCase() == "cumulative  who stage 4"){
+                                document.getElementById('curcum_who_stage4').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative unknown / reason outside guidelines"){
+                                document.getElementById('curcum_unknown_outside_guidelines').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative never tb or tb over 2 years ago"){
+                                document.getElementById('curcum_never_tb').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative tb within the last 2 years"){
+                                document.getElementById('curcum_tb_within_the_last_2yrs').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative current episode of tb"){
+                                document.getElementById('curcum_current_episode_of_tb').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative kaposi's sarcoma"){
+                                document.getElementById('curcum_kaposi_sarcoma').innerHTML = result[i]['contents'];
+                        }
+
+
+
+                        
+                        
+                    }
+
+                    //for previous Quarter-Cumulative
+                    
+
+                    //for Current Quarter-Quarterly
+                    
+
+                    // Current Quarter_Cumulative
+                             
+                    
+                }
+    }
+    window.load = compare();
+</script>
+
+
+</body>
+
+</html>
+

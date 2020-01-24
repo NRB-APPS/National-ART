@@ -1,0 +1,153 @@
+<style>
+  .tt_controls_scan_delivery_barcode .keyboard {
+    display: none;
+  }
+
+  #tt_page_scan_delivery_barcode .touchscreenTextInput {
+    position: absolute;
+    top: 80px;
+  }
+
+  #Unknown {
+    display: none;
+  }
+
+
+  #newText {
+    top: 40%;
+    left: 40%;
+    margin-top: -200px;
+    margin-left: -250px;
+    position: absolute;
+    margin-right: auto;
+    width: 800px;
+    height: 38px;
+    padding-bottom: 10px;
+    font-size: 2em;
+    text-align: left;
+    background-color: white;
+    padding: 10px;
+    z-index: 999;
+    border: 5px outset tomato;
+    border-radius: 15px;
+    z-index: 900;
+    display: none;
+  }
+
+
+  #small {
+    font-size: 19px;
+    margin-left: 15px;
+  }
+
+  .bar {
+    left: 31%;
+    width: 450px;
+    position: absolute;
+    top: 23%;
+    font-size: 1.9em;
+    text-align: center;
+    background-color: tomato;
+    padding: 10px;
+    z-index: 999;
+    border: 5px outset tomato;
+    display: none;
+    border-radius: 15px;
+  }
+
+  .bar button {
+    font-size: 0.7em;
+    margin: 5px;
+  }
+  .barcode{
+    position: absolute;
+    left: 26%;
+    width: 5%;
+    top: 24%;
+    width: 100px;
+  }
+
+  .inputFrameClass {
+    background-color: white !important;
+
+}
+</style>
+<%= javascript_include_tag 'jquery' %>
+<script>
+  jQuery(document).ready(function ($) {
+
+    $("#barcode").keydown(function (event) {
+      // alert("here")
+      if ($.inArray(event.keyCode, [46, 8, 9, 27, 13, 190]) !== -1 ||
+        (event.keyCode == 65 && event.ctrlKey === true) ||
+        (event.keyCode >= 35 && event.keyCode <= 39)) {
+        return;
+      }
+      else {
+        if (event.shiftKey || (event.keyCode < 48 || event.keyCode > 57) && (event.keyCode < 96 || event.keyCode > 105 )) {
+          event.preventDefault();
+        }
+      }
+    });
+  });
+  var returning = false;
+</script>
+<script language="javascript">
+  var tt_cancel_destination = '/clinic';  // /management';
+
+  function loadBarcodePage() {
+    focusForBarcodeInput();
+    moveNext();
+  }
+
+  function formatBarcodeSpace(){
+
+    __$('inputFrame' + tstCurrentPage).style.background = "white";
+    __$('inputFrame' + tstCurrentPage).style.marginTop = "6%";
+    __$('page' + tstCurrentPage).style.marginTop = "2.5%";
+    __$('inputFrame' + tstCurrentPage).style.border = "hidden";
+
+    var barcode = document.getElementById("touchscreenInput0");
+    var helptext = __$("helpText" + tstCurrentPage);
+
+    barcode.style.width = "400px"
+    barcode.style.fontSize = "50px"
+    barcode.style.marginLeft = "33%";
+    barcode.style.height = "80px";
+
+    helptext.style.marginLeft = "32.5%";
+
+    __$("nextButton").innerHTML = "<span>Continue</span>"
+  }
+
+  function focusForBarcodeInput() {
+    var barcode = document.getElementById("touchscreenInput0");
+    if (barcode) {
+      barcode.focus();
+      //window.setTimeout("focusForBarcodeInput()", setFocusTimeout);
+    }
+    window.setTimeout("focusForBarcodeInput()", setFocusTimeout);
+  }
+
+
+  function moveNext() {
+    usertext = document.getElementById("touchscreenInput0");
+    if (usertext && usertext.value.match(/.+\$$/i) != null) {
+      usertext.value = usertext.value.substring(0, usertext.value.length - 1);
+      gotoNextPage();
+    }
+    window.setTimeout("moveNext()", checkForBarcodeTimeout);
+  }
+  window.addEventListener("load", loadBarcodePage, false);
+
+</script>
+
+<form  action="/patients/dde_duplicates" method="GET">
+  <%= text_field_tag :identifier, '', {
+    :tt_onLoad => "returning = false; $('keyboard').style.display = 'none'; formatBarcodeSpace()",
+    :id => 'barcode',
+    :class => 'touchscreenTextInput',
+    :helpText => 'Scan patient barcode to continue',
+    :style => 'position:absolute'}
+%>
+</form>

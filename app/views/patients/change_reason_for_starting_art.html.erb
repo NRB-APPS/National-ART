@@ -1,0 +1,15 @@
+<script>
+var tt_cancel_destination = "/patients/mastercard?patient_id=<%=@patient.patient_id%>";
+</script>
+
+
+
+<form action="/patients/change_reason_for_starting_art" method='post'>
+
+  <%= touch_select_tag "Reason for ART eligibility", @patient,
+    options_for_select(@reasons_for_starting_art),
+    { :id => "reason", :helpText => "Edit reason for starting ART"} %>
+
+  
+  <input type="hidden" name="patient_id" value="<%=@patient.patient_id%>" />
+</form>

@@ -1,0 +1,40 @@
+
+<%= javascript_include_tag 'jquery' %>
+
+<script language="javascript">
+  var tt_cancel_destination = '/clinic'; 
+
+<% options = "<option>" "" "</option>"
+@formatted.each{|drug|
+  next if @cms_drugs[drug].blank?
+  options += "<option value = '#{drug}'>#{@cms_drugs[drug]}</option>"
+}
+
+%>
+</script>
+
+<style type="text/css">
+  #tt_page_select_product .options{
+    height: 297px;
+  }
+</style>
+
+<form method="POST" action="/clinic/select_pharmacy_obs_date">
+
+  <%= select_tag "drug_name", options,
+    {
+    :id => "select_drugs",
+    :field_type => 'alpha',
+    :helpText => "Select product"
+
+  } %>
+
+  <%= select_tag "verification", options_for_select(['', 'Clinic', 'Supervision']),
+    {
+    :id => "verification_type",
+    :helpText => "Verification Type"
+
+  } %>
+
+</form>
+

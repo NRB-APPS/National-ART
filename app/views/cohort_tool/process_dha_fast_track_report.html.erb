@@ -1,0 +1,329 @@
+<%=javascript_include_tag "jquery.table2CSV.min" %>
+<style type="text/css">
+  #loader{
+    display: none;
+    position: absolute;
+    left: 40%;
+    color: green;
+    position: absolute;
+    top: 30%;
+  }
+
+  .fast-track{
+    height: 480px;
+    overflow: auto;
+  }
+
+  .right{
+    text-align: right;
+
+  }
+  .center{
+    text-align: center;
+  }
+
+  #summary{
+    width: 60%;
+    margin-left: 85%;
+    display: none;
+  }
+
+  .page-number, .total-pages{
+    font-weight: bold;
+  }
+
+  #cover{
+    display:none;
+    position: absolute;
+    background-color: black;
+    width: 100%;
+    height: 102%;
+    left: 0%;
+    top: 0%;
+    z-index: 990;
+    opacity: 0.5;
+  }
+</style>
+
+<%= image_tag(@logo, :class => "logo")%>
+<br />
+<div style="padding-left: 50px; position: absolute; left: 10%; top: 50px;">
+  <b><%= @location_name %></b><br />
+  <b>FAST Track Report</b><br />
+  <b>From: <%=@start_date.strftime("%d-%m-%Y")%> </b><br />
+  <b>To: <%=@end_date.strftime("%d-%m-%Y")%></b><br />
+</div>
+<hr />
+
+<div id="summary">
+  Displaying page <span class="page-number">&nbsp;</span> of <span class="total-pages">&nbsp;</span>
+  <br />
+</div>
+
+<div class="fast-track">
+  <table class="display dha-data" style="width: 100%;">
+    <thead>
+      <tr>
+        <th>Age</th>
+        <th>TB status</th>
+        <th>Regimen</th>
+        <th>VL Result</th>
+        <th>Adherence</th>
+        <th>Side Effects</th>
+        <th>Hypertension</th>
+      </tr>
+    </thead>
+    <tbody id="fast-track-data">
+
+    </tbody>
+  </table>
+</div>
+<hr />
+
+<div id="loader" class="blink">
+  <h3>Loading data. Please wait.............</h3>
+</div>
+
+<div id="cover">
+
+</div>
+<script type="text/javascript">
+  var start_date = "<%= @start_date %> ";
+  var end_date = "<%= @end_date %>";
+  var current_page = 1;
+  var total_entries = 0;
+  var total_pages = 0;
+
+  window.onload = function(){
+    jQuery.ajax({
+      type: "POST",
+      url: "/report/get_dha_fast_track_data",
+      data: "start_date=" + start_date + "&end_date=" + end_date + "&page=" + current_page,
+      beforeSend: function(){
+        jQuery("#loader").show();
+        jQuery('.blink').each(function() {
+          var elem = $(this);
+          setInterval(function() {
+            if (elem.css('visibility') == 'hidden') {
+              elem.css('visibility', 'visible');
+            } else {
+              elem.css('visibility', 'hidden');
+            }
+          }, 500);
+        });
+      },
+      success: function(result){
+        result = JSON.parse(result);
+        summaries = result["summaries"];
+
+        current_page = summaries["current_page"];
+        total_entries = summaries["total_entries"];
+        total_pages = summaries["total_pages"];
+
+        html = "";
+        for (var encounterID in result["patients"]){
+          age = result["patients"][encounterID]["age"];
+          tb_status = result["patients"][encounterID]["tb_status"];
+          regimen = result["patients"][encounterID]["regimen"];
+          vl_result = result["patients"][encounterID]["vl_result"];
+          vl_result = escapeHtml(vl_result);
+          adherence = result["patients"][encounterID]["adherence"];
+          side_effects = result["patients"][encounterID]["side_effects"];
+          hypertension = result["patients"][encounterID]["hypertension"];
+
+          html += "<tr>";
+          html += "<td class='right'>" + age + "</td>";
+          html += "<td class='center'>" + tb_status + "</td>";
+          html += "<td class='center'>" + regimen + "</td>";
+          html += "<td class='center'>" + vl_result + "</td>";
+          html += "<td class='center'>" + adherence + "</td>";
+          html += "<td class='center'>" + side_effects + "</td>";
+          html += "<td class='center'>" + hypertension + "</td>";
+          html += "</tr>";
+
+        }
+        jQuery('.blink').hide();
+        jQuery(".page-number").html(current_page);
+        jQuery(".total-pages").html(total_pages);
+        jQuery("#summary").show();
+
+        jQuery("#fast-track-data").html(html);
+
+
+        addNavigationButtons();
+        disableEnableButtons();
+      }
+
+    })
+    addExportButton();
+  }
+
+  function addNavigationButtons(){
+    navButtons = jQuery(".nav-buttons");
+    if (navButtons.length == 0){
+      firstPageButton = '<button id="firstPage" class="gray left nav-buttons" style="position :relative;" onmousedown="showPage(&apos;first&apos;);"><span> First Page </span></button>';
+      prevPageButton = '<button id="prevPage" class="gray left nav-buttons" style="position :relative;" onmousedown="showPage(&apos;prev&apos;);"><span> << Prev Page </span></button>';
+      nextPageButton = '<button id="nextPage" class="green left nav-buttons" style="position :relative; " onmousedown="showPage(&apos;next&apos;);"><span> >> Next Page </span></button>';
+      lastPageButton = '<button id="lastPage" class="blue left nav-buttons" style="position :relative;" onmousedown="showPage(&apos;last&apos;);"><span> Last Page </span></button>';
+
+      jQuery(".buttons").append(firstPageButton);
+      jQuery(".buttons").append(prevPageButton);
+      jQuery(".buttons").append(nextPageButton);
+      jQuery(".buttons").append(lastPageButton);
+    }
+  }
+
+  function showCover(){
+    jQuery("#cover").show();
+  }
+  
+  function hideCover(){
+    jQuery("#cover").hide();
+  }
+
+  function showPage(page){
+    current_page = parseInt(current_page);
+    total_entries = parseInt(total_entries);
+    total_pages = parseInt(total_pages);
+
+    if (page == 'first'){
+      current_page = 1;
+    }
+
+    if (page == 'prev'){
+      current_page = current_page  - 1;
+    }
+
+    if (page == 'next'){
+      current_page = current_page + 1;
+    }
+
+    if (page == 'last'){
+      current_page = total_pages;
+    }
+
+    jQuery.ajax({
+      type: "POST",
+      url: "/report/get_dha_fast_track_data",
+      data: "start_date=" + start_date + "&end_date=" + end_date + "&page=" + current_page,
+      beforeSend: function(){
+        jQuery("#fast-track-data").html('');
+        jQuery("#loader").show();
+        jQuery('.blink').each(function() {
+          var elem = $(this);
+          setInterval(function() {
+            if (elem.css('visibility') == 'hidden') {
+              elem.css('visibility', 'visible');
+            } else {
+              elem.css('visibility', 'hidden');
+            }
+          }, 500);
+        });
+        showCover();
+      },
+      success: function(result){
+        result = JSON.parse(result);
+        summaries = result["summaries"];
+
+        current_page = summaries["current_page"];
+        total_entries = summaries["total_entries"];
+        total_pages = summaries["total_pages"];
+
+        html = "";
+        for (var encounterID in result["patients"]){
+          age = result["patients"][encounterID]["age"];
+          tb_status = result["patients"][encounterID]["tb_status"];
+          regimen = result["patients"][encounterID]["regimen"];
+          vl_result = result["patients"][encounterID]["vl_result"];
+          vl_result = escapeHtml(vl_result);
+          adherence = result["patients"][encounterID]["adherence"];
+          side_effects = result["patients"][encounterID]["side_effects"];
+          hypertension = result["patients"][encounterID]["hypertension"];
+
+          html += "<tr>";
+          html += "<td class='right'>" + age + "</td>";
+          html += "<td class='center'>" + tb_status + "</td>";
+          html += "<td class='center'>" + regimen + "</td>";
+          html += "<td class='center'>" + vl_result + "</td>";
+          html += "<td class='center'>" + adherence + "</td>";
+          html += "<td class='center'>" + side_effects + "</td>";
+          html += "<td class='center'>" + hypertension + "</td>";
+          html += "</tr>";
+
+        }
+        jQuery('.blink').remove();
+        hideCover();
+        jQuery(".page-number").html(current_page);
+        jQuery(".total-pages").html(total_pages);
+        jQuery("#summary").show();
+
+        jQuery("#fast-track-data").html(html);
+
+        if (current_page == 1){
+          jQuery("#firstPage").removeClass("blue").addClass("gray");
+          jQuery("#prevPage").removeClass("green").addClass("gray");
+
+          jQuery("#nextPage").removeClass("gray").addClass("green");
+          jQuery("#lastPage").removeClass("gray").addClass("green");
+        }
+
+        if (current_page > 1){
+          jQuery("#firstPage").removeClass("gray").addClass("blue");
+          jQuery("#prevPage").removeClass("gray").addClass("green");
+
+          jQuery("#nextPage").removeClass("gray").addClass("green");
+          jQuery("#lastPage").removeClass("gray").addClass("green");
+        }
+        
+        if (current_page == total_pages){
+          jQuery("#firstPage").removeClass("gray").addClass("blue");
+          jQuery("#prevPage").removeClass("gray").addClass("green");
+          
+          jQuery("#nextPage").removeClass("green").addClass("gray");
+          jQuery("#lastPage").removeClass("green").addClass("gray");
+        }
+
+        disableEnableButtons();
+      }
+
+    })
+  }
+
+  function disableEnableButtons(){
+    jQuery('.nav-buttons').removeAttr("disabled");
+    jQuery(".gray").attr("disabled", true);
+  }
+
+
+  function addExportButton(){
+    exportButton = '<button class="green" style="float: right; min-width: 180px;" onmousedown="exportDataToCSV();"><span>Export To CSV</span></button>';
+    jQuery(".buttons").append(exportButton);
+  }
+
+  function exportDataToCSV(){
+    //$('#table_id').table2CSV({header:['Name','Birthdate','Gender','Primary Diagnosis','Secondary Diagnosis','Treatment','Visit Date']})
+    jQuery('.dha-data').table2CSV();
+
+  }
+
+  var entityMap = {
+    '<': 'Less than',
+    '<=': 'Less than or Equal to',
+    '>': 'Greater than',
+    '>=': 'Greater than or Equal to',
+    '=': 'Equal to'
+  };
+
+  function escapeHtml(string) {
+    if (string.length > 0){
+      key = string.replace(/[0-9]/g, '').trim();
+      value = entityMap[key];
+      result = string.replace(/[^\d.-]/g, ''); // gives "-12345.50"
+      vl_result_in_words = value + " " + result;
+      return vl_result_in_words;
+    }
+    return string
+  }
+
+
+</script>

@@ -1,0 +1,238 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Highcharts Example</title>
+
+    <!--script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script-->
+    <%=javascript_include_tag "Charts/Highcharts/jquery.min"%>
+    <%=javascript_include_tag "Charts/Highcharts/highstock"%>
+    <%=javascript_include_tag "Charts/Highcharts/exporting"%>
+
+    <script type="text/javascript">
+      var results = JSON.parse('<%= @stocks.to_json %>');
+      var drug = '<%= @drug_name %>';
+
+      function plotGraph(drug) {
+
+        $(function () {
+
+          //results = document.getElementById('results').value;
+          //results = JSON.parse(results);
+
+          // Create the chart
+          var unitQty = 60;
+          dates = Object.keys(results);
+          for (date_key in results){
+            unitQty = results[date_key]['pack_size'];
+            break;
+          }
+          unit = unitQty;
+
+          var labl = (unit == 1) ? " pills " : (" tins of " + unit);
+          $('#container-chart').highcharts('StockChart', {
+
+            rangeSelector: {
+              inputEnabled: $('#container').width() > 480,
+              selected: 1
+            },
+
+            title: {
+              text: 'Stock Movement Report For ' +drug
+            },
+            yAxis: {
+
+              title: { text: labl }
+            },
+            tooltip: {
+              shared: true,
+              useHTML: true,
+              valueSuffix: ' ',
+              formatter: function() {
+                var unit = unitQty;
+
+                var labl = (unit == 1) ? " pills " : (" tins of " + unit);
+
+                return '<span  style= "font-weight: bold; font-size : 10px;">' +
+                  'Date:  &nbsp&nbsp&nbsp&nbsp<span style="color: #097054; " >' + Highcharts.dateFormat('%A, %e %B %Y', this.x) + '</span> <br />' +
+                  'Stock Level:  &nbsp&nbsp&nbsp<span style="color: #097054; " >' + this.y + labl + '</span>'
+
+              }
+            },
+            series: [
+              {
+                id: drug,
+                name: drug,
+                data: dataG(),
+                negativeColor: 'red',
+                step: true
+              },
+
+              {
+                type: 'flags',
+                name: 'Stock fluctuations1',
+                data: deliveryFlags(),
+                onSeries: drug,
+                shape: 'flag',
+                y: -30,
+                fillColor : Highcharts.getOptions().colors[0]
+              },
+
+              {
+                type: 'flags',
+                name: 'Stock fluctuations2',
+                data: supervisionFlags(),
+                onSeries: drug,
+                shape: 'flag',
+                y: -40,
+                fillColor : Highcharts.getOptions().colors[0]
+              },
+
+              {
+                type: 'flags',
+                name: 'Stock fluctuations3',
+                data: relocationFlags(),
+                onSeries: drug,
+                shape: 'flag',
+                y: -50,
+                fillColor : Highcharts.getOptions().colors[3]
+              }
+            ],
+            exporting: { enabled: false },
+            credits: { enabled: false }
+          });
+
+        });
+      }
+
+      function deliveryFlags(){
+        var data = [];
+        //var r  = document.getElementById('results').value;
+        /*var r = results;
+        r = JSON.parse(r);
+
+        var dates = r["delivery_dates"];
+
+        for (var i in dates){
+          var date = new Date(dates[i])
+
+          data.push({x: Date.UTC(date.getFullYear(), (date.getMonth()), date.getDate()), title: "D"})
+        }*/
+
+        return data;
+      }
+
+      function supervisionFlags(){
+        var data3 = [];
+        /*var r  = document.getElementById('results').value;
+        r = JSON.parse(r);
+
+        var dates3 = r["supervision_dates"];
+
+        for (var i in dates3){
+          var date = new Date(dates3[i])
+
+          data3.push({x: Date.UTC(date.getFullYear(), (date.getMonth()), date.getDate()), title: "S"})
+        }*/
+
+        return data3;
+      }
+
+      function relocationFlags(){
+        var data2 = [];
+        /*var r2 = document.getElementById('results').value;
+        r2 = JSON.parse(r2);
+        var dates2 = r2["relocation_dates"];
+        for (var i in dates2){
+          var date = new Date(dates2[i]);
+          data2.push({x: Date.UTC(date.getFullYear(), (date.getMonth()), (date.getDate()) + 1), title: "L"})
+        }*/
+
+        return data2;
+      }
+
+      function dataG() {
+        //results = document.getElementById('results').value;
+        //results = JSON.parse(results);
+
+        data = []
+        dates = Object.keys(results);
+        for (i = 0; i < dates.length; i++){
+          date = new Date(dates[i])
+
+          data.push([Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) ,results[dates[i]]["stock_count"]])
+        }
+
+        return data.sort(function(a, b) {
+          return a[0] > b[0]?1:-1;
+        });
+      }
+      
+      function sort_results(myCoordinates)
+      {
+        myCoordinates.sort(function(a, b) {
+          return a[1] > b[1]?1:-1;
+        });
+      }
+
+      function display_report(){
+        document.getElementById("container-chart").style.display = 'block';
+        plotGraph(drug);
+      }
+      /*function display_report(){
+
+        var site = document.getElementById('sitename').value
+        var start_date = document.getElementById("start_date").value
+        var end_date = document.getElementById('end_date').value
+        var drug = document.getElementById('selection-label').innerHTML
+        //var qty = document.getElementById('qty').value
+
+        document.getElementById('wait').innerHTML = "Loading chart. Please wait ......";
+        document.getElementById("container-chart").style.display = 'none';
+
+        if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
+          xmlhttp=new XMLHttpRequest();
+        }else{// code for IE6, IE5
+          xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        xmlhttp.onreadystatechange=function() {
+          if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+            var results = xmlhttp.responseText;
+
+            document.getElementById('reporter').style.display = 'block';
+            if(results == 'undefined' || results == '' || results == 'null' || results == '"not validate"') {
+              document.getElementById('wait').innerHTML = "No records where found in this period";
+              return;
+            }else if(results.length > 0){
+              document.getElementById('wait').innerHTML = ""
+              document.getElementById('results').value = results;
+              document.getElementById("container-chart").style.display = 'block';
+              plotGraph(drug);
+            }else{
+              //document.getElementById('reporter').innerHTML = "....";
+              return;
+            }
+          }
+        }
+        xmlhttp.open("GET",'/report/stock_movement?site_id=' + site + "&start_date="+
+          start_date + "&end_date="+end_date + "&drug="+ drug ,true);
+        xmlhttp.send();
+      }*/
+    </script>
+
+
+  </head>
+  <body>
+
+
+    <div id="wait" >
+    </div>
+    <div id="container-chart" style="min-width: 400px; height: 550px; margin: 0 auto"></div>
+    <script>
+      display_report();
+    </script>
+  </body>
+</html>

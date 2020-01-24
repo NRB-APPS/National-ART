@@ -1,0 +1,19 @@
+development:
+  enable_lims: true
+  protocol: http
+  host: localhost
+  port: 3014
+  order_path: /create_hl7_order
+  query_path: /query_results/
+  district: Lilongwe
+  health_facility_name: Martin Preuss Centre
+  lims_national_dashboard_ip: http://localhost:8007
+  central_repo: http://localhost:3004
+  national-repo-node: http://localhost:3014
+  receiving_facility: Kamuzu Central Hospital
+  new_order_ip: http://localhost:4000
+test:
+  <<: *development
+
+production:
+  <<: *development

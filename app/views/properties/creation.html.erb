@@ -1,0 +1,63 @@
+<script>
+  tt_cancel_destination = "/clinic";
+
+  function setPropertyValue() {
+    if (document.getElementById('value').value == 'Yes') {
+      document.getElementById('property_value').value = 'yes';
+    }else if (document.getElementById('value').value == 'No') {
+      document.getElementById('property_value').value = 'no';
+    }
+  }
+</script>
+
+<% form_tag 'creation', :method => :post do %>
+  <%= select_tag("property", options_for_select([" ", "Yes", "No"]),
+    :tt_onUnLoad => "setPropertyValue()" ,
+    :id => 'value',
+    :helpText  => params[:value].gsub('_',' ').humanize) %>
+
+  <%
+  case params[:value]
+  when 'use_extended_staging_format'
+    property = 'use.extended.staging.questions'
+  when 'use_user_selected_activities'
+    property = 'use.user.selected.activities'
+  when 'use_filing_numbers'
+    property = 'use.filing.number'
+  when 'show_lab_results'
+    property = 'show.lab.results'
+  when 'ask_pills_remaining_at_home'
+    property = 'ask.pills.remaining.at.home'
+  when 'extended_family_planning'
+    property = 'extended.family.planning'
+  when 'confirm_before_creating_a_patient'
+    property = 'confirm.before.creating'
+  when 'enter_lab_results'
+    property = 'enter.lab.results'
+  when 'activate_viral_load_routine_check'
+    property = 'activate.vl.routine.check'
+  when 'activate_drug_management'
+    property = 'activate.drug.management'
+  when 'activate_hypertension_enhancement'
+    property = "activate.htn.enhancement"
+  when 'activate_cervical_cancer_screening'
+    property = "activate.cervical.cancer.screening"
+  when 'enable_fast_track'
+    property = "enable.fast.track"
+  when 'show_swap_button'
+    property = "show.swap.button"
+  when 'show_user_feedback'
+    property = "show.user.feedback"
+  when 'military_site'
+    property = "military.site"
+  end
+%>
+  <%= hidden_field_tag "property", property %>
+
+  <%= hidden_field_tag "property_value", nil %>
+
+  <% unless params[:view_configuration].blank? %>
+    <%= hidden_field_tag "view_configuration", params[:view_configuration] %>
+  <% end %>
+
+<%end%>

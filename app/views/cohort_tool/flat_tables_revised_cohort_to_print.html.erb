@@ -1,0 +1,2158 @@
+<style type="text/css" xmlns="http://www.w3.org/1999/html">
+    td {
+        padding: 12px;
+    }
+    .table-main {
+        width: 99%;
+        height: 100%;
+        border: 0;
+        border-spacing: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: smaller;
+        overflow: auto;
+        text-overflow: ellipsis;
+        margin: auto;
+        padding-bottom: 70px;
+        page-break-inside: auto;
+    }
+    .table-top {
+        page-break-inside: auto;
+        width: 99%;
+        border: 0;
+        border-spacing: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: smaller;
+        overflow: auto;
+        text-overflow: ellipsis;
+        margin: auto;
+        page-break-inside: auto;
+    }
+    .table-bottom {
+        page-break-inside: auto;
+        width: 99%;
+        border: 0;
+        border-spacing: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: large;
+
+        overflow: auto;
+        text-overflow: ellipsis;
+        margin: auto;
+        page-break-inside: auto;
+        padding-bottom: 70px;
+    }
+    .border-null {
+        border: none;
+    }
+    .text-bold {
+        font-weight: bold;
+    }
+    .text-center {
+        text-align: center;
+    }
+    .text-italic {
+        font-style: italic;
+    }
+    .text-smaller {
+        font-size: smaller;
+    }
+    .index {
+        border: none;
+        width: 2%;
+    }
+    .border-null-right {
+        border-right: none;
+    }
+    .border-null-left {
+        border-left: none;
+    }
+    .border-null-top {
+        border-top: none;
+    }
+    .border-null-bottom {
+        border-bottom: none;
+    }
+    .border-left-dotted {
+        border-left-style: dotted;
+    }
+    .border-right-dotted {
+        border-right-style: dotted;
+    }
+    .border-bottom-dotted {
+        border-bottom-style: dotted;
+    }
+    .border-top-dotted {
+        border-top-style: dotted;
+    }
+    .button-print {
+        background-color: green;
+        font-size: 54px;
+        color: white;
+        float: right;
+        border: 5px solid grey;
+        padding-left: 20px;
+        padding-right: 20px;
+        border-radius: 25px;
+    }
+    .row-button-print {
+        position: fixed;
+        left: 0px;
+        bottom: 0px;
+        width: 100%;
+        background-color: rgb(51,51,51);
+    }
+    .row-break {
+        line-height: 1px;
+    }
+    .clinic-head {
+        width: 10% !important;
+    }
+    .clinic-description {
+        width: 23%;
+    }
+    .clinic-result {
+        width: 16%;
+    }
+    .column-break {
+        width: 1%;
+        border: none;
+    }
+    .bolder {
+        border: black;
+        border-style: solid;
+        border-width: 2px;
+    }
+    .bolder-left {
+        border-left: black;
+        border-left-style: solid;
+        border-left-width: 2px;
+    }
+    .bolder-right {
+        border-right: black;
+        border-right-style: solid;
+        border-right-width: 2px;
+    }
+    .bolder-bottom {
+        border-bottom: black;
+        border-bottom-style: solid;
+        border-bottom-width: 2px;
+    }
+    .bolder-top {
+        border-top: black;
+        border-top-style: solid;
+        border-top-width: 2px;
+    }
+    .number {
+        text-align: right;
+    }
+    .logo {
+        float:left
+    }
+</style>
+
+<div>
+<%= image_tag(@logo, :class => "logo")%>
+</div>
+
+<table class="table-top" border="2px;">
+    <tr>
+        <td class="index">1.</td>
+        <td class="border-top-dotted border-left-dotted border-null-bottom text-bold">
+            Clinic name
+        </td>
+        <td colspan="6" class="bolder">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">2.</td>
+        <td class="border-left-dotted border-null-bottom border-null-top">
+            Supervisors
+        </td>
+        <td colspan="2" class="bolder-left text-bold border-null-bottom border-right-dotted">
+            Name
+        </td>
+        <td colspan="4" class="bolder-right text-bold border-null-bottom border-null-left">
+            Signature
+        </td>
+    </tr>
+    <tr>
+        <td class="index">3.</td>
+        <td class="border-left-dotted border-null-bottom border-null-top">
+            &nbsp;
+        </td>
+        <td colspan="2" class="bolder-left border-top-dotted border-right-dotted border-null-bottom">
+            &nbsp;
+        </td>
+        <td colspan="4" class="bolder-right border-null-left border-top-dotted border-null-bottom">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">4.</td>
+        <td class="border-left-dotted border-null-bottom border-null-top">
+            &nbsp;
+        </td>
+        <td colspan="2" class="bolder-left border-top-dotted border-null-bottom border-right-dotted">
+            &nbsp;
+        </td>
+        <td colspan="4" class="bolder-right border-top-dotted border-null-bottom border-null-left">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">5.</td>
+        <td class="border-left-dotted border-null-bottom border-null-top">
+            &nbsp;
+        </td>
+        <td colspan="2" class="bolder-left border-top-dotted border-null-bottom border-right-dotted">
+            &nbsp;
+        </td>
+        <td colspan="4" class="bolder-right border-top-dotted border-null-bottom border-null-left">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">6.</td>
+        <td class="border-left-dotted border-null-bottom border-null-top">
+            &nbsp;
+        </td>
+        <td colspan="2" class="bolder-left border-top-dotted border-right-dotted">
+            &nbsp;
+        </td>
+        <td colspan="4" class="bolder-right border-null-left border-top-dotted">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">7.</td>
+        <td width="20%" colspan="2" class="border-bottom-dotted border-left-dotted border-null-top">
+            Quarter evaluated
+        </td>
+        <td class="bolder">
+            Year
+        </td>
+        <td colspan="4" class="bolder">
+            Quarter
+        </td>
+    </tr>
+    <tr class="row-break">
+        <td class="border-null" colspan="7">
+            &nbsp;
+        </td>
+    </tr>
+</table>
+<!--
+<tr>
+    <td class="border-null">
+        &nbsp;
+    </td>
+    <td colspan="2" class="border-null text-bold">
+        HIV CARE CLINIC
+    </td>
+    <td class="border-null text-center text-italic" colspan="5">
+        *Supervisors: No need to copy the 'Clinic own data' on this page
+    </td>
+</tr>
+<tr>
+    <td class="border-null">
+        &nbsp;
+    </td>
+    <td class="border-null" colspan="2">
+        &nbsp;
+    </td>
+    <td colspan="2" class="text-bold text-center border-null">
+        Newly registered in quarter
+    </td>
+    <td class="column-break">
+        &nbsp;
+    </td>
+    <td colspan="2" class="text-bold text-center border-null">
+        Cumulative ever registered
+    </td>
+</tr>
+<tr>
+    <td class="border-null">
+        &nbsp;
+    </td>
+    <td class="border-null text-bold" colspan="2">
+        HCC Patient registration details
+    </td>
+    <td class="border-null text-center text-italic text-smaller">
+        Clinic own data*
+    </td>
+    <td class="border-null text-center text-italic text-smaller">
+        Checked data
+    </td>
+    <td class="column-break">
+        &nbsp;
+    </td>
+    <td class="border-null text-center text-italic text-smaller">
+        Clinic own data*
+    </td>
+    <td class="border-null text-center text-italic text-smaller">
+        Checked data
+    </td>
+</tr>
+<tr>
+    <td class="index">
+        8.
+    </td>
+    <td colspan="2" class="clinic-description border-bottom-dotted border-top-dotted border-left-dotted">
+        Total Registered
+    </td>
+    <td class="clinic-result">
+        &nbsp;
+    </td>
+    <td class="clinic-result">
+        &nbsp;
+    </td>
+    <td class="column-break">
+        &nbsp;
+    </td>
+    <td class="clinic-result">
+        &nbsp;
+    </td>
+    <td class="clinic-result">
+        &nbsp;
+    </td>
+</tr>
+<tr class="row-break">
+    <td colspan="7" class="border-null">
+        &nbsp;
+    </td>
+</tr>
+<tr>
+    <td class="index">
+        9.
+    </td>
+    <td class="clinic-head text-bold border-top-dotted border-left-dotted border-null-bottom border-null-right">
+        FT
+    </td>
+    <td class="clinic-description border-null-bottom border-top-dotted border-null-left">
+        Patients enrolled first time
+    </td>
+    <td class="clinic-result">
+        &nbsp;
+    </td>
+    <td class="clinic-result">
+        &nbsp;
+    </td>
+    <td class="column-break">
+        &nbsp;
+    </td>
+    <td class="clinic-result">
+        &nbsp;
+    </td>
+    <td class="clinic-result">
+        &nbsp;
+    </td>
+</tr>
+<tr>
+    <td class="index">
+        10.
+    </td>
+    <td class="text-bold border-left-dotted border-null-top border-null-bottom border-null-right">
+        Re
+    </td>
+    <td class="border-null-left border-null-top border-null-bottom">
+        Patients re-enrolled
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td class="column-break">
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+</tr>
+<tr>
+    <td class="index">
+        11.
+    </td>
+    <td class="text-bold border-left-dotted border-bottom-dotted border-null-top border-null-right">
+        TI
+    </td>
+    <td class="border-null-top border-bottom-dotted border-null-left">
+        Patients transferred in
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td class="column-break">
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+</tr>
+<tr class="row-break">
+    <td colspan="7" class="border-null">
+        &nbsp;
+    </td>
+</tr>
+<tr>
+    <td class="index">
+        12.
+    </td>
+    <td class="text-bold border-top-dotted border-left-dotted border-null-bottom border-null-right">
+        M
+    </td>
+    <td class="border-top-dotted border-null-bottom border-null-left">
+        Males (all ages)
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td class="column-break">
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+</tr>
+<tr>
+    <td class="index">
+        13.
+    </td>
+    <td class="text-bold border-left-dotted border-null-top border-null-bottom border-null-right">
+        FNP
+    </td>
+    <td class="border-null-left border-null-top border-null-bottom">
+        Non-pregnant Females (all ages)
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td class="column-break">
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+</tr>
+<tr>
+    <td class="index">
+        14.
+    </td>
+    <td class="text-bold border-left-dotted border-bottom-dotted border-null-top border-null-right">
+        FP
+    </td>
+    <td class="border-null-top border-bottom-dotted border-null-left">
+        Pregnant Females (Should not be in HCC!)
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td class="column-break">
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+</tr>
+<tr class="row-break">
+    <td colspan="7" class="border-null">
+        &nbsp;
+    </td>
+</tr>
+<tr>
+    <td class="index">
+        15.
+    </td>
+    <td class="text-bold border-top-dotted border-left-dotted border-null-bottom border-null-right">
+        A1
+    </td>
+    <td class="border-null-bottom border-top-dotted border-null-left">
+        Infants below 2 months at enrolment
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td class="column-break">
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+</tr>
+<tr>
+    <td class="index">
+        16.
+    </td>
+    <td class="text-bold border-left-dotted border-null-top border-null-right border-null-bottom">
+        A2
+    </td>
+    <td class="border-null-top border-null-left border-null-bottom">
+        Children 2 - below 24 months at enrolm.
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td class="column-break">
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+</tr>
+<tr>
+    <td class="index">
+        17.
+    </td>
+    <td class="text-bold border-left-dotted border-null-top border-null-bottom border-null-right">
+        B
+    </td>
+    <td class="border-null-left border-null-top border-null-bottom">
+        Children 24 months - 14 yrs at enrolm.
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td class="column-break">
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+</tr>
+<tr>
+    <td class="index">
+        18.
+    </td>
+    <td class="text-bold border-left-dotted border-bottom-dotted border-null-top border-null-right">
+        C
+    </td>
+    <td class="border-bottom-dotted border-null-top border-null-left">
+        Adults 15 years or older at enrolment
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td class="column-break">
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+</tr>
+<tr class="row-break">
+    <td colspan="7" class="border-null">
+        &nbsp;
+    </td>
+</tr>
+<tr>
+    <td class="index">
+        19.
+    </td>
+    <td class="text-bold border-top-dotted border-left-dotted border-null-bottom border-null-right">
+        Exp
+    </td>
+    <td class="border-top-dotted border-null-bottom border-null-left">
+        Exposed infants
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td class="column-break">
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+</tr>
+<tr>
+    <td class="index">
+        20.
+    </td>
+    <td class="text-bold border-left-dotted border-bottom-dotted border-null-top border-null-right">
+        Conf
+    </td>
+    <td class="border-bottom-dotted border-null-top border-null-left">
+        Confirmed infected patients (<u>pre-ART</u>)
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td class="column-break">
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+</tr>
+<tr class="row-break">
+    <td class="border-null" colspan="7">
+        &nbsp;
+    </td>
+</tr>
+<tr>
+    <td class="border-null">
+        &nbsp;
+    </td>
+    <td colspan="5" class="text-bold border-null">
+        Primary outcomes of all <u>Pre-ART patients</u> ever registered as of the end of quarter
+    </td>
+    <td class="border-null text-center text-italic text-smaller">
+        Clinic own data*
+    </td>
+    <td class="border-null text-center text-italic text-smaller">
+        Checked data
+    </td>
+</tr>
+<tr>
+    <td class="index">
+        21.
+    </td>
+    <td colspan="5" class="border-top-dotted border-left-dotted border-bottom-dotted">
+        Total retained alive in pre-ART follow-up
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+</tr>
+<tr class="row-break">
+    <td colspan="7" class="border-null">
+        &nbsp;
+    </td>
+</tr>
+<tr>
+    <td class="index">
+        22.
+    </td>
+    <td colspan="5" class="border-left-dotted border-top-dotted border-null-bottom">
+        Started ART
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+</tr>
+<tr>
+    <td class="index">
+        23.
+    </td>
+    <td colspan="5" class="border-left-dotted border-null-top border-null-bottom">
+        Transferred out
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+</tr>
+<tr>
+    <td class="index">
+        24.
+    </td>
+    <td colspan="5" class="border-left-dotted border-null-bottom border-null-top">
+        Defaulted (more than 2 months late for next appointment)
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+</tr>
+<tr>
+    <td class="index">
+        25.
+    </td>
+    <td colspan="5" class="border-left-dotted border-bottom-dotted border-null-top">
+        Died
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+</tr>
+<tr class="row-break">
+    <td class="border-null" colspan="7">
+        &nbsp;
+    </td>
+</tr>
+-->
+<table class="table-main" border="2px;">
+    <tr>
+        <td class="border-null">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-null text-bold">
+            ART CLINIC
+        </td>
+        <td class="border-null text-center text-italic" colspan="5">
+            *Supervisors: No need to copy the 'Clinic own data' on this page
+        </td>
+    </tr>
+    <tr>
+        <td class="border-null">
+            &nbsp;
+        </td>
+        <td class="border-null" colspan="2">
+            &nbsp;
+        </td>
+        <td colspan="2" class="text-bold text-center border-null">
+            Newly registered in quarter
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td colspan="2" class="text-bold text-center border-null">
+            Cumulative ever registered
+        </td>
+    </tr>
+    <tr>
+        <td class="border-null">
+            &nbsp;
+        </td>
+        <td class="border-null text-bold" colspan="2">
+            Patient registration details
+        </td>
+        <td class="border-null text-center text-italic text-smaller">
+            Clinic own data*
+        </td>
+        <td class="border-null text-center text-italic text-smaller">
+            Checked data
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="border-null text-center text-italic text-smaller">
+            Clinic own data*
+        </td>
+        <td class="border-null text-center text-italic text-smaller">
+            Checked data
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            26.
+        </td>
+        <td colspan="2" class="border-bottom-dotted border-top-dotted border-left-dotted">
+            Total Registered
+        </td>
+        <td class="number">
+            <%= @cohort.total_registered.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.cum_total_registered.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr class="row-break">
+        <td colspan="7" class="border-null">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            27.
+        </td>
+        <td class="clinic-head text-bold border-left-dotted border-top-dotted border-null-bottom border-null-right">
+            FT
+        </td>
+        <td class="clinic-description border-top-dotted border-null-bottom border-null-left">
+            Patients initiated on ART first time
+        </td>
+        <td class="clinic-result number">
+            <%= @cohort.initiated_on_art_first_time.count %>
+        </td>
+        <td class="clinic-result">
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="clinic-result">
+            <%= @cohort.cum_initiated_on_art_first_time.count %>
+        </td>
+        <td class="clinic-result">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            28.
+        </td>
+        <td class="text-bold border-left-dotted border-null-top border-null-bottom border-null-right">
+            Re
+        </td>
+        <td class="border-null-left border-null-top border-null-bottom">
+            Patients re-initiated on ART
+        </td>
+        <td class="number">
+            <%= @cohort.re_initiated_on_art.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.cum_re_initiated_on_art.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            29.
+        </td>
+        <td class="text-bold border-bottom-dotted border-left-dotted border-null-top border-null-right">
+            TI
+        </td>
+        <td class="border-bottom-dotted border-null-top border-null-left">
+            Patients transferred in on ART
+        </td>
+        <td class="number">
+            <%= @cohort.transfer_in.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.cum_transfer_in.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr class="row-break">
+        <td colspan="8" class="border-null">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            30.
+        </td>
+        <td class="text-bold border-left-dotted border-top-dotted border-null-bottom border-null-right">
+            M
+        </td>
+        <td class="border-top-dotted border-null-bottom border-null-left">
+            Males (all ages)
+        </td>
+        <td class="number">
+            <%= @cohort.all_males.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.cum_all_males.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            31.
+        </td>
+        <td class="text-bold border-left-dotted border-null-top border-null-bottom border-null-right">
+            FNP
+        </td>
+        <td class="border-null-left border-null-top border-null-bottom">
+            Non-pregnant Females (all ages)
+        </td>
+        <td class="number">
+            <%= @cohort.non_pregnant_females.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.cum_non_pregnant_females.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            32.
+        </td>
+        <td class="text-bold border-bottom-dotted border-left-dotted border-null-top border-null-right">
+            FP
+        </td>
+        <td class="border-bottom-dotted border-null-top border-null-left">
+            Pregnant Females (all ages)
+        </td>
+        <td class="number">
+            <%= @cohort.pregnant_females_all_ages.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.cum_pregnant_females_all_ages.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr class="row-break">
+        <td colspan="7" class="border-null">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            33.
+        </td>
+        <td class="text-bold border-left-dotted border-top-dotted border-null-bottom border-null-right">
+            A
+        </td>
+        <td class="border-top-dotted border-null-bottom border-null-left">
+            Children below 24 m at ART initiation
+        </td>
+        <td class="number">
+            <%= @cohort.children_below_24_months_at_art_initiation.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.cum_children_below_24_months_at_art_initiation.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            34.
+        </td>
+        <td class="text-bold border-left-dotted border-null-top border-null-bottom border-null-right">
+            B
+        </td>
+        <td class="border-null-left border-null-top border-null-bottom">
+            Children 24 m - 14 yrs at ART initiation
+        </td>
+        <td class="number">
+            <%= @cohort.children_24_months_14_years_at_art_initiation.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.cum_children_24_months_14_years_at_art_initiation.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            35.
+        </td>
+        <td class="text-bold border-left-dotted border-bottom-dotted border-null-top border-null-right">
+            C
+        </td>
+        <td class="border-bottom-dotted border-null-top border-null-left">
+            Adults 15 years or older at ART initiation
+        </td>
+        <td class="number">
+            <%= @cohort.adults_at_art_initiation.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td>
+            <%= @cohort.cum_adults_at_art_initiation.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            &nbsp;
+        </td>
+        <td colspan="6" class="border-null">
+            Reason for starting ART
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            36.
+        </td>
+        <td class="text-bold border-left-dotted border-top-dotted border-null-bottom border-null-right">
+            PSHD
+        </td>
+        <td class="border-top-dotted border-null-bottom border-null-left">
+            Pres. Sev. HIV disease age < 12 m
+        </td>
+        <td class="number">
+            <%= @cohort.presumed_severe_hiv_disease_in_infants.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.cum_presumed_severe_hiv_disease_in_infants.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            37.
+        </td>
+        <td class="text-bold border-left-dotted border-null-bottom border-null-top border-null-right">
+            PCR
+        </td>
+        <td class="border-null-bottom border-null-top border-null-left">
+            Infants < 12 mths PCR+
+        </td>
+        <td class="number">
+            <%= @cohort.confirmed_hiv_infection_in_infants_pcr.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.cum_confirmed_hiv_infection_in_infants_pcr.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            38.
+        </td>
+        <td class="text-bold border-left-dotted border-null-bottom border-null-top border-null-right">
+            U5
+        </td>
+        <td class="border-null-bottom border-null-top border-null-left">
+            Children 12-59 mths
+        </td>
+        <td class="number">
+            <%= @cohort.children_12_23_months.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td>
+            <%= @cohort.cum_children_12_23_months.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            39.
+        </td>
+        <td class="text-bold border-left-dotted border-null-right border-null-top border-null-bottom">
+            Preg
+        </td>
+        <td class="border-null-left border-null-top border-null-bottom">
+            Pregnant women
+        </td>
+        <td class="number">
+            <%= @cohort.pregnant_women.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.cum_pregnant_women.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr style="page-break-after: always;">
+        <td class="index" style="page-break-inside: avoid; page-break-after: always;">
+            40.
+        </td>
+        <td class="text-bold border-left-dotted border-null-bottom border-null-right border-null-top">
+            BF
+        </td>
+        <td class="border-null-bottom border-null-top border-null-left">
+            Breastfeeding mothers
+        </td>
+        <td class="number">
+            <%= @cohort.breastfeeding_mothers.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.cum_breastfeeding_mothers.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr class="page-break">
+        <td height="80px;" colspan="7" class="border-null">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            41.
+        </td>
+        <td class="text-bold border-left-dotted border-null-bottom border-null-right border-null-top">
+            CD4
+        </td>
+        <td class="border-null-bottom border-null-top border-null-left">
+            CD4 below threshold
+        </td>
+        <td class="number">
+            <%= @cohort.who_stage_two.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.cum_who_stage_two.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            42.
+        </td>
+        <td class="text-bold border-left-dotted border-null-bottom border-null-right border-null-top">
+            Asy
+        </td>
+        <td class="border-null-bottom border-null-top border-null-left">
+            Asymptomatic / mild
+        </td>
+        <td class="number">
+            <%= @cohort.asymptomatic.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.cum_asymptomatic.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            43.
+        </td>
+        <td class="text-bold border-left-dotted border-null-bottom border-null-right border-null-top">
+            3
+        </td>
+        <td class="border-null-bottom border-null-top border-null-left">
+            WHO stage 3
+        </td>
+        <td class="number">
+            <%= @cohort.who_stage_three.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.cum_who_stage_three.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            44.
+        </td>
+        <td class="text-bold border-left-dotted border-null-bottom border-null-right border-null-top">
+            4
+        </td>
+        <td class="border-null-bottom border-null-top border-null-left">
+            WHO stage 4
+        </td>
+        <td class="number">
+            <%= @cohort.who_stage_four.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.cum_who_stage_four.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            45.
+        </td>
+        <td class="text-bold border-bottom-dotted border-left-dotted border-null-right border-null-top">
+            Unk
+        </td>
+        <td class="border-bottom-dotted border-null-top border-null-left">
+            Unknown / reason outside guidelines
+        </td>
+        <td class="number">
+            <%= @cohort.unknown_other_reason_outside_guidelines.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.cum_unknown_other_reason_outside_guidelines.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr class="row-break">
+        <td colspan="7" class="border-null">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            &nbsp;
+        </td>
+        <td colspan="6" class="border-null">
+            Stage defining conditions at ART initiation
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            46.
+        </td>
+        <td class="text-bold border-top-dotted border-left-dotted border-null-bottom border-null-right">
+            Nev/>2yrs
+        </td>
+        <td class="border-top-dotted border-null-bottom border-null-left">
+            Never TB or TB over 2 years ago
+        </td>
+        <td class="number">
+            <%= @cohort.no_tb.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.cum_no_tb.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            47.
+        </td>
+        <td class="text-bold border-left-dotted border-null-bottom border-null-top border-null-right">
+            Last 2yrs
+        </td>
+        <td class="border-null-bottom border-null-top border-null-left">
+            TB within the last 2 years
+        </td>
+        <td class="number">
+            <%= @cohort.tb_within_the_last_two_years.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td>
+            <%= @cohort.cum_tb_within_the_last_two_years.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            48.
+        </td>
+        <td class="text-bold border-left-dotted border-bottom-dotted border-null-right border-null-top">
+            Curr
+        </td>
+        <td class="border-bottom-dotted border-null-top border-null-left">
+            Current episode of TB
+        </td>
+        <td class="number">
+            <%= @cohort.current_episode_of_tb.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.cum_current_episode_of_tb.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr class="row-break">
+        <td colspan="7" class="border-null">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            49.
+        </td>
+        <td class="text-bold border-bottom-dotted border-top-dotted border-left-dotted border-null-right">
+            KS
+        </td>
+        <td class="border-bottom-dotted border-top-dotted border-null-left">
+            Kaposi's Sarcoma
+        </td>
+        <td class="number">
+            <%= @cohort.kaposis_sarcoma.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.cum_kaposis_sarcoma.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="border-null">
+            &nbsp;
+        </td>
+        <td colspan="5" class="text-bold border-null">
+            Primary outcomes as of the end of the quarter evaluated
+        </td>
+        <td colspan="2" class="text-bold border-null">
+            Out of all patients ever registered
+        </td>
+    </tr>
+    <tr>
+        <td class="border-null">
+            &nbsp;
+        </td>
+        <td colspan="5" class="text-bold border-null">
+            &nbsp;
+        </td>
+        <td class="border-null text-center text-italic text-smaller">
+            Clinic own data**
+        </td>
+        <td class="border-null text-center text-italic text-smaller">
+            Checked data
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            50.
+        </td>
+        <td colspan="4" class="border-bottom-dotted border-top-dotted border-left-dotted">
+            Total alive and on ART
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.total_alive_and_on_art.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr class="row-break">
+        <td colspan="7" class="border-null">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            51.
+        </td>
+        <td class="text-bold border-top-dotted border-left-dotted border-null-bottom border-null-right">
+            M1
+        </td>
+        <td colspan="3" class="border-top-dotted border-null-bottom border-null-left">
+            Died within the 1st month after ART initiation
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.died_within_the_1st_month_of_art_initiation.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            52.
+        </td>
+        <td class="text-bold border-left-dotted border-null-bottom border-null-top border-null-right">
+            M2
+        </td>
+        <td colspan="3" class="border-null-bottom border-null-top border-null-left">
+            Died within the 2nd month after ART initiation
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.died_within_the_2nd_month_of_art_initiation.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            53.
+        </td>
+        <td class="text-bold border-left-dotted border-null-bottom border-null-top border-null-right">
+            M3
+        </td>
+        <td colspan="3" class="border-null-bottom border-null-top border-null-left">
+            Died within the 3rd month after ART initiation
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.died_within_the_3rd_month_of_art_initiation.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            54.
+        </td>
+        <td class="text-bold border-left-dotted border-bottom-dotted border-null-top border-null-right">
+            M4+
+        </td>
+        <td colspan="3" class="border-bottom-dotted border-null-top border-null-left">
+            Died after the end of the 3rd month after ART initiation
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.died_after_the_3rd_month_of_art_initiation.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            55.
+        </td>
+        <td colspan="4" class="border-top-dotted border-left-dotted border-null-bottom">
+            <b>Died</b> total
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.died_total.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            56.
+        </td>
+        <td colspan="4" class="border-left-dotted border-null-bottom border-null-top">
+            <b>Def</b>aulted (more than 2 months overdue after expected to have run out of ARVs)
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.defaulted.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            57.
+        </td>
+        <td colspan="4" class="border-left-dotted border-null-bottom border-null-top">
+            <b>Stop</b>ped taking ARVs (clinician or patient own decision, last known alive)
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.stopped_art.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            58.
+        </td>
+        <td colspan="4" class="border-left-dotted border-bottom-dotted border-null-top">
+            <b>T</b>ransferred <b>O</b>ut
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <%= @cohort.transfered_out.count %>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr class="row-break">
+        <td colspan="7" class="border-null">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index border-null">
+            &nbsp;
+        </td>
+        <td class="border-null text-bold" colspan="6">
+            Secondary outcomes of those alive on ART
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            61.
+        </td>
+        <td class="border-top-dotted border-left-dotted border-null-bottom border-null-right">
+            ART Regimens
+        </td>
+        <td colspan="2" class="border-top-dotted border-null-bottom border-null-left border-null-right">
+            Paediatric formulations (blue card)
+        </td>
+        <td colspan="2" class="border-null-bottom border-null-left border-top-dotted">
+            Regimen <b>0P</b>
+        </td>
+        <td colspan="2" class="number">
+            <%= @cohort.zero_p.count %>
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            62.
+        </td>
+        <td rowspan="5" colspan="3" class="text-italic text-center  border-left-dotted border-null-right
+        border-null-bottom border-null-top">
+            Count regimen for <u>all patients registered</u> at this site,
+            including those who currently get supplies from another site
+        </td>
+        <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+            Regimen <b>1P</b>
+        </td>
+        <td colspan="2" class="number">
+            <%= @cohort.one_p.count %>
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            63.
+        </td>
+        <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+            Regimen <b>2P</b>
+        </td>
+        <td colspan="2" class="number">
+            <%= @cohort.two_p.count %>
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            64.
+        </td>
+        <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+            Regimen <b>3P</b>
+        </td>
+        <td colspan="2" class="number">
+            <%= @cohort.three_p.count %>
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            65.
+        </td>
+        <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+            Regimen <b>4P</b>
+        </td>
+        <td colspan="2" class="number">
+            <%= @cohort.four_p.count %>
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            66.
+        </td>
+        <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+            Regimen <b>9P</b>
+        </td>
+        <td colspan="2" class="number">
+            <%= @cohort.nine_p.count %>
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            67.
+        </td>
+        <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+            Regimen <b>11P</b>
+        </td>
+        <td colspan="2" class="number">
+            <%= @cohort.elleven_p.count %>
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            68.
+        </td>
+        <td class="border-left-dotted border-null-top border-null-bottom border-null-right">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-top-dotted border-null-bottom border-null-left border-null-right">
+            <b>Adult</b> formulations (yellow card)
+        </td>
+        <td colspan="2" class="border-top-dotted border-null-bottom border-null-left">
+            Regimen <b>0A</b>
+        </td>
+        <td colspan="2" class="number">
+            <%= @cohort.zero_a.count %>
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            69.
+        </td>
+        <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+            Regimen <b>1A</b>
+        </td>
+        <td colspan="2">
+            <%= @cohort.one_a.count %>
+        </td>
+    </tr>
+    <tr class="page-break">
+        <td colspan="7" class="border-null">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            70.
+        </td>
+        <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+            Regimen <b>2A</b>
+        </td>
+        <td colspan="2" class="number">
+            <%= @cohort.two_a.count %>
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            71.
+        </td>
+        <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+            Regimen <b>3A</b>
+        </td>
+        <td colspan="2" class="number">
+            <%= @cohort.three_a.count %>
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            72.
+        </td>
+        <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+            Regimen <b>4A</b>
+        </td>
+        <td colspan="2" class="number">
+            <%= @cohort.four_a.count %>
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            73.
+        </td>
+        <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+            Regimen <b>5A</b>
+        </td>
+        <td colspan="2" class="number">
+            <%= @cohort.five_a.count %>
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            74.
+        </td>
+        <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+            Regimen <b>6A</b>
+        </td>
+        <td colspan="2" class="number">
+            <%= @cohort.six_a.count %>
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            75.
+        </td>
+        <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+            Regimen <b>7A</b>
+        </td>
+        <td colspan="2">
+            <%= @cohort.seven_a.count %>
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            76.
+        </td>
+        <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+            Regimen <b>8A</b>
+        </td>
+        <td colspan="2" class="number">
+            <%= @cohort.eight_a.count %>
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            77.
+        </td>
+        <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+            Regimen <b>10A</b>
+        </td>
+        <td colspan="2" class="number">
+            <%= @cohort.ten_a.count %>
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            78.
+        </td>
+        <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+            Regimen <b>11A</b>
+        </td>
+        <td colspan="2" class="number">
+            <%= @cohort.elleven_a.count %>
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            79.
+        </td>
+        <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+            Regimen <b>12A</b>
+        </td>
+        <td colspan="2" class="number">
+            <%= @cohort.twelve_a.count %>
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            80.
+        </td>
+        <td colspan="3" class="text-center border-left-dotted border-bottom-dotted border-null-top border-null-right">
+            Specify above regimens counted as 'Other'
+        </td>
+        <td colspan="2" class="border-bottom-dotted border-null-top border-null-left">
+            Other (paed. / adult)
+        </td>
+        <td colspan="2" class="number">
+            <%= @cohort.unknown_regimen.count %>
+        </td>
+    </tr>
+    <tr class="row-break">
+        <td colspan="7" class="border-null">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            81.
+        </td>
+        <td class="text-bold border-top-dotted border-left-dotted border-null-bottom border-null-right">
+            Side effects
+        </td>
+        <td colspan="2" class="border-top-dotted border-null-bottom border-null-left border-null-right">
+            (as of the last visit before end of quarter)
+        </td>
+        <td colspan="2" class="text-bold border-top-dotted border-null-bottom border-null-left" colspan="2">
+            None
+        </td>
+        <td colspan="2" class="number">
+            <%= @cohort.total_patients_without_side_effects.count %>
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            82.
+        </td>
+        <td class="border-left-dotted border-null-bottom border-null-top border-null-right">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-null-left border-null-right border-null-top border-null-bottom">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+            <b>Any</b> side effects
+        </td>
+        <td colspan="2" class="number">
+            <%= @cohort.total_patients_with_side_effects.count %>
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            83.
+        </td>
+        <td class="border-left-dotted border-bottom-dotted border-null-top border-null-right">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-bottom-dotted border-null-top border-null-left border-null-right">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-bottom-dotted border-null-top border-null-left">
+            <b>Unk</b>own (not circled)
+        </td>
+        <td colspan="2" class="number">
+            <%= @cohort.unknown_side_effects.count %>
+        </td>
+    </tr>
+    <tr class="row-break">
+        <td colspan="7" class="border-null">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            84.
+        </td>
+        <td class="text-bold border-left-dotted border-top-dotted border-null-bottom border-null-right">
+            Adherence
+        </td>
+        <td colspan="2" class="border-top-dotted border-null-bottom border-null-left border-null-right">
+            (as of the last visit before end of quarter)
+        </td>
+        <td colspan="2" class="border-top-dotted border-null-bottom border-null-left">
+            <b>0 - 3 doses missed</b>
+        </td>
+        <td colspan="2">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            85.
+        </td>
+        <td class="border-left-dotted border-null-top border-null-bottom border-null-right">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-null-bottom border-null-top border-null-left border-null-right">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+            <b>4+</b> doses missed
+        </td>
+        <td colspan="2">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            86.
+        </td>
+        <td class="border-left-dotted border-bottom-dotted border-null-top border-null-right">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-bottom-dotted border-null-top border-null-right border-null-left">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-bottom-dotted border-null-top border-null-left">
+            <b>Unk</b>nown (not circled)
+        </td>
+        <td colspan="2">
+            &nbsp;
+        </td>
+    </tr>
+    <tr class="row-break">
+        <td colspan="7" class="border-null">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            87.
+        </td>
+        <td class="border-top-dotted border-left-dotted border-null-bottom border-null-right">
+            <b>Current TB status</b> any form of TB
+        </td>
+        <td colspan="2" class="border-top-dotted border-null-bottom border-null-left border-null-right">
+            (as of the last visit before end of quarter)
+        </td>
+        <td colspan="2" class="border-top-dotted border-null-left border-null-bottom">
+            TB <b>not</b> suspected
+        </td>
+        <td colspan="2" class="number">
+            <%= @cohort.tb_not_suspected.count %>
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            88.
+        </td>
+        <td class="border-left-dotted border-null-bottom border-null-top border-null-right">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-null-right border-null-bottom border-null-top border-null-left">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-null-left border-null-top border-null-bottom">
+            TB <b>suspected</b>
+        </td>
+        <td colspan="2" class="number">
+            <%= @cohort.tb_suspected.count %>
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            89.
+        </td>
+        <td colspan="3" class="border-left-dotted border-null-bottom border-null-top border-null-right">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-null-top border-null-bottom border-null-left">
+            TB conf., <b>not</b> on Rx
+        </td>
+        <td colspan="2" class="number">
+            <%= @cohort.tb_confirmed_currently_not_yet_on_tb_treatment.count %>
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            90.
+        </td>
+        <td colspan="3" class="border-left-dotted border-null-right border-null-bottom border-null-top">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-null-left border-null-top border-null-bottom">
+            TB conf., <b>on TB Rx</b>
+        </td>
+        <td colspan="2" class="number">
+            <%= @cohort.tb_confirmed_on_tb_treatment.count %>
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            91.
+        </td>
+        <td colspan="3" class="border-left-dotted border-bottom-dotted border-null-top border-null-right">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-bottom-dotted border-null-top border-null-left">
+            Unknown (not circled)
+        </td>
+        <td colspan="2" class="number">
+            <%= @cohort.unknown_tb_status.count %>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="7" class="border-null">
+            &nbsp;
+        </td>
+    </tr>
+</table>

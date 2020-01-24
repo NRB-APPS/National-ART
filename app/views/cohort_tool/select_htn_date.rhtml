@@ -1,0 +1,48 @@
+
+<style type="text/css">
+
+  .tt_controls_start_month .keyboard{display:none;}
+  #tt_page_start_month .options{height:515px;}
+  #tt_page_start_month .options li{font-size:30px;}
+
+  .tt_controls_end_month .keyboard{display:none;}
+  #tt_page_end_month .options{height:515px;}
+  #tt_page_end_month .options li{font-size:30px;}
+
+  #tt_page_select_age_group_s .options{height:515px;}
+
+  .tt_controls_start_day #Unknown { display:none; }
+  .tt_controls_end_day #Unknown { display:none; }
+
+</style>
+
+<form method='post' action="/cohort_tool/process_htn_report">
+  <% month_names = month_name_options.gsub('<option value="Unknown">Unknown</option>', '') %>
+
+  <%= select_tag "age_groups", options_for_select(@age_groups),{
+    :helpText => 'Select Age Group (s)',
+    :id => "age_groups",
+    :multiple => true
+  } %>
+
+  <%= text_field_tag "start_year", nil, {
+    :helpText => 'Start Year',
+    :field_type => 'number',
+    :min => "2015",
+    :absoluteMax => Date.today.year,
+    :tt_pageStyleClass => "Numeric NumbersOnly"
+  }  %>
+
+  <%= select_tag "start_month", options_for_select(month_names), {
+    :helpText => 'Start Month',
+    :tt_onLoad => "__$('keyboard').style.display = 'none'"
+  } %>
+
+  <%= text_field_tag "start_day",  nil, {
+    :field_type => 'number',
+    :tt_onLoad => "__$('keyboard').style.display = 'inline'",
+    :helpText => "Start Day"
+  } %>
+
+</form>
+

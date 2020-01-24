@@ -1,0 +1,55 @@
+<style>
+  .tt_controls_new_state_start_date #num , #Unknown {
+    display:none;
+  }
+</style>
+
+<script>
+  var tt_cancel_destination = "/people/inconsistency_outcomes?patient_id=<%= @patient.patient_id %>"
+  var current_exit_from_care_state = "<%= @exit_from_care_state %>";
+  var current_state_input_box = null
+
+
+  function validateOutcomeDate(){
+    $('nextButton').onmousedown = function(){
+      selectedOutcomeDate = new Date($('touchscreenInput'+tstCurrentPage).value);
+      if (selectedOutcomeDate < latest_outcome_date){
+        showMessage("Invalid date. The selected outcome date is less than patient's latest outcome date of <b>" + latest_outcome_date_string + "</b>")
+      } else{
+        gotoNextPage();
+      }
+
+    }
+  }
+
+</script>
+<form id='program' action="/patients/update_patient_state_dates" method = 'post'>
+  <%= hidden_field_tag :state_id, params[:state_id] %>
+
+  <%= text_field_tag 'start_date', @start_date,
+    {:id => 'current_date',
+    :field_type => 'date',
+    :helpText => "Outcome start date",
+    :max => "#{(Date.today).strftime('%Y-%m-%d')}",
+    :tt_pageStyleClass => "Date DatesOnly"} %>
+
+  <%= text_field_tag 'end_date', @end_date,
+    {:field_type => 'date',
+    :helpText => "Outcome end date",
+    :optional => "true",
+    :max => "#{(Date.today).strftime('%Y-%m-%d')}",
+    :tt_pageStyleClass => "Date DatesOnly"} %>
+
+  <script>
+    function resetNextButtonCaption(){
+      $('nextButton').innerHTML = "<span>Next</span>"
+    }
+
+    function changeNextButtonCaption(){
+      if(current_exit_from_care_state != 'PATIENT TRANSFERRED OUT'){
+        $('nextButton').innerHTML = "<span>Finish</span>"
+      }
+    }
+  </script>
+</form>
+

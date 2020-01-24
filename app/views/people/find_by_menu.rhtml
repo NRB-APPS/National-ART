@@ -1,0 +1,14 @@
+<script type="text/javascript">
+  var tt_cancel_destination = "/clinic"
+</script>
+
+<form action="/people/find_by_menu" method='post'>
+  <%= select_tag "find_by", options_for_select(@select_options),
+    {
+    :id => "find_by",
+    :tt_pageStyleClass => "NoKeyboard",
+    :helpText => "Find By" }
+%>
+
+  <%= submit_tag "Finish" %>
+</form>

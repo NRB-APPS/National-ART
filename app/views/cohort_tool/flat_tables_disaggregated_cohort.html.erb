@@ -1,0 +1,353 @@
+<style>
+#disaggregated_cohort {
+  width: 90%;
+  border-collapse: collapse;
+  font-size: 16px;
+}
+
+th, td {
+  border-style: solid !important;
+  border-width: 1px;
+  text-align: left;
+  padding-left: 10px;
+}
+
+.table-container {
+  overflow: auto;
+  height: 85%;
+}
+
+.data td {
+  text-align: right;
+  padding-right: 10px;
+}
+
+.data-header {
+  text-align: center;
+  padding-right: 10px;
+}
+
+.separator hr {
+  height: 2px;
+}
+
+#err_msg {
+  padding: 10px 0px 10px 0px;
+  color: red;
+  text-align: left;
+}
+
+
+
+/* ............................................ */
+table a:link {
+  color: #666;
+  font-weight: bold;
+  text-decoration:none;
+}
+table a:visited {
+  color: #999999;
+  font-weight:bold;
+  text-decoration:none;
+}
+table a:active,
+table a:hover {
+  color: #bd5a35;
+  text-decoration:underline;
+}
+table {
+  font-family:Arial, Helvetica, sans-serif;
+  color:#666;
+  font-size:12px;
+  text-shadow: 1px 1px 0px #fff;
+  background:#eaebec;
+  margin:20px;
+  border:#ccc 1px solid;
+
+  -moz-border-radius:3px;
+  -webkit-border-radius:3px;
+  border-radius:3px;
+
+  -moz-box-shadow: 0 1px 2px #d1d1d1;
+  -webkit-box-shadow: 0 1px 2px #d1d1d1;
+  box-shadow: 0 1px 2px #d1d1d1;
+}
+table th {
+  padding:21px 25px 22px 25px;
+  border-top:1px solid #fafafa;
+  border-bottom:1px solid #e0e0e0;
+
+  background: #ededed;
+  background: -webkit-gradient(linear, left top, left bottom, from(#ededed), to(#ebebeb));
+  background: -moz-linear-gradient(top,  #ededed,  #ebebeb);
+}
+table th:first-child {
+  text-align: left;
+  padding-left:20px;
+}
+table tr:first-child th:first-child {
+  -moz-border-radius-topleft:3px;
+  -webkit-border-top-left-radius:3px;
+  border-top-left-radius:3px;
+}
+table tr:first-child th:last-child {
+  -moz-border-radius-topright:3px;
+  -webkit-border-top-right-radius:3px;
+  border-top-right-radius:3px;
+}
+table tr {
+  text-align: center;
+  padding-left:20px;
+}
+table td:first-child {
+  text-align: left;
+  padding-left:20px;
+  border-left: 0;
+}
+table td {
+  padding:18px;
+  border-top: 1px solid #ffffff;
+  border-bottom:1px solid #e0e0e0;
+  border-left: 1px solid #e0e0e0;
+
+  background: #fafafa;
+  background: -webkit-gradient(linear, left top, left bottom, from(#fbfbfb), to(#fafafa));
+  background: -moz-linear-gradient(top,  #fbfbfb,  #fafafa);
+}
+table tr.even td {
+  background: #f6f6f6;
+  background: -webkit-gradient(linear, left top, left bottom, from(#f8f8f8), to(#f6f6f6));
+  background: -moz-linear-gradient(top,  #f8f8f8,  #f6f6f6);
+}
+table tr:last-child td {
+  border-bottom:0;
+}
+table tr:last-child td:first-child {
+  -moz-border-radius-bottomleft:3px;
+  -webkit-border-bottom-left-radius:3px;
+  border-bottom-left-radius:3px;
+}
+table tr:last-child td:last-child {
+  -moz-border-radius-bottomright:3px;
+  -webkit-border-bottom-right-radius:3px;
+  border-bottom-right-radius:3px;
+}
+table tr:hover td {
+  background: #f2f2f2;
+  background: -webkit-gradient(linear, left top, left bottom, from(#f2f2f2), to(#f0f0f0));
+  background: -moz-linear-gradient(top,  #f2f2f2,  #f0f0f0);
+}
+
+</style>
+
+
+
+<div class="table-container">
+<table id="disaggregated_cohort" cellspacing='0'>
+
+  <thead>
+
+  <caption id='err_msg'></caption>
+
+  <tr>
+    <th colspan="2">Clinic name:</th>
+    <th>&nbsp;</th>
+    <td colspan="4"><%= Location.current_health_center.name %></td>
+  </tr>
+
+  <tr>
+    <th colspan="2">Year</th>
+    <th>&nbsp;</th>
+    <td><%=@quarter.split(' ')[1]%></td>
+    <th>&nbsp;</th>
+    <th>Quarter</th>
+    <td><%=@quarter.split(' ')[0]%></td>
+    <%
+      file_name_ex = "#{@quarter.split(' ')[0]}_#{@quarter.split(' ')[1]}".squish rescue Time.now().strftime('%Y_%b_%d_%H_%M_%S')
+    %>
+  </tr>
+
+  <tr>
+    <th>Indicator</th>
+    <th>&nbsp;</th>
+    <th>&nbsp;</th>
+    <th style="text-align: center;">A</th>
+    <th style="text-align: center;">B</th>
+    <th style="text-align: center;">C</th>
+    <th style="text-align: center;">D</th>
+  </tr>
+
+  <tr>
+    <th>Sub Group</th>
+    <th>Age</th>
+    <th>Sex</th>
+    <th class="data-header">Started on ART</th>
+    <th class="data-header">Alive on ART</th>
+    <th class="data-header">Started on IPT</th>
+    <th class="data-header">Screened for TB</th>
+  </tr>
+
+  </thead>
+
+  <tbody>
+
+  <%
+  file = "#{Rails.root.to_s}/public/data/disaggregated_cohort/disaggregated_cohort" + "_#{Location.current_health_center.name.gsub(' ','_')}" + "_#{file_name_ex}.csv"
+  rows = []
+
+  hr_sep = 'Male'
+  @disaggregated_age_groups.sort_by{|x, y | x }.each do |counter, genders|
+    genders.each do |gender, age_groups|
+    age_groups.each do |age_group, num|
+      if gender.upcase != hr_sep.upcase and hr_sep.upcase != 'M' %>
+        <tr class="data">
+          <th colspan="7" class="separator"><hr /></th>
+        <tr>
+        <%hr_sep = gender.upcase
+      end if counter < 26
+
+      check_point = []
+
+      if counter <= 24
+        check_point << "id='#{hr_sep.downcase}_started_on_art_#{counter}' class='#{hr_sep.downcase}_started_on_art'"
+        check_point << "id='#{hr_sep.downcase}_alive_on_art_#{counter}' class='#{hr_sep.downcase}_alive_on_art'"
+        check_point << "id='#{hr_sep.downcase}_started_on_ipt_#{counter}' class='#{hr_sep.downcase}_started_on_ipt'"
+        check_point << "id='#{hr_sep.downcase}_screened_for_tb_#{counter}' class='#{hr_sep.downcase}_screened_for_tb'"
+      elsif counter >= 25
+        hr_sep = gender
+        check_point << "id='#{hr_sep.downcase}_started_on_art_#{counter}' class='#{hr_sep.downcase}_started_on_art_total'"
+        check_point << "id='#{hr_sep.downcase}_alive_on_art_#{counter}' class='#{hr_sep.downcase}_alive_on_art_#{counter}_total'"
+        check_point << "id='#{hr_sep.downcase}_started_on_ipt_#{counter}' class='#{hr_sep.downcase}_started_on_ipt_total'"
+        check_point << "id='#{hr_sep.downcase}_screened_for_tb_#{counter}' class='#{hr_sep.downcase}_screened_for_tb_#{counter}_total'"
+      end
+      %>
+
+      <tr class="data">
+        <th><%=counter%></th>
+        <th><%=age_group%></th>
+        <th><%=gender%></th>
+        <td <%=(check_point[0] rescue nil)%>><%=num[0]%></td>
+        <td <%=(check_point[1] rescue nil)%>><%=num[1]%></td>
+        <td <%=(check_point[2] rescue nil)%>><%=num[2]%></td>
+        <td <%=(check_point[3] rescue nil)%>><%=num[3]%></td>
+
+        <%rows << [ counter, age_group, gender, num[0], num[1], num[2], num[3] ] %>
+      </tr>
+    <%end
+    end
+  end%>
+
+  </tbody>
+
+</table>
+
+</div>
+
+  <%
+  FasterCSV.open( file, 'w' ) do |csv|
+    csv << ["#{@quarter.split(' ')[0]}:_#{@quarter.split(' ')[1]}", "#{Location.current_health_center.name.gsub(' ', '_')}"]
+    csv << ["", "Age group", "Gender", "TX_new_(New_on_ART)", "TX_curr_(Receiving_ART)", "TX_curr_received_IPT", "TX_curr_screened_for_TB"]
+    rows.each_with_index do |r, i|
+      if (i+1) > 24
+        csv << [ r[0], r[1], r[2], r[3], r[4], r[5], r[6] ]
+      else
+        csv << [ r[0], r[1], r[2], r[3], r[4], r[5], r[6] ]
+      end
+    end
+  end
+%>
+<script>
+
+function validateReport(x, y, err_msg) {
+  all = document.getElementsByClassName(x)
+  total = document.getElementById(y)
+
+  all_total = 0;
+
+  for(var i = 0; i < all.length; i++){
+    all_total += parseInt(all[i].innerHTML)
+  }
+
+  if(all_total != parseInt(total.innerHTML)) {
+    err = document.getElementById('err_msg');
+    if(err.innerHTML.length < 1){
+      err.innerHTML = err_msg;
+    }else{
+      err.innerHTML += '<br />' + err_msg;
+    }
+  }
+}
+
+function getFieldsToValidate() {
+
+  var rules = [
+    ['male_started_on_art', 'm_started_on_art_25','Column A: 1 to 12 == (25)'],
+    ['male_alive_on_art','m_alive_on_art_25','Column B: 13 to 24 == (25)'],
+    ['male_started_on_ipt','m_started_on_ipt_25','Column C: 1 to 12 == (25)'],
+    ['male_screened_for_tb','m_screened_for_tb_25','Column D: 1 to 12 == (25)']
+  ];
+
+
+  for(var i = 0; i < rules.length; i++){
+    validateReport(rules[i][0], rules[i][1], rules[i][2]);
+  }
+
+/*
+female_started_on_art == fp_started_on_art_26,fnp_started_on_art_27,fbf_started_on_art_28
+female_alive_on_art == fp_alive_on_art_26, fnp_alive_on_art_27, fbf_alive_on_art_28
+female_started_on_ipt == fp_started_on_ipt_26, fnp_started_on_ipt_27,fbf_started_on_ipt_28
+female_screened_for_tb == fp_screened_for_tb_26, fnp_screened_for_tb_27, fbf_screened_for_tb_28
+
+*/
+
+  var rules = [
+  ['female_started_on_art', ['fp_started_on_art_26','fnp_started_on_art_27',
+    'fbf_started_on_art_28'],"Column A: 13 to 24 == (26 + 27 + 28)"],
+
+    ['female_alive_on_art', ['fp_alive_on_art_26', 'fnp_alive_on_art_27',
+    'fbf_alive_on_art_28'],"Column B: 13 to 24 == (26 + 27 + 28)"],
+
+    ['female_started_on_ipt', ['fp_started_on_ipt_26', 'fnp_started_on_ipt_27',
+    'fbf_started_on_ipt_28'],"Column C: 13 to 24 == (25 + 27 + 28)"],
+
+    ['female_screened_for_tb', ['fp_screened_for_tb_26', 'fnp_screened_for_tb_27',
+      'fbf_screened_for_tb_28'],"Column D: 13 to 24 == (26 + 27 + 28)"]
+  ]
+
+  for(var i = 0; i < rules.length; i++){
+    validateReport2(rules[i][0], rules[i][1], rules[i][2]);
+  }
+
+
+}
+
+
+function validateReport2(x, y, err_msg) {
+
+  var all = document.getElementsByClassName(x)
+  var e   =   document.getElementById(y[0]);
+  var e1  =   document.getElementById(y[1]);
+  var e2  =   document.getElementById(y[2]);
+
+  var all_total = 0;
+  var all_females = (parseInt(e.innerHTML) + parseInt(e1.innerHTML));
+  all_females +=  (parseInt(e2.innerHTML))
+
+  for(var i = 0; i < all.length; i++){
+    all_total += parseInt(all[i].innerHTML)
+  }
+
+  if(all_total != all_females) {
+    err = document.getElementById('err_msg');
+    if(err.innerHTML.length < 1){
+      err.innerHTML = err_msg;
+    }else{
+      err.innerHTML += '<br />' + err_msg;
+    }
+  }
+
+
+}
+
+getFieldsToValidate();
+</script>

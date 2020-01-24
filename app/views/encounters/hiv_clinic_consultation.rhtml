@@ -1,0 +1,2455 @@
+
+<script src="/javascripts/jquery-1.3.2.min.js" type="text/javascript"></script>
+<script language="javascript" type="text/javascript" src="/javascripts/jquery.js"></script>
+<script language="javascript" type="text/javascript" src="/javascripts/jquery.flot.js"></script>
+
+<%= javascript_include_tag "Highcharts/js/jquery.min.js" %>
+<%= javascript_include_tag "Highcharts/js/highcharts" %>
+<%= javascript_include_tag "vitals_trail" %>
+<%= javascript_include_tag "notification_tracker" %>
+
+<link rel="stylesheet" href="/stylesheets/yes_no_btn.css" type="text/css"/>
+
+<style type="text/css">
+  .summary {
+    margin:20px;
+    font-size:1.6em;
+  }
+  .title, .recommendation {
+    margin-right:10px;
+    font-weight:bold;
+  }
+  .recommendation {
+    font-style:italic;
+  }
+  .warning {
+    color:red;
+  }
+
+  .pills_remaing{
+    left:25px;
+    position:inherit;
+  }
+
+  #char { display:none; }
+
+  #notes{background-color:red;}
+
+  .tt_controls_clinical_notes_optional #space { display:inline; }
+
+  .custom-helptext{
+    position: absolute;
+    left:36%;
+    top: 30%;
+  }
+
+  .FastTrackBtn{
+    text-decoration: none;
+    border:1px solid #25729a;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    font-family:arial, helvetica, sans-serif;
+    padding: 10px 10px 10px 10px;
+    text-shadow: -1px -1px 0 rgba(0,0,0,0.3);
+    text-align: center;
+  }
+
+  .labelText {
+    font-size: 23px;
+    vertical-align: middle;
+    padding-left: 20px;
+  }
+
+  #divcontent {
+    background-color: #fff;
+    border: 2px solid #ccf;
+    border-radius: 10px;
+    height: 84%;
+    margin: 10px;
+    overflow: hidden;
+    width: 98%;
+  }
+
+  #divScroller {
+    height: 97%;
+    margin: 10px;
+    overflow: auto;
+    width: 98%;
+  }
+
+  .disabled-li{
+    text-decoration: line-through;
+    color: gray !important;
+  }
+
+</style>
+<%
+side_effects_options = []
+malawi_art_side_effects = concept_set_options('MALAWI ART SIDE EFFECTS').split("\n")
+malawi_art_side_effects.each do |side_effect|
+  next if side_effect.match(/Skin rash|Nightmares|Dizziness|Blurry Vision|Renal failure|Other/i)
+  side_effect = side_effect.gsub("Hepatitis", "Jaundice").gsub("No", "None")
+  side_effects_options << side_effect
+end
+#"<option value=\"None\">None</option>"
+side_effects_options << "<option value=\"Anemia\">Anemia</option>"
+side_effects_options = side_effects_options.join("\n")
+
+
+
+concept_id = concept_id = ConceptName.find_by_name('MALAWI ART SIDE EFFECTS').concept_id
+set = ConceptSet.find_all_by_concept_set(concept_id, :order => 'sort_weight')
+side_effects_array = set.map{|item|
+  next if item.concept.blank? ;
+  next if item.concept.fullname.match(/Skin rash|Nightmares|Dizziness|Blurry Vision|Renal failure|Other|No/i);
+  [item.concept.fullname.gsub("Hepatitis", "Jaundice").gsub("No", "None")]
+
+}
+side_effects_array = (side_effects_array << ["Anemia"]).compact.flatten
+
+tb_symptom_concept_id = concept_id = ConceptName.find_by_name('Routine Tuberculosis Screening').concept_id
+tb_symptoms_set = ConceptSet.find_all_by_concept_set(tb_symptom_concept_id, :order => 'sort_weight')
+tb_symptoms_array = tb_symptoms_set.map{|item|
+  next if item.concept.blank?;
+  [item.concept.fullname]
+}.compact.flatten
+
+%>
+
+
+<script>
+
+  var tt_cancel_destination = "/patients/show/<%= @patient.patient_id %>";
+  var consultation_tb_status = '<%= @consultation_tb_status %>';
+  var terminal_family_planning_method = '<%= @terminal_family_planning_method %>';
+  var art_period_in_months = parseInt('<%= @art_duration_in_months %>');
+  var hivFirstVisit = '<%= @art_first_visit %>';
+  var patientEverHadDrugs = '<%= @patient_ever_had_drugs %>'
+  var fastTrackAssesmentConcepts = JSON.parse('<%= @fast_track_assesment_concept_names.to_json %>');
+  var patient_id = <%= @patient.id %>;
+  var sideEffectsHash = {};
+  var tbSymptomsHash = {};
+  var gender = '<%= @gender %>';
+  var current_patient_bmi = '<%= @current_patient_bmi %>'
+  var current_weight_percentile = '<%= @current_weight_percentile %>'
+  var everReceivedARTAnswer = '<%= @ever_received_answer %>';
+  var familyPlanningLogic = {
+    "ORAL CONTRACEPTIVE PILLS":{
+      "DEPO-PROVERA":'N', "INTRAUTERINE CONTRACEPTION":'N', 'CONTRACEPTIVE IMPLANT':'N',
+      'MALE CONDOMS':'Y', 'FEMALE CONDOMS':'Y', 'RYTHM METHOD': 'N', 'TUBAL LIGATION':'N',
+      'VASECTOMY':'N'},
+    "DEPO-PROVERA":{
+      "ORAL CONTRACEPTIVE PILLS":'N', "INTRAUTERINE CONTRACEPTION":'N', 'CONTRACEPTIVE IMPLANT':'N',
+      'MALE CONDOMS':'Y', 'FEMALE CONDOMS':'Y', 'RYTHM METHOD': 'N', 'TUBAL LIGATION':'N',
+      'VASECTOMY':'N'},
+    "INTRAUTERINE CONTRACEPTION":{
+      "ORAL CONTRACEPTIVE PILLS":'N', "DEPO-PROVERA":'N', 'CONTRACEPTIVE IMPLANT':'N',
+      'MALE CONDOMS':'Y', 'FEMALE CONDOMS':'Y', 'RYTHM METHOD': 'N', 'TUBAL LIGATION':'N',
+      'VASECTOMY':'N'},
+    "CONTRACEPTIVE IMPLANT":{
+      "ORAL CONTRACEPTIVE PILLS":'N', "DEPO-PROVERA":'N', 'INTRAUTERINE CONTRACEPTION':'N',
+      'MALE CONDOMS':'Y', 'FEMALE CONDOMS':'Y', 'RYTHM METHOD': 'N', 'TUBAL LIGATION':'N',
+      'VASECTOMY':'N'},
+    "MALE CONDOMS":{
+      "ORAL CONTRACEPTIVE PILLS":'Y', "DEPO-PROVERA":'Y', 'INTRAUTERINE CONTRACEPTION':'Y',
+      'CONTRACEPTIVE IMPLANT':'Y', 'FEMALE CONDOMS':'Y', 'RYTHM METHOD': 'Y', 'TUBAL LIGATION':'N',
+      'VASECTOMY':'Y'},
+    "FEMALE CONDOMS":{
+      "ORAL CONTRACEPTIVE PILLS":'Y', "DEPO-PROVERA":'Y', 'INTRAUTERINE CONTRACEPTION':'Y',
+      'CONTRACEPTIVE IMPLANT':'Y', 'MALE CONDOMS':'Y', 'RYTHM METHOD': 'Y', 'TUBAL LIGATION':'N',
+      'VASECTOMY':'Y'},
+    "RYTHM METHOD":{
+      "ORAL CONTRACEPTIVE PILLS":'N', "DEPO-PROVERA":'N', 'INTRAUTERINE CONTRACEPTION':'N',
+      'MALE CONDOMS':'Y', 'FEMALE CONDOMS':'Y', 'CONTRACEPTIVE IMPLANT': 'N', 'TUBAL LIGATION':'N',
+      'VASECTOMY':'N'},
+    "TUBAL LIGATION":{
+      "ORAL CONTRACEPTIVE PILLS":'N', "DEPO-PROVERA":'N', 'INTRAUTERINE CONTRACEPTION':'N',
+      'MALE CONDOMS':'N', 'FEMALE CONDOMS':'N', 'CONTRACEPTIVE IMPLANT': 'N', 'RYTHM METHOD':'N',
+      'VASECTOMY':'N'},
+    "VASECTOMY":{
+      "ORAL CONTRACEPTIVE PILLS":'N', "DEPO-PROVERA":'Y', 'INTRAUTERINE CONTRACEPTION':'N',
+      'MALE CONDOMS':'Y', 'FEMALE CONDOMS':'N', 'CONTRACEPTIVE IMPLANT': 'Y', 'RYTHM METHOD':'N',
+      'TUBAL LIGATION':'N'}
+  }
+
+  var family_planning_interval;
+
+  function controlFamilyPlanningMethodsSelection(){
+    liOptions = jQuery("li");
+    
+    if (__$('touchscreenInput' + tstCurrentPage).value.length < 1){
+      resetElements(liOptions)
+    }
+
+    if (__$('touchscreenInput' + tstCurrentPage).value.length > 0){
+      first_family_planning = __$('touchscreenInput' + tstCurrentPage).value.split(';')[0].toUpperCase();
+      for (var i=0; i<=liOptions.length - 1; i++){
+        tstvalue = liOptions[i].getAttribute('tstvalue');
+        if (tstvalue.match(/NONE/i))continue;
+        familyPlanningMethods = familyPlanningLogic[first_family_planning];
+        for (var key in familyPlanningMethods){
+          value = familyPlanningMethods[key];
+          liOption = jQuery( "li[tstvalue='" + key + "']" )[0];
+          if (liOption){
+            if (value == 'N'){
+              jQuery(liOption).addClass("disabled-li");
+              liOption.onclick = function(){
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  function resetElements(liOptions){
+    jQuery( "li" ).removeClass( "disabled-li");
+    for (var i=0; i<=liOptions.length - 1; i++){
+      tstvalue = liOptions[i].getAttribute('tstvalue');
+      if (tstvalue.match(/NONE/i))continue;
+      liOptions[i].onclick = function(){
+        updateTouchscreenInputForSelect(__$('optionValue' + this.id), this);
+      }
+    }
+  }
+
+  function startFamilyPlanningTimer(){
+    family_planning_interval = window.setInterval("controlFamilyPlanningMethodsSelection()", 100);
+  }
+
+  function stopFamilyPlanningTimer(){
+    clearInterval(family_planning_interval);
+  }
+
+  function resetSelectOptions(obj){
+    obj.setAttribute("onclick", "null; updateTouchscreenInputForSelect(__$('optionValue' + this.id), this)");
+  }
+
+  function addEvent(obj, evType, fn) {
+    if (obj.addEventListener) {
+      obj.addEventListener(evType, fn, false);
+      return true;
+    } else if (obj.attachEvent) {
+      var r = obj.attachEvent("on" + evType, fn);
+      return r;
+    } else {
+      alert("Handler could not be attached");
+    }
+  }
+
+  function getNumberOfSymptoms(){
+    var options = $('symptoms').options
+    var symptoms = 0;
+
+<% @side_effects = concept_set('MALAWI ART DRUG INDUCED SYMPTOM SET') %>
+    var myArray = "<%= @side_effects.to_a %>";
+
+    for (var i=0; i < options.length; i++) {
+      if (options[i].selected && options[i].value != "") {
+        if (myArray.indexOf(options[i].value) != -1) {
+          symptoms =  symptoms + 1;
+        }
+      }
+    }
+
+    options = $('additional_symptoms').options;
+
+    for (var i=0; i < options.length; i++) {
+      if (options[i].selected && options[i].value != "") {
+        if (myArray.indexOf(options[i].value) != -1) {
+          symptoms =  symptoms + 1;
+        }
+      }
+    }
+
+    return symptoms;
+  }
+
+  function getSelectedSymptoms() {
+    var options = $('symptoms').options;
+    var symptoms = new Array();
+
+<% @side_effects = concept_set('MALAWI ART DRUG INDUCED SYMPTOM SET') %>
+    var myArray = "<%= @side_effects.to_a %>";
+
+    var x = -1;
+    var css = "even";
+    for (var i=0; i < options.length; i++) {
+      if (options[i].selected && options[i].value != "") {
+        if (myArray.indexOf(options[i].value) != -1) {
+          x = x + 1;
+          symptoms +=  '<li id="' + x + '" class="' + css + '" onclick="null; updateTouchscreenInputForSelect(__$(\'optionValue\' + this.id));" onmousedown="" tag="odd" tstvalue="' + options[i].value + '" style="">'
+            + "<div style='display: table; border-spacing: 0px;' <div style='display: table-row'><div style='display: table-cell;'><img id='img" + x + "' alt='[ ]' src='/touchscreentoolkit/lib/images/unticked.jpg'></div><div id='optionValue" + x + "' style='display: table-cell; vertical-align: middle; text-align: left; padding-left: 15px;'>"
+            + options[i].value
+            + "</div></div>"
+            + "</li>";
+          if(css == "odd") {
+            css = "even";
+          } else {
+            css = "odd";
+          }
+
+          $("drug_induced_effects").innerHTML += "<option>" + options[i].value + "</option>";
+        }
+      }
+    }
+
+    options = $('additional_symptoms').options;
+
+    for (var i=0; i < options.length; i++) {
+      if (options[i].selected && options[i].value != "") {
+        if (myArray.indexOf(options[i].value) != -1) {
+          x = x + 1;
+          symptoms +=  '<li id="' + x + '" class="' + css + '" onclick="null; updateTouchscreenInputForSelect(__$(\'optionValue\' + this.id));" onmousedown="" tag="odd" tstvalue="' + options[i].value + '" style="">'
+            + "<div style='display: table; border-spacing: 0px;' <div style='display: table-row'><div style='display: table-cell;'><img id='img" + x + "' alt='[ ]' src='/touchscreentoolkit/lib/images/unticked.jpg'></div><div id='optionValue" + x + "' style='display: table-cell; vertical-align: middle; text-align: left; padding-left: 15px;'>"
+            + options[i].value
+            + "</div></div>"
+            + "</li>";
+          if(css == "odd") {
+            css = "even";
+          } else {
+            css = "odd";
+          }
+
+          $("drug_induced_effects").innerHTML += "<option>" + options[i].value + "</option>";
+        }
+      }
+    }
+
+    $("tt_currentUnorderedListOptions").innerHTML = symptoms;
+  }
+
+  function checkPregnancyAndAge() {
+    var patientAge = "<%= @patient_bean.age.to_i %>";
+    var pregnancyStatus = $('pregnant').value;
+
+    if ((patientAge >= 55) && pregnancyStatus == "YES") {
+      return 'true';
+    } else {
+      return 'false';
+    }
+  }
+
+  function checkBreastfeedingAndAge() {
+    var patientAge = "<%= @patient_bean.age.to_i %>";
+    var breastfeedingStatus = $('breast_feeding').value;
+
+    if ((patientAge >= 55) && breastfeedingStatus == "YES") {
+      return 'true';
+    } else {
+      return 'false';
+    }
+  }
+
+  function checkTbHivStatus(){
+    var i
+    select = document.getElementById('tb_status')
+    for (i = select.length - 1; i>=0; i--) {
+      if (select.options[i].value == "Unknown") {
+        select.remove(i);
+      }
+    }
+
+    options = document.getElementsByTagName('li');
+    for (i = 0 ; i < options.length ; i++) {
+      if ((options[i].getAttribute('tstvalue') == consultation_tb_status) && (consultation_tb_status.toLowerCase() != 'unknown')) {
+        updateTouchscreenInputForSelect(options[i]);
+      }
+    }
+
+  }
+
+  function condom_only(){
+
+    var selected_values = [];
+
+    try {
+      var answers = document.getElementById('fpm_used');
+      for (i = 0 ; i < answers.options.length ; i++) {
+        if (answers.options[i].selected){
+          selected_values.push(answers.options[i].value);
+        }
+      }
+    }catch(e) { }
+
+    if ((selected_values.indexOf('MALE CONDOMS') != -1)&&(selected_values.length == 1)){
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+
+  }
+
+  function check_offer_contraceptive(){
+    var answer = document.getElementById('reason_not_using_contraceptive_specific').value;
+
+    var checklist = ['FOLLOWING WISHES OF SPOUSE','RELIGIOUS REASONS','AFRAID OF SIDE EFFECTS','NEVER THOUGHT ABOUT IT','INDIFFERENT']
+
+    if (checklist.indexOf(answer) != -1)
+    {
+      document.getElementById('reason_not_using_contraceptive').value = answer ;
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+
+  function toggleBP()
+  {
+    var button = document.getElementById("captureBPBtn")
+
+    jQuery.ajax({
+      type: "POST",
+      url: "/sessions/set_session_var",
+      data: {'key':'captureBP', 'value':(button.innerHTML == "<span>Screen For BP</span>")}
+
+    });
+
+    button.innerHTML = (button.innerHTML == "<span>Screen For BP</span>" ? "<span>Don't Screen For BP</span>" : "<span>Screen For BP</span>");
+  }
+
+  function addButton() {
+
+    if (<%= htn_activated && !htn_client?(@patient) && patient_present(@patient.id, (session[:datetime] || Time.now()))%>)
+    {
+      var bp = document.createElement("button");
+      bp.innerHTML = "<span>Screen For BP</span>";
+      bp.setAttribute("onMouseDown", "toggleBP()");
+      bp.setAttribute("id", "captureBPBtn")
+      document.getElementById("buttons").appendChild(bp);
+    }
+  }
+
+  function updatePregnancy(value){
+    alert(value)
+  }
+
+  function terminalFamilyPlanningMethod(){
+    if (terminal_family_planning_method == 'true'){
+      return 'true';
+    } else{
+      return 'false';
+    }
+  
+  }
+
+  function addFastTrackAssesmentButton(){
+    return;
+    if (hivFirstVisit == 'true' || patientEverHadDrugs == 'false'){
+      html = '<button style="float: left;" onmousedown="fastTrackAssesmentPopup();" id="fastTrackAssesmentButton" class="button navButton green"><span>Fast Track Assesment</span></button>';
+      jQuery("#fastTrackAssesmentButton").remove();
+      buttonsDiv = jQuery(".buttonsDiv")[0];
+      buttonsDiv.innerHTML += html;
+    }
+  }
+
+  function removeFastTrackAssesmentButton(){
+    return;
+    jQuery("#fastTrackAssesmentButton").remove();
+  }
+
+  function setFastTrackVisit(){
+    jQuery.ajax({
+      type: "POST",
+      url: "/encounters/create_fast_track_assesment_observations",
+      data: "concept_ids=" + selectedFastTrackConcepts + "&patient_id=" + patient_id + "&fast_track_status=Yes",
+      beforeSend: function(){
+        fastTrackVisitButton = document.getElementsByClassName("fastTrackVisitButton")[0];
+        clinicVisitButton = document.getElementsByClassName("clinicVisitButton")[0];
+
+        if (fastTrackVisitButton){
+          fastTrackVisitButton.style.backgroundColor = '#dddddd';
+          fastTrackVisitButton.onclick = function(){
+          }
+        }
+
+        if (clinicVisitButton){
+          clinicVisitButton.style.backgroundColor = '#dddddd';
+          clinicVisitButton.onclick = function(){
+          }
+        }
+      },
+      error: function(xhr) { // if error occured
+        showMessage("There was an error while processing your request");
+      },
+      success: function(){
+        selectedFastTrackConcepts = []
+        hideLibPopup();
+      }
+
+    });
+  }
+
+  function setClinicVisit(){
+    jQuery.ajax({
+      type: "POST",
+      url: "/encounters/create_fast_track_assesment_observations",
+      data: "concept_ids=" + selectedFastTrackConcepts + "&patient_id=" + patient_id + "&fast_track_status=No",
+      success: function(){
+        hideLibPopup()
+      }
+
+    });
+  }
+
+  function removeSomeSideEffects(){
+    sideEffectsToBeRemoved = ["Skin rash", "Nightmares", "Dizziness", "Blurry Vision", "Renal failure", "Other"]
+    liElements = jQuery("li");
+    for (var i=0; i<=liElements.length - 1; i++){
+      currentElement = liElements[i];
+      currentValue = currentElement.getAttribute("tstvalue");
+      for (var j=0; j<=sideEffectsToBeRemoved.length - 1; j++){
+        if (sideEffectsToBeRemoved[j].trim().toUpperCase() == currentValue.trim().toUpperCase()){
+          jQuery("#" + i).remove(); //Remove that Element
+          break;
+        }
+      }
+    }
+  }
+
+  function checkAndSelectConfirmedTBOnTreatment(){
+    confirmed_tb_on_treatment_option_input = jQuery("[tstvalue='Confirmed TB on treatment']")[0];
+    selected_tb_treatment_question = __$("tb_treatment_question").value;
+    if (selected_tb_treatment_question == 'Yes'){
+      updateTouchscreenInputForSelect(confirmed_tb_on_treatment_option_input);
+    }
+  }
+
+  function checkAndSelectTBSuspected(){
+    tb_suspected_option_input = jQuery("[tstvalue='TB suspected']")[0]
+    selected_tb_associated_symptoms = __$("routine_tb_screening").value;
+
+    /*if (selected_tb_associated_symptoms.length > 0){
+      if (tb_suspected_option_input) updateTouchscreenInputForSelect(tb_suspected_option_input);
+    }*/
+
+    yesTBSymptoms = [];
+    for (var key in tbSymptomsHash){
+      yesValue = tbSymptomsHash[key]["yes"];
+      noValue = tbSymptomsHash[key]["no"];
+      if (yesValue.length > 0){
+        yesTBSymptoms.push(key);
+      }
+    }
+
+    if (yesTBSymptoms.length > 0){
+      if (tb_suspected_option_input) updateTouchscreenInputForSelect(tb_suspected_option_input);
+    }
+
+  }
+
+<% side_effects_array.each do |side_effect| %>
+    sideEffectsHash['<%= side_effect %>'] = {yes: '', no: ''}
+<% end %>
+
+<% tb_symptoms_array.each do |tb_syptom| %>
+    tbSymptomsHash['<%= tb_syptom %>'] = {yes: '', no: ''}
+<% end %>
+
+  function advancedSideEffects(){
+
+    sideEffectsArray = JSON.parse('<%=  side_effects_array.to_json %>');
+    jQuery("#inputFrame" + tstCurrentPage).remove()
+    jQuery("#helpText" + tstCurrentPage).css({
+      marginLeft: "0%",
+      fontWeight: "bold",
+      fontSize: "1.9em"
+    })
+
+    html = "<div id='divcontent'>";
+    html += "<div id='divScroller'>";
+    sideEffectsOptions = JSON.parse('<%=  side_effects_array.to_json %>');
+    html += "<table cellspacing='1' cellpadding='2' width='95%' id='yes_no_table'>";
+    html += "<tbody>";
+
+    for (var i=0; i<=sideEffectsOptions.length - 1; i++){
+      html += "<tr>";
+      html += "<td class='labelText'>" + sideEffectsOptions[i] + "</td>";
+
+      
+      html += "<td style='width: 30%;'>";
+      html += "<table style='float: right; width: 100%; padding-right: 10px;' class='btn-table'>";
+      html += "<tr>";
+      
+      html += "<td>";
+      html += "<div class='switch switch-yes' id='yes_btn_container_" + i + "' category='side_effects' ";
+      html += "key='" + sideEffectsOptions[i] + "' onmousedown='clicked(this);'>";
+      html += "<input class='hidden-checkbox' id='yes_checkbox_" + i + "' type='checkbox'>";
+      html +="<label id='yes_lable_" + i + "'><i></i></label>";
+      html += "</td>";
+     
+      html += "<td>";
+      html += "<div class='switch switch-no' id='no_btn_container_" + i + "' category='side_effects' ";
+      html += "key='" + sideEffectsOptions[i] + "' onmousedown='clicked(this);'>";
+      html += "<input class='hidden-checkbox' id='no_checkbox_" + i + "' type='checkbox'>";
+      html +="<label id='no_lable_" + i + "'><i></i></label>";
+      html += "</td>";
+     
+      html += "</tr>";
+      html += "</table>";
+      html += "</td>";
+     
+     
+      html += "</tr>"
+    }
+
+    html += "<tbody>"
+    html += "</table>";
+    html += "</div>";
+    html += "</div>";
+
+    thisPage = document.getElementById('page' + tstCurrentPage);
+    thisPage.innerHTML += html;
+
+    preselectSelectedSideEffects();
+    setBackButton();
+    __$('nextButton').onmousedown = function(){
+      validateSideEffectsInput();
+    }
+    
+  }
+
+  function clicked(e) {
+    category = e.getAttribute('category');
+    key = e.getAttribute('key');
+    
+    if(e.id.match(/no_btn_container_/i)) {
+      index = e.id.replace("no_btn_container_",'');
+      hidden_checkbox = document.getElementById('no_checkbox_' + index);
+      off_hidden_checkbox = document.getElementById('yes_checkbox_' + index);
+      off_label_checkbox = document.getElementById('yes_lable_' + index);
+      on_label_checkbox = document.getElementById('no_lable_' + index);
+    }else{
+      index = e.id.replace("yes_btn_container_",'');
+      hidden_checkbox = document.getElementById('yes_checkbox_' + index);
+      off_hidden_checkbox = document.getElementById('no_checkbox_' + index);
+      off_label_checkbox = document.getElementById('no_lable_' + index);
+      on_label_checkbox = document.getElementById('yes_lable_' + index);
+    }
+
+    off_hidden_checkbox.checked = false;
+    off_label_checkbox.setAttribute('style','color: black; background-color: ""');
+    on_label_checkbox.setAttribute('style','color: white; background-color: lightgreen;');
+    if(hidden_checkbox.checked) {
+      hidden_checkbox.checked = false;
+    }else{
+      hidden_checkbox.checked = true;
+    }
+
+    inputID = key + '_child_concept';
+    if(e.id.match(/no_/i)) {
+      //__$(key).value = '';
+      __$(inputID).value = 'No';
+      if(category == 'side_effects') {
+        updateSideEffectNoValue(e);
+      }else{
+        updateTBSymptomNoValue(e);
+      }
+    }else{
+      //__$(key).value = key;
+      __$(inputID).value = 'Yes';
+      if(category == 'side_effects') {
+        updateSideEffectYesValue(e)
+      }else{
+        updateTBSymptomYesValue(e);
+      }
+    }
+  }
+
+  function advancedTBSymptoms(){
+    tbSymptomssArray = JSON.parse('<%=  tb_symptoms_array.to_json %>');
+    jQuery("#inputFrame" + tstCurrentPage).remove()
+    jQuery("#helpText" + tstCurrentPage).css({
+      marginLeft: "0%",
+      fontWeight: "bold",
+      fontSize: "1.9em"
+    });
+
+    html = "<div id='divcontent'>";
+    html += "<div id='divScroller'>";
+    tbSymptomsOptions = JSON.parse('<%=  tb_symptoms_array.to_json %>');
+    html += "<table cellspacing='1' cellpadding='2' width='95%' id='yes_no_table'>";
+    html += "<tbody>";
+
+    for (var i=0; i <= tbSymptomsOptions.length - 1; i++){
+      if(tbSymptomsOptions[i].match(/Weight loss/i) && current_patient_bmi.length > 0) {
+        var low_mbi = false;
+        if(parseFloat(current_patient_bmi) <= 18.5)
+          low_mbi = true;
+
+        else
+          var low_mbi = false;
+      }else if(tbSymptomsOptions[i].match(/Weight loss/i) && current_weight_percentile.length > 0) {
+        var low_weight_percentile = false;
+        if(parseFloat(current_weight_percentile) <= 79)
+          low_weight_percentile = true;
+
+        else
+          var low_weight_percentile = false;
+      }
+
+
+
+
+      html += "<tr>";
+      var tbSymptom = tbSymptomsOptions[i];
+      
+      if(tbSymptom.match(/malnutrition/i)){
+        tbSymptom = 'Weight loss / Failure to thrive / Malnutrition'
+      }
+
+
+      html += "<td class='labelText'>" + tbSymptom + "</td>";
+
+      
+      html += "<td style='width: 30%;'>";
+      html += "<table style='float: right; width: 100%; padding-right: 10px;' class='btn-table'>";
+      html += "<tr>";
+      
+      html += "<td>";
+      html += "<div class='switch switch-yes' id='yes_btn_container_" + i + "' category='TB' ";
+      html += "key='" + tbSymptomsOptions[i] + "' onmousedown='clicked(this);'>";
+      html += "<input class='hidden-checkbox' id='yes_checkbox_" + i + "' type='checkbox'>";
+      html +="<label id='yes_lable_" + i + "'><i></i></label>";
+      html += "</td>";
+     
+      html += "<td>";
+      if(low_mbi == true) {
+        calculatedWeightlossPercent = null;
+        html += "<div class='low_bmi_found switch switch-no' id='no_btn_container_" + i + "' category='TB' ";
+        html += "lowBMI=" + parseFloat(current_patient_bmi) + " ";
+        html += "key='" + tbSymptomsOptions[i] + "' onmousedown='alertOnLowBMI(this);'>";
+      }else if(low_weight_percentile == true) {
+        calculatedWeightlossPercent = null;
+        html += "<div class='low_bmi_found switch switch-no' id='no_btn_container_" + i + "' category='TB' ";
+        html += "lowBMI=" + parseFloat(current_weight_percentile).toFixed(1) + " ";
+        html += "key='" + tbSymptomsOptions[i] + "' onmousedown='alertOnLowBMI(this);'>";
+      }else if(weightLossPercent() >= 10 && tbSymptomsOptions[i].match(/Weight loss/i)) {
+        html += "<div class='low_bmi_found switch switch-no' id='no_btn_container_" + i + "' category='TB' ";
+        html += "lowBMI=" + calculatedWeightlossPercent + "% ";
+        html += "key='" + tbSymptomsOptions[i] + "' onmousedown='alertOnLowBMI(this);'>";
+      }else if(weightLossPercent() > 0 && parseInt('<%@patient_bean.age%>') < 5 && tbSymptomsOptions[i].match(/Weight loss/i)) {
+        html += "<div class='low_bmi_found switch switch-no' id='no_btn_container_" + i + "' category='TB' ";
+        html += "lowBMI=" + calculatedWeightlossPercent + "% ";
+        html += "key='" + tbSymptomsOptions[i] + "' onmousedown='alertOnLowBMI(this);'>";
+      }else{
+        html += "<div class='switch switch-no' id='no_btn_container_" + i + "' category='TB' ";
+        html += "key='" + tbSymptomsOptions[i] + "' onmousedown='clicked(this);'>";
+      }
+      html += "<input class='hidden-checkbox' id='no_checkbox_" + i + "' type='checkbox'>";
+      html +="<label id='no_lable_" + i + "'><i></i></label>";
+      html += "</td>";
+     
+      html += "</tr>";
+      html += "</table>";
+      html += "</td>";
+     
+     
+      html += "</tr>"
+    }
+
+    html += "<tbody>"
+    html += "</table>";
+    html += "</div>";
+    html += "</div>";
+
+    thisPage = document.getElementById('page' + tstCurrentPage);
+    thisPage.innerHTML += html;
+
+    preselectSelectedTBSymptoms();
+    setBackButton();
+    __$('nextButton').onmousedown = function(){
+      validateTBSymptomsInput();
+    }
+  }
+
+  function updateSideEffectNoValue(obj){
+    key = obj.getAttribute('key');
+    sideEffectsHash[key]["no"] = 'true';
+    sideEffectsHash[key]["yes"] = '';
+  }
+
+
+  function updateSideEffectYesValue(obj){
+    key = obj.getAttribute('key');
+    sideEffectsHash[key]["yes"] = 'true';
+    sideEffectsHash[key]["no"] = '';
+  }
+
+  function updateTBSymptomYesValue(obj){
+    key = obj.getAttribute('key');
+    tbSymptomsHash[key]["yes"] = 'true';
+    tbSymptomsHash[key]["no"] = '';
+  }
+
+  function updateTBSymptomNoValue(obj){
+    key = obj.getAttribute('key');
+    tbSymptomsHash[key]["no"] = 'true';
+    tbSymptomsHash[key]["yes"] = '';
+  }
+  
+  function preselectSelectedSideEffects(){
+    for (var key in sideEffectsHash){
+      yesValue = sideEffectsHash[key]["yes"];
+      noValue = sideEffectsHash[key]["no"];
+      yes_no_buttons = jQuery("[key='" + key + "']");
+      yes_button = yes_no_buttons[0]
+      no_button = yes_no_buttons[1]
+
+      divs = document.getElementsByClassName('switch');
+      for(var i = 0; i < divs.length; i++){
+        divKey = divs[i].getAttribute('key');
+        if(key == divKey){
+          if(yesValue.length > 0) {
+            index = yes_button.id.replace("yes_btn_container_",'');
+            hidden_checkbox = document.getElementById('yes_checkbox_' + index);
+            on_label_checkbox = document.getElementById('yes_lable_' + index);
+            on_label_checkbox.setAttribute('style','color: white; background-color: lightgreen;');
+            hidden_checkbox.checked = true;
+            break;
+          }else if(noValue.length > 0){
+            index = no_button.id.replace("no_btn_container_",'');
+            hidden_checkbox = document.getElementById('no_checkbox_' + index);
+            on_label_checkbox = document.getElementById('no_lable_' + index);
+            on_label_checkbox.setAttribute('style','color: white; background-color: lightgreen;');
+            hidden_checkbox.checked = true;
+            break;
+          }
+        }
+      }
+ 
+    }
+  }
+
+  function preselectSelectedTBSymptoms(){
+    for (var key in tbSymptomsHash){
+      yesValue = tbSymptomsHash[key]["yes"];
+      noValue = tbSymptomsHash[key]["no"];
+      yes_no_buttons = jQuery("[key='" + key + "']");
+      yes_button = yes_no_buttons[0];
+      no_button = yes_no_buttons[1];
+
+      divs = document.getElementsByClassName('switch');
+      for(var i = 0; i < divs.length; i++){
+        divKey = divs[i].getAttribute('key');
+        if(key == divKey){
+          if(yesValue.length > 0) {
+            index = yes_button.id.replace("yes_btn_container_",'');
+            hidden_checkbox = document.getElementById('yes_checkbox_' + index);
+            on_label_checkbox = document.getElementById('yes_lable_' + index);
+            on_label_checkbox.setAttribute('style','color: white; background-color: lightgreen;');
+            hidden_checkbox.checked = true;
+            break;
+          }else if(noValue.length > 0){
+            index = no_button.id.replace("no_btn_container_",'');
+            hidden_checkbox = document.getElementById('no_checkbox_' + index);
+            on_label_checkbox = document.getElementById('no_lable_' + index);
+            on_label_checkbox.setAttribute('style','color: white; background-color: lightgreen;');
+            hidden_checkbox.checked = true;
+            break;
+          }
+        }
+      }
+ 
+    }
+  }
+
+  function validateSideEffectsInput(){
+    unselectedSideEffects = [];
+    for (var key in sideEffectsHash){
+      yesValue = sideEffectsHash[key]["yes"];
+      noValue = sideEffectsHash[key]["no"];
+      if (yesValue.length == 0 && noValue.length == 0){
+        //The row was not selected
+        unselectedSideEffects.push(key);
+      }
+    }
+
+    if (unselectedSideEffects.length > 0){
+      showMessage("The following <%= @hiv_clinic_consultation_side_efects_label_short %> are not selected <br />" +  unselectedSideEffects.join('<br /> '));
+    }else{
+      gotoNextPage();
+    }
+  }
+
+  function validateTBSymptomsInput(){
+    unselectedTBSymptoms = [];
+    for (var key in tbSymptomsHash){
+      yesValue = tbSymptomsHash[key]["yes"];
+      noValue = tbSymptomsHash[key]["no"];
+      if (yesValue.length == 0 && noValue.length == 0){
+        //The row was not selected
+        unselectedTBSymptoms.push(key);
+      }
+    }
+
+    if (unselectedTBSymptoms.length > 0){
+      showMessage("The following TB Symptoms are not selected <br />" +  unselectedTBSymptoms.join('<br /> '));
+    }else{
+      gotoNextPage();
+    }
+  }
+
+  function setBackButton(){
+    backButton = jQuery('#backButton')[0];
+    if (backButton){
+      mouseEvent = backButton.getAttribute('onmousedown');
+      if (mouseEvent){
+        if (!mouseEvent.match(/resetNextButton/i)){
+          onmousedownevent = backButton.getAttribute('onmousedown') + '; resetNextButton()';
+          backButton.setAttribute('onmousedown', onmousedownevent);
+        }
+      }
+    }
+  }
+
+  function resetNextButton(){
+    __$('nextButton').onmousedown = function(){
+      gotoNextPage();
+    }
+  }
+
+  function hideTBStatusQuestion(){
+    tbTreatmentValue = __$('touchscreenInput' + tstCurrentPage).value.toUpperCase();
+    if (tbTreatmentValue == 'YES'){
+      $('tb_status_hack').value = 'Confirmed TB ON Treatment';
+    }else{
+      $('tb_status_hack').value = '';
+    }
+  }
+
+  function tbSymptomsHashSelects() {
+    for(k in tbSymptomsHash) {
+      if(tbSymptomsHash[k]['yes'].length > 0) {
+        $('tb_status_hack').value = '';
+        return 'YES'
+      }
+    }
+
+    $('tb_status_hack').value = 'TB Not suspected';
+    return 'NO'
+  }
+  
+  function hideCategory() {
+    document.getElementById('category').style = 'display: none;'
+  }
+
+  var calculatedWeightlossPercent = null;
+
+  function weightLossPercent(){
+    currentWeight = <%=@current_weight %>;
+    previousWeight = <%=@previous_weight %>;
+    /*Decrease = Original Number - New Number
+    //%Decrease = Decrease ÷ Original Number × 100
+    If your answer is a negative number then this is a percentage increase.
+    Find more at: http://www.skillsyouneed.com/num/percent-change.html#ixzz4TIacWujf
+     */
+    if(currentWeight.length < 1 || previousWeight.length < 1)
+      return 0;
+
+    decrease = parseFloat(previousWeight) - parseFloat(currentWeight);
+    weight_loss_percent = (decrease/previousWeight) * 100;
+    calculatedWeightlossPercent = Math.round(weight_loss_percent);
+    return calculatedWeightlossPercent;
+  }
+
+  function updateFamilyPlanningHiddenField(){
+    current_input_value = $("touchscreenInput" + tstCurrentPage).value;
+    if (current_input_value.match(/NONE/i)){
+      $('on_fpm').value = 'NO';
+    }else{
+      $('on_fpm').value = 'YES';
+    }
+  }
+
+  function controlNoneSelectionForFamilyPlanning(){
+    liOptions = document.getElementsByTagName("li");
+    for (var i=0; i<=liOptions.length - 1; i++){
+      tstValue = liOptions[i].getAttribute("tstvalue");
+
+      if (tstValue.match(/NONE/i)){
+        liOptions[i].onclick = function(){
+          jQuery( "li" ).removeClass( "disabled-li");
+          selectedValues = $("touchscreenInput" + tstCurrentPage).value.split(";")
+          currentLiItem = this;
+
+          if (currentLiItem.style.backgroundColor.match(/lightblue/i)){
+            for (var j=0; j<=selectedValues.length - 1; j++){
+              selected_value = selectedValues[j].toUpperCase();
+              if (selected_value.match(/IMPLANT/i)){
+                selected_value = 'CONTRACEPTIVE IMPLANT';
+              }
+              if (selected_value.match(/INTRAUTERINE/i)){
+                selected_value = 'INTRAUTERINE CONTRACEPTION';
+              }
+              liElement = jQuery("[tstvalue='" + selected_value + "']")[0];
+              if (liElement){
+                id = liElement.getAttribute("id");
+                updateTouchscreenInputForSelect(__$('optionValue' + id), liElement)
+              }
+            }
+          }else{
+            for (var j=0; j<=selectedValues.length - 1; j++){
+              selected_value = selectedValues[j].toUpperCase();
+              if (selected_value.match(/IMPLANT/i)){
+                selected_value = 'CONTRACEPTIVE IMPLANT';
+              }
+              if (selected_value.match(/INTRAUTERINE/i)){
+                selected_value = 'INTRAUTERINE CONTRACEPTION';
+              }
+
+              liElement = jQuery("[tstvalue='" + selected_value + "']")[0];
+              console.log(liElement)
+              if (liElement){
+                id = liElement.getAttribute("id");
+                updateTouchscreenInputForSelect(__$('optionValue' + id), liElement)
+              }
+            }
+
+            noneElement = jQuery("[tstvalue=NONE]")[0];
+            noneElementID = noneElement.getAttribute("id");
+            updateTouchscreenInputForSelect(__$('optionValue' + noneElementID), noneElement)
+          }
+
+        }
+      }
+      else{
+        liOptions[i].onmouseup = function(){
+          noneElement = jQuery("[tstvalue=NONE]")[0];
+          noneElementID = noneElement.getAttribute("id");
+          if (noneElement.style.backgroundColor.match(/lightblue/i)){
+            updateTouchscreenInputForSelect(__$('optionValue' + noneElementID), noneElement);
+          }
+        }
+      }
+    }
+
+  }
+
+  function hideSafeFamillyPlanningPopup(){
+    document.getElementById("safe-family-planning-popup-div").style.display = 'none';
+    document.getElementById("safe-family-planning-cover").style.display = 'none';
+  }
+
+  function showSafeFamilyPlanningMethodsPopup(){
+    document.getElementById("safe-family-planning-popup-div").style.display = 'inline';
+    document.getElementById("safe-family-planning-cover").style.display = 'inline';
+  }
+
+  function setOptionsForSafeFamilyPlanningMethodsPopup(){
+    male_condoms_option_input = jQuery("li[tstvalue='MALE CONDOMS']")[0];
+    female_condoms_option_input = jQuery("li[tstvalue='FEMALE CONDOMS']")[0];
+
+    addEvent(male_condoms_option_input, "click", function() {
+      if (male_condoms_option_input.style.backgroundColor.match(/lightblue/i)){
+        selectedValues = $("touchscreenInput" + tstCurrentPage).value.split(";");
+        if (selectedValues.length == 1){
+          showSafeFamilyPlanningMethodsPopup();
+        }
+      }
+    })
+      
+    addEvent(female_condoms_option_input, "click", function() {
+      if (female_condoms_option_input.style.backgroundColor.match(/lightblue/i)){
+        selectedValues = $("touchscreenInput" + tstCurrentPage).value.split(";");
+        if (selectedValues.length == 1){
+          showSafeFamilyPlanningMethodsPopup();
+        }
+      }
+    })
+    
+  }
+  
+  function expandChart(e) {
+    zoomChart('container_' + e, weightObs);
+  }
+
+  function loadCharts() {
+    var frame = document.getElementById('inputFrame' + tstCurrentPage);
+    var chartDiv = document.createElement('div');
+    chartDiv.setAttribute('class','boxer');
+    chartDiv.setAttribute('style','width:99%; height:98%; margin:0 auto;')
+    frame.appendChild(chartDiv);
+
+
+    var chartDivRow = document.createElement('div');
+    chartDivRow.setAttribute('class','box-row');
+
+    var chartDivRow2 = document.createElement('div');
+    chartDivRow2.setAttribute('class','box-row');
+    
+
+    chartDiv.appendChild(chartDivRow);
+    chartDiv.appendChild(chartDivRow2);
+
+
+    var charts = ['one','two','three','four'];
+    for(var i = 0; i < charts.length; i++){
+      var chart = document.createElement('div');
+      chart.setAttribute('id','container_' + charts[i]);
+      chart.setAttribute('style',"min-width: 49.5%; height: 280px; margin: 0 auto;");
+      chart.setAttribute('class','box');
+      chart.setAttribute('data-toggle','modal');
+      chart.setAttribute('data-target','.bd-example-modal-lg');
+      chart.setAttribute('onmousedown',"expandChart('" + charts[i] + "');");
+
+      if(charts[i] == 'one' || charts[i] == 'two'){
+        chartDivRow.appendChild(chart);
+      }else{
+        chartDivRow2.appendChild(chart);
+      }
+    }
+
+    for(var i = 0; i < charts.length; i++){
+      //createChart(charts[i]);
+    }
+
+    plotWeightTrailGraph('container_one', weightObs);
+    plotBabyGraph('container_three');
+
+  }
+
+  function formatNoControlInput(){
+
+    __$('inputFrame' + tstCurrentPage).style.background = "white";
+    __$('inputFrame' + tstCurrentPage).style.marginTop = "6%";
+    __$('page' + tstCurrentPage).style.marginTop = "2.5%";
+    __$('inputFrame' + tstCurrentPage).style.border = "hidden";
+    __$('infoBar' + tstCurrentPage).style.border = "hidden";
+
+    var noControlInput = document.getElementById("touchscreenInput" + tstCurrentPage);
+    var helptext = __$("helpText" + tstCurrentPage);
+
+    //noControlInput.style.width = "400px"
+    //noControlInput.style.fontSize = "50px"
+    //noControlInput.style.marginLeft = "33%";
+    //noControlInput.style.height = "80px";
+    //helptext.style.position = "absolute";
+    //helptext.style.left = "20%";
+    //helptext.style.top = "20%";
+    //helptext.style.paddingTop = "100px";
+    jQuery('#helpText' + tstCurrentPage).center();
+  }
+
+  /*
+  var weightObs = [];
+<%#(@weight_trail || {}).sort_by{ |x,b| x.to_date }.each do |date, weight|%>
+    weightObs.push(['<%#=date.to_date%>', <%#= weight %>]);
+<%#end%>
+
+
+  var standard_high_weight = [];
+  var standard_low_weight = [];
+  var median_weight = [];
+  var age_in_months = [];
+  var weight_trail = [];
+
+<%#(@weight_height_for_age[1] || {}).sort_by {|x, y| x }.each do |age, data|%>
+    weight_trail.push(null);
+<%#end%>
+
+<%#(@weight_height_for_age[0] || []).each do |age, data|%>
+      m_index = <%#=age%>;
+      weight_trail[m_index] = <%#=data%>;
+<%#end%>
+
+<%#(@weight_height_for_age[1] || {}).sort_by {|x, y| x }.each do |age, data|%>
+      standard_low_weight.push(<%#=data[:standard_low_weight]%>);
+      standard_high_weight.push(<%#=data[:standard_high_weight]%>);
+      median_weight.push(<%#=data[:median_weight]%>);
+      age_in_months.push(<%#=age%>);
+<%#end%>
+   */
+
+</script>
+
+<form action="/encounters/create" method='post'>
+  <%= hidden_field_tag "encounter[encounter_type_name]", "HIV CLINIC CONSULTATION" %>
+  <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+  <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+  <%= hidden_field_tag "encounter[provider_id]", current_user.user_id %>
+
+
+<%#= text_field_tag :summary, nil, { 
+:tt_onLoad => "__$('keyboard').style.display = 'none';loadCharts();showCategory2('Clinic consultation');", 
+:optional => "true",
+:tt_pageStyleClass => "NoControls" } 
+%>
+
+
+
+  <% side_effects_array.each do |element| %>
+    <%= touch_hidden_tag "MALAWI ART SIDE EFFECTS", @patient, "#{element}", :id => "#{element}" %>
+    <%= touch_hidden_tag "#{element}", @patient, "", :id => "#{element}_child_concept", :parent_concept_name => "MALAWI ART SIDE EFFECTS"%>
+  <% end %>
+
+  <% tb_symptoms_array.each do |element| %>
+    <%= touch_hidden_tag "ROUTINE TUBERCULOSIS SCREENING", @patient, "#{element}", :id => "#{element}" %>
+    <%= touch_hidden_tag "#{element}", @patient, "", :id => "#{element}_child_concept", :parent_concept_name => "ROUTINE TUBERCULOSIS SCREENING"%>
+  <% end %>
+
+  <%= touch_hidden_tag "TB STATUS", @patient, "", :id => "tb_status_hack" %>
+
+  <!-- FOR TRANSFER IN PATIENT -->
+  <%= touch_select_tag "LAST ART DRUGS TAKEN", @patient, options_for_select(@arv_drugs),
+    {	:id => "last_art_drugs_taken",
+    :condition => 'everReceivedARTAnswer == "YES"',
+    :tt_onLoad => "showCategory2('Transfer-In patient'); addCustomRegimenButton(); lastOtherDrugs = ''; $('otherMedications').value = '';",
+    :tt_onUnLoad => 'updateLastARVDrugs(); removeCustomRegimenButton();',
+    :helpText => "Last ARV drugs taken <span style='font-size:0.7em;font-style:italic'>(Ntundu wa ma ARV amene munamwa komaliza)</span>"  } %>
+
+  <% @regimen_formulations.each do |regimen_index, formulations| %>
+
+    <% formulations.split('+').each do |formulation| %>
+      <%
+      formulation = 'Darunavir' if formulation.squish.upcase == 'DRV'
+      formulation = 'Ritonavir' if formulation.squish.upcase == 'R'
+    %>
+
+      <%= touch_numeric_tag "#{formulation.squish}", @patient, nil,
+        {
+        :id => "#{formulation}",
+        :field_type => 'number',
+        :tt_pageStyleClass => "NumbersOnly",
+        :tt_onLoad => "jQuery('#Unknown').show(); showCategory2('Transfer-In patient');",
+        :condition => "parseInt($('last_art_drugs_taken').value.trim().match(/\\d+/)) == parseInt(#{regimen_index})",
+        :helpText  => "Total tabs of #{formulation.squish} brought to clinic"} %>
+
+    <% end %>
+  <% end %>
+
+<%#= touch_select_tag "LAST ART DRUGS TAKEN", @patient, options_for_select(@other_medications),
+{
+:id => "otherMedications",
+:field_type => 'number',
+:tt_onLoad => "jQuery('#Unknown').show();",
+:tt_onUnLoad => 'updateLastOtherMedications();',
+:condition => "otherRegimen == true",
+:multiple => true,
+:helpText  => "Last ARV drugs taken <span style='font-size:0.7em;font-style:italic'>(Ntundu wa ma ARV amene munamwa komaliza)</span>"} %>
+
+  <%= touch_select_tag "LAST ART DRUGS TAKEN", @patient, options_for_select(@other_medications),
+    {
+    :id => "otherMedications",
+    :field_type => 'number',
+    :tt_onLoad => "jQuery('#Unknown').show(); showCategory2('Transfer-In patient');",
+    :tt_onUnLoad => 'updateLastOtherMedications();',
+    :condition => "$('last_art_drugs_taken').value.trim().toUpperCase() == 'OTHER'",
+    :multiple => true,
+    :helpText  => "Last ARV drugs taken <span style='font-size:0.7em;font-style:italic'>(Ntundu wa ma ARV amene munamwa komaliza)</span>"} %>
+
+  <% @other_medications.each do |key, value|  %>
+    <%= touch_numeric_tag "#{value}", @patient, nil,
+      {
+      :id => "#{key}",
+      :field_type => 'number',
+      :tt_pageStyleClass => "NumbersOnly",
+      :tt_onLoad => "jQuery('#Unknown').show(); showCategory2('Transfer-In patient');",
+      :condition => "lastOtherDrugs.split(';').indexOf('#{key}') != -1",
+      :helpText  => "Total tabs of #{key.squish} brought to clinic"} %>
+  <% end %>
+
+  <!-- TRANSFER IN END -->
+<% if @patient_present == true %>
+  <% if @patient_is_child_bearing_female %>
+    <% if !@terminal_family_planning_method %>
+      <% if @is_patient_pregnant_value.nil?%>
+
+        <%= touch_yes_no_unknown_tag "IS PATIENT PREGNANT?", @patient, nil,
+          {:id => "pregnant",
+          :validationCode => "checkPregnancyAndAge() == 'false'",
+          :validationMessage => "Patient (#{@patient_bean.name}) is #{@patient_bean.age} years old. Is she pregnant?",
+          :tt_onLoad => "showCategory2('Clinic consultation');",
+          :helpText => "Currently pregnant?"} %>
+
+      <%else%>
+        <%= touch_hidden_tag "IS PATIENT PREGNANT?" , @patient, @is_patient_pregnant_value.strip , :id => "pregnant" %>
+      <%end%>
+
+      <% if @is_patient_breast_feeding_value.nil?%>
+
+        <%= touch_yes_no_unknown_tag "IS PATIENT BREAST FEEDING?", @patient, nil,
+          {:id => "breast_feeding",
+          :validationCode => "checkBreastfeedingAndAge() == 'false'",
+          :tt_onLoad => "showCategory2('Clinic consultation');",
+          :validationMessage => "Patient (#{@patient_bean.name}) is #{@patient_bean.age} years old. Is she breastfeeding?",
+          :helpText => "Currently breastfeeding?" } %>
+
+      <%else%>
+        <%= touch_hidden_tag "IS PATIENT BREAST FEEDING?" , @patient, @is_patient_breast_feeding_value.strip , :id => "breast_feeding" %>
+      <%end%>
+    <% else %>
+      <!-- PATIENT IS CURRENTLY  ON FAMILY PLANNING METHOD-->
+      <%= touch_hidden_tag "IS PATIENT PREGNANT?" , @patient, "NO" , :id => "pregnant" %>
+      <%= touch_yes_no_unknown_tag "IS PATIENT BREAST FEEDING?", @patient, nil,
+        {:id => "breast_feeding",
+        :validationCode => "checkBreastfeedingAndAge() == 'false'",
+        :validationMessage => "Patient (#{@patient_bean.name}) is #{@patient_bean.age} years old. Is she breastfeeding?",
+        :tt_onLoad => "showCategory2('Clinic consultation');",
+        :helpText => "Currently breastfeeding?" } %>
+      <!-- CURRENTLY ON FAMILY PLANNING METHOD END -->
+    <% end %>
+  <% else %>
+    <%= touch_hidden_tag "IS PATIENT PREGNANT?" , @patient, "NO" , :id => "pregnant" %>
+  <% end %>
+
+  <% if @patient_is_child_bearing_female && !@ter_family_planning_method_done %>
+
+    <% patient_pregnant =  @is_patient_pregnant_value.upcase.squish rescue 'NO'
+    if patient_pregnant == 'NO' || patient_pregnant == 'UNKNOWN'
+    %>
+      <% #currently_using_family_planning_methods = @currently_using_family_planning_methods.upcase.squish rescue 'NO'
+      #if (currently_using_family_planning_methods == 'NO'
+
+    %>
+
+    <%#= touch_yes_no_unknown_tag "CURRENTLY USING FAMILY PLANNING METHOD", @patient, nil,
+    {:id => "on_fpm",
+    :tt_onLoad =>"showCategory2('Clinic consultation');",
+    :condition => "$('pregnant').value != 'YES' && terminalFamilyPlanningMethod() == 'false'",
+    :helpText => "Currently using family planning method" } %>
+
+      <%= touch_hidden_tag "CURRENTLY USING FAMILY PLANNING METHOD" , @patient, "" , :id => "on_fpm" %>
+
+    <%#= touch_select_tag "FAMILY PLANNING METHOD", @patient, options_for_select(@select_options['family_planning_methods']),
+    {:id => "fpm_used",
+    :condition => "$('on_fpm').value == 'YES' && $('pregnant').value != 'YES'",
+    :tt_onLoad => "showCategory2('Clinic consultation'); fpm_used=false; startFamilyPlanningTimer();",
+    :tt_onUnLoad => "stopFamilyPlanningTimer();",
+    :multiple => true,
+    :tt_pageStyleClass => "NoKeyboard",
+    :helpText => "What method are you currently on?" } %>
+      <% if !@terminal_family_planning_method %>
+        <%= touch_select_tag "FAMILY PLANNING METHOD", @patient, options_for_select(@select_options['family_planning_methods']),
+          {:id => "fpm_used",
+          :condition => "$('pregnant').value != 'YES'",
+          :tt_onLoad => "showCategory2('Clinic consultation'); fpm_used=false; startFamilyPlanningTimer(); window.setTimeout('controlNoneSelectionForFamilyPlanning(); setOptionsForSafeFamilyPlanningMethodsPopup();', 300);",
+          :tt_onUnLoad => "stopFamilyPlanningTimer(); updateFamilyPlanningHiddenField();",
+          :multiple => true,
+          :tt_pageStyleClass => "NoKeyboard",
+          :helpText => "What method are you currently on?" } %>
+
+        <%= touch_select_tag "FAMILY PLANNING, ACTION TO TAKE", @patient, options_for_select(@select_options['family_planning_methods']),
+          {:id => "fpm_used",
+          :condition => "$('pregnant').value != 'YES'",
+          :tt_onLoad => "showCategory2('Clinic consultation'); fpm_used=false; startFamilyPlanningTimer(); window.setTimeout('controlNoneSelectionForFamilyPlanning(); setOptionsForSafeFamilyPlanningMethodsPopup();', 300)",
+          :tt_onUnLoad => "stopFamilyPlanningTimer();",
+          :multiple => true,
+          :tt_pageStyleClass => "NoKeyboard",
+          :helpText => "What method are you providing today?" } %>
+      <% else %>
+        <%= text_field_tag "terminal_family_planning", '', {
+          :tt_onLoad => "$('keyboard').style.display = 'none'; formatNoControlInput();",
+          :id => 'fpm_used',
+          :tt_pageStyleClass => "NoControls",
+          :optional => "true",
+          :helpText => 'This patient is on Tubal Ligation method',
+          :style => 'position:absolute'} %>
+      <% end %>
+
+      <% if @use_extended_family_planning == "true"  %>
+
+        <%= touch_select_tag "REASON FOR NO FAMILY PLANNING", @patient, options_for_select(@select_options['why_no_family_planning_method']),
+          { :id => "reason_not_using_contraceptive",
+          :tt_onLoad => "showCategory2('Clinic consultation'); reason_not_using_contraceptive=''",
+          :condition => '$("on_fpm").value == "NO"',
+          :multiple => false,
+          :helpText => "Main reason for not using family planning methods"
+
+        }
+      %>
+
+        <%= touch_select_tag "REASON FOR NO FAMILY PLANNING", @patient, options_for_select(@select_options['why_no_family_planning_method_specific']),
+          { :id => "reason_not_using_contraceptive_specific",
+          :tt_onLoad => "showCategory2('Clinic consultation'); reason_not_using_contraceptive_specific=''",
+          :condition => '$("reason_not_using_contraceptive").value == "AT RISK OF UNPLANNED PREGNANCY"',
+          :multiple => false,
+          :helpText => "Reason for not using family planning methods (specific)",
+          :tt_pageStyleClass => "NoKeyboard"
+        }
+      %>
+
+        <%= touch_select_tag "Offer contraception", @patient,
+          options_for_select([['Accepted','YES'],['Declined','NO'],['Discuss with spouse','Wants to discuss with spouse']]),
+          { :id => "offer_fpm",
+          :tt_onLoad => "showCategory2('Clinic consultation'); offer_fpm = false",
+          :condition => "check_offer_contraceptive()",
+          :helpText => "Offer patient contraception"
+        }
+      %>
+
+        <%= touch_select_tag "FAMILY PLANNING METHOD", @patient, options_for_select(@select_options['family_planning_methods_int']),
+          {:id => "fpm_used_intervened",
+          :tt_onLoad => "showCategory2('Clinic consultation'); fpm_used_intervened=''",
+          :condition => '$("offer_fpm").value == "YES"',
+          :multiple => true,
+          :tt_pageStyleClass => "NoKeyboard",
+          :helpText => "What method? (Intervention)" }
+      %>
+
+        <%=  touch_select_tag "OFFER DUAL PROTECTION", @patient,
+          options_for_select([['Accepted','YES'],['Declined','NO'],['Discuss with spouse','Wants to discuss with spouse']]),
+          { :id => "dual_method",
+          :tt_onLoad => "showCategory2('Clinic consultation'); dual_method=''",
+          :condition => "condom_only();",
+          :helpText => "Offer dual protection"
+        }
+      %>
+
+        <%= touch_select_tag "FAMILY PLANNING METHOD", @patient, options_for_select(@select_options['dual_options']),
+          { :id => "other_method",
+          :condition => '$("dual_method").value == "YES"',
+          :tt_onLoad => "showCategory2('Clinic consultation'); other_method =''",
+          :multiple => true,
+          :tt_pageStyleClass => "NoKeyboard",
+          :helpText => "Select other contraceptive method"
+        }
+      %>
+      <%# end %>
+
+      <%else%>
+
+        <%= touch_hidden_tag "CURRENTLY USING FAMILY PLANNING METHOD" , @patient, @currently_using_family_planning_methods.to_s , {:id => "on_fpm"} %>
+
+        <% id = 0
+        if @family_planning_methods.length != 0
+          @family_planning_methods.each do | planning_method | %>
+            <%= touch_hidden_tag "FAMILY PLANNING METHOD" , @patient, planning_method.to_s , {:id => "fpm_used_#{id}"} %>
+            <% id = id + 1
+          end
+        end %>
+      <% end %>
+    <% end %>
+  <%end%>
+  <%end%>
+  <% if ask_standard_art_side_effects == false %>
+  <%#= touch_select_tag "MALAWI ART SIDE EFFECTS", @patient, side_effects_options,
+  {:id => 'side_effects',
+  :multiple => true,
+  :conditions => @art_first_visit == false,
+  :tt_onLoad => "controlNoneSelection();",
+  :tt_onUnLoad => 'setselectedSideEffects();',
+  :helpText => "#{@hiv_clinic_consultation_side_efects_label}" } %>
+
+    <%= text_field_tag "advanced_side_effects", nil, {
+      :id => 'side_effects',
+      :tt_onLoad => "showCategory2('Clinic consultation'); advancedSideEffects(); __$('keyboard').style.display = 'none';",
+      :helpText => "#{@hiv_clinic_consultation_side_efects_label}",
+      :optional => "true",
+      :conditions => @art_first_visit == false,
+      :tt_pageStyleClass => "NoControls" } %>
+
+  <% else %>
+    <%= touch_select_tag "SYMPTOM PRESENT", @patient, concept_set_options('COMMON MALAWI ART SYMPTOM SET'),
+      {:id => 'symptoms',
+      :optional => true,
+      :tt_onLoad => "showCategory2('Clinic consultation');",
+      :multiple => true,
+      :helpText => "ART related symptoms (select all that apply)" } %>
+
+    <%= touch_select_tag "SYMPTOM PRESENT", @patient, concept_set_options('ADDITIONAL MALAWI ART SYMPTOM SET'),
+      {:id => 'additional_symptoms',
+      :optional => true,
+      :tt_onLoad => "showCategory2('Clinic consultation');",
+      :multiple => true,
+      :helpText => "More ART related symptoms (select all that apply)" } %>
+
+    <% if @art_first_visit == false %>
+      <%= touch_select_tag "DRUG INDUCED", @patient, options_for_select([['', '']]),
+        {:id => 'drug_induced_effects',
+        :optional => true,
+        :tt_onLoad => "showCategory2('Clinic consultation');",
+        :multiple => true,
+        :condition => 'getNumberOfSymptoms() > 0',
+        :helpText => "Select which of these symptoms are likely drug induced<br />(select all that apply)",
+        :tt_onLoad => "getSelectedSymptoms()" } %>
+    <% end %>
+  <% end %>
+
+  <%= touch_select_tag "TB TREATMENT", @patient, options_for_select(['', 'Yes', 'No']),
+    {
+    :id => 'tb_treatment_question',
+    :tt_onUnLoad => "showCategory2('Clinic consultation'); hideTBStatusQuestion();",
+    :tt_onLoad => "showCategory2('Clinic consultation');",
+    :helpText => "On TB Treatment?" } %>
+
+  <% if @avilable_status == '' %>
+    <%= text_field_tag "advanced_tb_symptoms", nil, {
+      :id => 'routine_tb_screening',
+      :tt_onLoad => "showCategory2('Clinic consultation'); advancedTBSymptoms(); __$('keyboard').style.display = 'none';",
+      :helpText => "TB associated symptoms",
+      :optional => "true",
+      :condition => "__$('tb_treatment_question').value == 'No'",
+      :tt_pageStyleClass => "NoControls" } %>
+
+  <%#= touch_select_tag "Routine Tuberculosis Screening", @patient, concept_set_options('Routine Tuberculosis Screening'),
+  {	:id => 'routine_tb_screening',
+  :optional => true,
+  :multiple => true,
+  :condition => "__$('tb_treatment_question').value == 'No'",
+  :helpText => "TB associated symptoms" } %>
+  <% end %>
+
+  <%  if @tb_programs_state.nil? %>
+  <%#= touch_hidden_tag "TB STATUS", @patient, @consultation_tb_status, {:id => "tb_status", :value_datetime => true}%>
+
+    <% tb_status_options =  concept_set_options_unknown('TB STATUS').split("\n").collect{|option|
+      next if option.match(/TB ON/i)
+      option
+    }.join("\n")%>
+
+    <%= touch_select_tag "TB STATUS", @patient, tb_status_options,
+      {:id => 'tb_status',
+      :multiple => false,
+      :helpText => "TB Status",
+      :tt_onLoad => "showCategory2('Clinic consultation');checkTbHivStatus(); checkAndSelectTBSuspected(); checkAndSelectConfirmedTBOnTreatment();",
+      :condition => "#{@show_tb_types  == true} && __$('tb_treatment_question').value.toUpperCase() == 'NO'
+    && tbSymptomsHashSelects() == 'YES'"} %>
+  <% else %>
+    <%= touch_hidden_tag "TB STATUS" , @patient, ConceptName.find_by_name("#{@patient_tb_status}").name, {:id => "tb_status"} %>
+  <% end %>
+
+
+  <%date = session[:datetime].to_date rescue Date.today
+  start_date = date.strftime("%Y-%m-%d 00:00:00")
+  end_date = date.strftime("%Y-%m-%d 23:59:59")
+  reception = Encounter.find(:first,:order => "encounter_datetime DESC,date_created DESC",
+    :conditions =>["patient_id = ? AND DATE(encounter_datetime) = ? AND encounter_type = ?
+    AND encounter_datetime >= ? AND encounter_datetime <=?",@patient.id,date,
+      EncounterType.find_by_name('HIV RECEPTION').id,start_date,end_date])
+
+  reception = reception.observations.collect{|r|r.to_s.squish}.join(',') rescue ''
+  patient_present = reception.match(/PATIENT PRESENT FOR CONSULTATION: YES/i)
+%>
+
+
+  <%
+  art_adherence_to_be_done = false
+  (MedicationService.art_drug_given_before(@patient,date) || []).uniq.each do |order|
+    #next unless MedicationService.arv(order.drug_order.drug)
+    art_adherence_to_be_done = true
+    break
+  end
+
+  if art_adherence_to_be_done
+    e = EncounterType.find_by_name("ART ADHERENCE")
+    art_adherence_to_be_done = Encounter.find(:first,
+      :conditions =>["patient_id=? AND encounter_type=?
+      AND encounter_datetime >= ? AND encounter_datetime <=?",@patient.id,e.id,
+        start_date,end_date]).blank?
+  end
+
+
+%>
+
+  <% if !current_user_roles.include?('Clinician') and patient_present %>
+    <%= touch_yes_no_tag "REFER TO ART CLINICIAN", @patient, nil,
+      {:id => "refer_to_clinician",
+      :tt_onLoad => "showCategory2('Clinic consultation');",
+      :helpText => "Refer patient to clinician?" } %>
+  <%else%>
+    <%= touch_hidden_tag "REFER TO ART CLINICIAN", @patient, "NO", :id => "refer_to_clinician" %>
+  <%end unless art_adherence_to_be_done %>
+
+  <%if @allergic_to_sulphur.blank? %>
+    <%= touch_yes_no_unknown_tag "Allergic to sulphur", @patient, nil,
+      {	:id => "allergic_to_sulphur",
+      :condition => "$('refer_to_clinician').value == 'NO'" ,
+      :tt_onLoad => "showCategory2('Clinic consultation');",
+      :helpText => "Allergic to cotrimoxazole" } %>
+  <%else%>
+    <input type="hidden" id='allergic_to_sulphur' value="<%=@allergic_to_sulphur.upcase%>" />
+  <%end unless art_adherence_to_be_done %>
+
+  <%if not @allergic_to_sulphur.blank?
+    if @allergic_to_sulphur.upcase == 'YES'
+      help_text = '<b style="color:red;"> Patient allergic to sulphur</b>'
+    end
+  end%>
+
+  <%
+  session_date = session[:datetime].to_date rescue nil
+  medication_options_allergic_to_sulphur_no = ['ARVs','CPT','IPT','NONE OF THE ABOVE']
+  #medication_options_allergic_to_sulphur_yes = ['ARVs','IPT','NONE OF THE ABOVE']
+  medication_options_allergic_to_sulphur_yes = ['ARVs','CPT','IPT','NONE OF THE ABOVE']
+%>
+  <% unless art_adherence_to_be_done %>
+    <%  if session_date %>
+      <%= touch_select_tag "Medication orders", @patient, options_for_select(medication_options_allergic_to_sulphur_no),
+        {:id => "prescribe_drugs",
+        :tt_onLoad => "showCategory2('Prescription');controlNoneSelection(); setIPTOptionForPopup();",
+        :tt_onUnLoad => "hideCategory();removeFastTrackAssesmentButton();",
+        :condition => "$('refer_to_clinician').value == 'NO' && $('allergic_to_sulphur').value.toUpperCase() != 'YES'" ,
+        :multiple => true,
+        :helpText => "Medication to prescribe during this visit: #{help_text}" } %>
+
+      <%= touch_select_tag "Medication orders", @patient, options_for_select(medication_options_allergic_to_sulphur_yes),
+        {:id => "prescribe_drugs",
+        :tt_onLoad => "showCategory2('Prescription'); controlNoneSelection(); setIPTOptionForPopup();",
+        :tt_onUnLoad => "hideCategory();removeFastTrackAssesmentButton();",
+        :condition => "$('refer_to_clinician').value == 'NO' && $('allergic_to_sulphur').value.toUpperCase() == 'YES'" ,
+        :multiple => true,
+        :helpText => "Medication to prescribe during this visit: #{help_text}" } %>
+
+
+    <% else %>
+      <%= touch_select_tag "Medication orders", @patient, options_for_select(medication_options_allergic_to_sulphur_no),
+        {:id => "prescribe_drugs",
+        :tt_onLoad => "showCategory2('Prescription'); controlNoneSelection(); setIPTOptionForPopup();",
+        :tt_onUnLoad => "hideCategory();removeFastTrackAssesmentButton();",
+        :condition => "$('refer_to_clinician').value == 'NO' && ($('allergic_to_sulphur').value.toUpperCase() == 'NO' || $('allergic_to_sulphur').value.toUpperCase() == 'UNKNOWN')" ,
+        :multiple => true,
+        :helpText => "Medication to prescribe during this visit: #{help_text}" } %>
+
+      <%= touch_select_tag "Medication orders", @patient, options_for_select(medication_options_allergic_to_sulphur_yes),
+        {:id => "prescribe_drugs",
+        :tt_onLoad => "showCategory2('Prescription'); controlNoneSelection(); setIPTOptionForPopup();",
+        :tt_onUnLoad => "hideCategory();removeFastTrackAssesmentButton();",
+        :condition => "$('refer_to_clinician').value == 'NO' && $('allergic_to_sulphur').value.toUpperCase() == 'YES'" ,
+        :multiple => true,
+        :helpText => "Medication to prescribe during this visit: #{help_text}" } %>
+
+
+    <% end %>
+    <%= touch_hidden_tag "Prescribe drugs", @patient, "YES", :id => "prescribe_drugs" %>
+  <% end  %>
+
+
+  <%if @obs_ans.match(/Prescribe drugs: Yes/i) %>
+  <%#= touch_hidden_tag "Prescribe drugs", @patient, "YES", :id => "prescribe_drugs" %>
+
+  <%else%>
+    <%  if session_date %>
+    <%#= touch_select_tag "Medication orders", @patient, options_for_select(medication_options_allergic_to_sulphur_no),
+    {:id => "prescribe_drugs",
+    :tt_onLoad => "showCategory2('Prescription');controlNoneSelection(); setIPTOptionForPopup();",
+    :tt_onUnLoad => "hideCategory();removeFastTrackAssesmentButton();",
+    :condition => "$('refer_to_clinician').value == 'NO' && $('allergic_to_sulphur').value.toUpperCase() != 'YES'" ,
+    :multiple => true,
+    :helpText => "Medication to prescribe during this visit: #{help_text}" } %>
+
+    <%#= touch_select_tag "Medication orders", @patient, options_for_select(medication_options_allergic_to_sulphur_yes),
+    {:id => "prescribe_drugs",
+    :tt_onLoad => "showCategory2('Prescription'); controlNoneSelection(); setIPTOptionForPopup();",
+    :tt_onUnLoad => "hideCategory();removeFastTrackAssesmentButton();",
+    :condition => "$('refer_to_clinician').value == 'NO' && $('allergic_to_sulphur').value.toUpperCase() == 'YES'" ,
+    :multiple => true,
+    :helpText => "Medication to prescribe during this visit: #{help_text}" } %>
+
+
+    <% else %>
+    <%#= touch_select_tag "Medication orders", @patient, options_for_select(medication_options_allergic_to_sulphur_no),
+    {:id => "prescribe_drugs",
+    :tt_onLoad => "showCategory2('Prescription'); controlNoneSelection(); setIPTOptionForPopup();",
+    :tt_onUnLoad => "hideCategory();removeFastTrackAssesmentButton();",
+    :condition => "$('refer_to_clinician').value == 'NO' && ($('allergic_to_sulphur').value.toUpperCase() == 'NO' || $('allergic_to_sulphur').value.toUpperCase() == 'UNKNOWN')" ,
+    :multiple => true,
+    :helpText => "Medication to prescribe during this visit: #{help_text}" } %>
+
+    <%#= touch_select_tag "Medication orders", @patient, options_for_select(medication_options_allergic_to_sulphur_yes),
+    {:id => "prescribe_drugs",
+    :tt_onLoad => "showCategory2('Prescription'); controlNoneSelection(); setIPTOptionForPopup();",
+    :tt_onUnLoad => "hideCategory();removeFastTrackAssesmentButton();",
+    :condition => "$('refer_to_clinician').value == 'NO' && $('allergic_to_sulphur').value.toUpperCase() == 'YES'" ,
+    :multiple => true,
+    :helpText => "Medication to prescribe during this visit: #{help_text}" } %>
+
+
+    <% end %>
+  <%#= touch_hidden_tag "Prescribe drugs", @patient, "YES", :id => "prescribe_drugs" %>
+  <%end unless art_adherence_to_be_done %>
+
+  <% session_date = session[:datetime].to_date rescue nil
+  if session_date %>
+
+    <p><label for="filter_provider">Staff who provided the information (Provider)</label></br>
+      <%= text_field "filter" , 'provider', :helpText => 'Staff who provided the information (Provider)',
+        :ajaxURL => '/user/username?username=' %></p>
+  <% else %>
+    <%= hidden_field_tag "filter[provider]", nil %>
+  <%end%>
+
+  <%= touch_hidden_tag("FAST", @patient, "", {:id => 'fast-track-input'}) %>
+
+  <%= submit_tag "Finish" %>
+
+  <script src="/javascripts/fastTrackOptionsPopup.js?version=<%=Time.now.to_i%>" type="text/javascript"></script>
+</form>
+
+<% if !art_adherence_to_be_done %>
+  <script type="text/javascript">setTimeout('addButton()',1000)</script>
+<% end %>
+
+<div id="fast_track_reminder" style="display:none;">
+  <div id="fast_track_reminder_header">
+    <span style="font-size: 16pt; font-weight: bold;">Fast Track Notification</span>
+  </div>
+  <% if @latest_fast_track_answer == 'YES' %>
+    <div id="fast_track_reminder_content">
+      <div style="position: relative; overflow:auto; height: 80%; font-size: 14pt; font-weight: bold; color: white;">
+        <br />
+        <center>
+          <% unless @latest_vl_result[:latest_result].blank? %>
+            Latest Viral Load result: <%= @latest_vl_result[:modifier].to_s + ' ' + @latest_vl_result[:latest_result].to_s + ' on ' + @latest_vl_result[:latest_date].to_s %> <br />
+          <% end %>
+          This patient is already enrolled in FAST track program. Assess the patient before proceeding.<br />
+          Do you want to continue fast track program with this patient?
+        </center>
+      </div>
+    </div>
+
+    <div id="fast_track_reminder_footer">
+      <span id="fastTrackNotNow" style="padding: 12px 13%;" onclick="stopFastTrack();">Stop Fast Track</span>
+      <span id="fastTrackNow" style="padding: 12px 13%;" onclick="continueFastTrack();">Continue Fast Track</span>
+    </div>
+
+  <% else %>
+    <div id="fast_track_reminder_content">
+      <div style="position: relative; overflow:auto; height: 80%; font-size: 14pt; font-weight: bold; color: white;">
+        <br />
+        <center>
+          This patient is eligible for Fast Track<br />
+          Do you want to enroll this patient into Fast Track Program?
+        </center>
+      </div>
+    </div>
+
+    <div id="fast_track_reminder_footer">
+      <span id="fastTrackNotNow" onclick="fastTrackNotNow();">Not Now</span>
+      <span id="fastTrackNow" onclick="fastTrackNow();">Enroll</span>
+    </div>
+  <% end %>
+
+</div>
+
+<div id="fast_track_reminder_cover" style="display:none;">
+
+</div>
+
+<script type="text/javascript">
+  var selectedSideEffects;
+
+  function setselectedSideEffects(){
+    selectedSideEffects = __$('touchscreenInput' + tstCurrentPage).value.toUpperCase().trim();
+  }
+
+  function showFastTrackReminder(){
+    if (art_period_in_months >= 12){
+      if (selectedSideEffects == 'NO'){
+        jQuery("#fast_track_reminder").show();
+        jQuery("#fast_track_reminder_cover").show();
+      }
+    }
+  }
+
+  function fastTrackNotNow(){
+    //jQuery('#fast-track-input').value = 'No';
+    jQuery('#fast-track-input').attr('value', 'No');
+    jQuery("#fast_track_reminder").hide();
+    jQuery("#fast_track_reminder_cover").hide();
+    gotoNextPage();
+  }
+
+  function fastTrackNow(){
+    //jQuery('#fast-track-input').value = 'Yes';
+    jQuery('#fast-track-input').attr('value', 'Yes');
+    jQuery("#fast_track_reminder").hide();
+    jQuery("#fast_track_reminder_cover").hide();
+    gotoNextPage();
+  }
+
+  function continueFastTrack(){
+    //jQuery('#fast-track-input').value = '';
+    jQuery('#fast-track-input').attr('value', '')
+    jQuery("#fast_track_reminder").hide();
+    jQuery("#fast_track_reminder_cover").hide();
+    gotoNextPage();
+  }
+
+  function stopFastTrack(){
+    //jQuery('#fast-track-input').value = 'No';
+    jQuery('#fast-track-input').attr('value', 'No');
+    jQuery("#fast_track_reminder").hide();
+    jQuery("#fast_track_reminder_cover").hide();
+    gotoNextPage();
+  }
+
+  function controlNoneSelection(){
+    liOptions = document.getElementsByTagName("li");
+    for (var i=0; i<=liOptions.length - 1; i++){
+      tstValue = liOptions[i].getAttribute("tstvalue");
+
+      if (tstValue.match(/NONE/i)){
+        liOptions[i].onclick = function(){
+          selectedValues = $("touchscreenInput" + tstCurrentPage).value.split(";")
+          currentLiItem = this;
+          
+          if (currentLiItem.style.backgroundColor.match(/lightblue/i)){
+
+            for (var j=0; j<=selectedValues.length - 1; j++){
+              liElement = jQuery("[tstvalue='" + selectedValues[j] + "']")[0];
+              if (liElement){
+                id = liElement.getAttribute("id");
+                updateTouchscreenInputForSelect(__$('optionValue' + id), liElement)
+              }
+            }
+          }else{
+            for (var j=0; j<=selectedValues.length - 1; j++){
+              liElement = jQuery("[tstvalue='" + selectedValues[j] + "']")[0];
+              if (liElement){
+                id = liElement.getAttribute("id");
+                updateTouchscreenInputForSelect(__$('optionValue' + id), liElement)
+              }
+            }
+            
+            noneElement = jQuery("[tstvalue='NONE OF THE ABOVE']")[0];
+            noneElementID = noneElement.getAttribute("id");
+            updateTouchscreenInputForSelect(__$('optionValue' + noneElementID), noneElement)
+          }
+
+        }
+      }
+      else{
+        liOptions[i].onmouseup = function(){
+          noneElement = jQuery("[tstvalue='NONE OF THE ABOVE']")[0];
+          noneElementID = noneElement.getAttribute("id");
+          if (noneElement.style.backgroundColor.match(/lightblue/i)){
+            updateTouchscreenInputForSelect(__$('optionValue' + noneElementID), noneElement);
+          }
+        }
+      }
+    }
+
+  }
+
+
+  function hideTBTreatmentPopupAndClearinput(){
+    //clearInput();
+    ipt_option_input = jQuery("[tstvalue='IPT']")[0];
+    if (ipt_option_input){
+      ipt_option_input.click();
+    }
+    document.getElementById("tb-treatment-popup-div").style.display = 'none';
+    document.getElementById("tb-treatment-cover").style.display = 'none';
+  }
+
+  function hideTBTreatmentPopup(){
+    document.getElementById("tb-treatment-popup-div").style.display = 'none';
+    document.getElementById("tb-treatment-cover").style.display = 'none';
+  }
+
+  function showTBTreatmentPopup(){
+    document.getElementById("tb-treatment-popup-div").style.display = 'inline';
+    document.getElementById("tb-treatment-cover").style.display = 'inline';
+  }
+
+  /*function setIPTOptionForPopup(){
+    ipt_option_input = jQuery("[tstvalue='IPT']")[0];
+    tb_treatment__status = __$('tb_treatment_question').value.toUpperCase();
+    tb_status = __$('tb_status').value.toUpperCase();
+    ipt_message_header = "PATIENT IS ON TB TREATMENT";
+    if (tb_status == 'TB SUSPECTED'){
+      ipt_message_header = "PATIENT IS A TB SUSPECT";
+    }else if (tb_status == 'CONFIRMED TB NOT ON TREATMENT'){
+      ipt_message_header = "PATIENT IS CONFIRMED TB BUT NOT ON TREATMENT";
+    }
+
+    if (tb_treatment__status == 'YES' || tb_status == 'CONFIRMED TB NOT ON TREATMENT' || tb_status == 'TB SUSPECTED' || tb_status == 'CONFIRMED TB ON TREATMENT'){
+      if (ipt_option_input){
+        ipt_option_input.onmouseup = function(){
+          if (!ipt_option_input.style.backgroundColor.match(/lightBlue/i)){
+            __$('ipt-message-header').innerHTML = ipt_message_header;
+            showTBTreatmentPopup();
+          }
+        }
+      }
+    }
+    
+  }*/
+
+  function setIPTOptionForPopup(){
+    ipt_option_input = jQuery("[tstvalue='IPT']")[0];
+    cpt_option_input = jQuery("[tstvalue='CPT']")[0];
+    ipt_id = ipt_option_input.id;
+    cpt_id = cpt_option_input.id;
+    ipt_input = document.getElementById('optionValue' + ipt_id);
+    cpt_input = document.getElementById('optionValue' + cpt_id);
+    tb_treatment__status = __$('tb_treatment_question').value.toUpperCase();
+    tb_status = __$('tb_status').value.toUpperCase();
+    allergicToSulphur = $('allergic_to_sulphur').value.toUpperCase();
+
+    if (allergicToSulphur.toUpperCase() == 'YES'){
+      //cpt_option_input.style.backgroundColor = '#CDBA96';
+      cpt_input.innerHTML = "<span class='disabled_check'>CPT (Allergic)</span>";
+      cpt_option_input.onclick = null;
+      cpt_option_input.onmousedown = null;
+      cpt_option_input.onmouseup = null;
+
+      img_input = cpt_option_input.getElementsByTagName("img")[0];
+      img_input.src = '';
+      img_input.alt = '';
+    }
+
+    if (tb_treatment__status == 'YES'){
+      //ipt_option_input.style.backgroundColor = '#CDBA96';
+      ipt_input.innerHTML = "<span class='disabled_check'>IPT (TB SUSPECTED)</span>";
+      ipt_option_input.onclick = null;
+      ipt_option_input.onmousedown = null;
+      ipt_option_input.onmouseup = null;
+
+      img_input = ipt_option_input.getElementsByTagName("img")[0];
+      img_input.src = '';
+      img_input.alt = '';
+    }
+
+    if (tb_status == 'CONFIRMED TB ON TREATMENT'){
+      //ipt_option_input.style.backgroundColor = '#CDBA96';
+      ipt_input.innerHTML = "<span class='disabled_check'>IPT (CONFIRMED TB ON TREATMENT)</span>";
+      ipt_option_input.onclick = null;
+      ipt_option_input.onmousedown = null;
+      ipt_option_input.onmouseup = null;
+
+      img_input = ipt_option_input.getElementsByTagName("img")[0];
+      img_input.src = '';
+      img_input.alt = '';
+    }
+
+    if (tb_status == 'CONFIRMED TB NOT ON TREATMENT'){
+      //ipt_option_input.style.backgroundColor = '#CDBA96';
+      ipt_input.innerHTML = "<span class='disabled_check'>IPT (CONFIRMED TB NOT ON TREATMENT)</span>";
+      ipt_option_input.onclick = null;
+      ipt_option_input.onmousedown = null;
+      ipt_option_input.onmouseup = null;
+
+      img_input = ipt_option_input.getElementsByTagName("img")[0];
+      img_input.src = '';
+      img_input.alt = '';
+    }
+    
+    if (tb_status == 'TB SUSPECTED'){
+      //ipt_option_input.style.backgroundColor = '#CDBA96';
+      ipt_input.innerHTML = "<span class='disabled_check'>IPT (TB Suspected)</span>";
+      ipt_option_input.onclick = null;
+      ipt_option_input.onmousedown = null;
+      ipt_option_input.onmouseup = null;
+
+      img_input = ipt_option_input.getElementsByTagName("img")[0];
+      img_input.src = '';
+      img_input.alt = '';
+    }
+
+  }
+</script>
+
+<style type="text/css">
+  .disabled_check {
+    padding-left: 52px;
+  }
+
+  #fast_track_reminder_cover{
+    position: absolute;
+    background-color: black;
+    width: 100%;
+    height: 102%;
+    left: 0%;
+    top: 0%;
+    z-index: 990;
+    opacity: 0.3;
+  }
+
+  #fast_track_reminder{
+    position: absolute;
+    width: 75%;
+    height: 40%;
+    top: 10%;
+    z-index: 991;
+    left: 12%;
+    border: 1px solid black;
+    background-color: #CD3333;
+    border-radius: 15px;
+  }
+
+  #fast_track_reminder_header{
+    padding: 10px;
+    background-color: white;
+    color: black;
+    border-radius: 15px 15px 0px 0px;
+  }
+
+  #fast_track_reminder_footer{
+    background-color: #FFD39B;
+    height: 60px;
+    width: 100%;
+    position: absolute;
+    width: 100%;
+    position: absolute;
+    bottom: 0px;
+    border-radius: 0px 0px 15px 15px;
+  }
+
+  #fast_track_reminder_footer #fastTrackNotNow{
+    background-color: goldenrod;
+    position: absolute;
+    padding: 12px 20%;
+    /*right: 8px;*/
+    left: 8px;
+    bottom: 8px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  #fast_track_reminder_footer #fastTrackNow{
+    background-color: goldenrod;
+    position: absolute;
+    padding: 12px 20%;
+    right: 8px;
+    bottom: 8px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+</style>
+<!-------------SAFE FAMILY PLANNING POPUP BEGIN-------- -->
+<div id="safe-family-planning-popup-div">
+  <div id="safe-family-planning-popup-header">
+    <center>Recommendation</center>
+  </div><br />
+  <div>
+
+    <span style="font-size: 16pt;">
+      <center>
+        <i><b id="safe-family-planning-message-header">&nbsp;</b></i><br />
+        Combine with other modern methods of family planning
+      </center>
+    </span>
+    <div style="padding-top: 65px;">
+      <span id="safe-family-planning-yes" onclick="recordNotification('Recommendation (family planning method)','OK');hideSafeFamillyPlanningPopup();" class="tb-treatment-my_button" style="position: relative;">Ok</span>
+    </div>
+  </div>
+</div>
+
+
+<div id="safe-family-planning-cover"></div>
+<!--------------- SAFE FAMILY PLANNING POPUP END -------- -->
+
+<div id="tb-treatment-popup-div">
+  <div id="tb-treatment-popup-header">
+    <center>Confirm</center>
+  </div><br />
+  <div>
+
+    <span style="font-size: 16pt;">
+      <center>
+        <i><b id="ipt-message-header">PATIENT ON TB TREATMENT</b></i><br />
+        Do you want to continue with <b>IPT</b> prescription?
+      </center>
+    </span>
+    <div style="padding-top: 65px;">
+      <span id="tb-treatment-yes" onclick="hideTBTreatmentPopup();" class="tb-treatment-my_button" style="position: relative;">Yes</span>
+      <span id="tb-treatment-no" onclick="hideTBTreatmentPopupAndClearinput();" class="tb-treatment-my_button" style=" position: relative; right: 20px;">No</span>
+    </div>
+  </div>
+</div>
+
+
+<div id="tb-treatment-cover"></div>
+<style type="text/css">
+
+  .tb-treatment-my_button {
+    -moz-user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 16px;
+    font-weight: bolder;
+    line-height: 2.29;
+    margin-bottom: 0;
+    padding: 6px 56px;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    background-color: #337ab7;
+    border-color: #2e6da4;
+    color: #fff;
+    float: right;
+    margin-top: -5px;
+  }
+
+
+  #tb-treatment-popup-div, #safe-family-planning-popup-div {
+    display: none;
+    background-color: #F4F4F4;
+    border: 2px solid #E0E0E0;
+    border-radius: 15px;
+    height: 249px;
+    padding: 5px;
+    position: absolute;
+    margin-top: 100px;
+    width: 560px;
+    margin-left: 18%;
+    z-index: 991;
+  }
+
+  #tb-treatment-popup-header, #safe-family-planning-popup-header{
+    border-bottom: 2px solid #7D9EC0;
+    margin-left: -5px;
+    width: 101.5%;
+    background-color: #FFFFFF;
+    margin-top: -5px;
+    padding-top: 5px;
+    border-radius: 15px 15px 0 0;
+    font-size: 14pt;
+    font-weight: bolder;
+  }
+
+  #tb-treatment-cover, #safe-family-planning-cover{
+    display: none;
+    position: absolute;
+    background-color: black;
+    width: 100%;
+    height: 102%;
+    left: 0%;
+    top: 0%;
+    z-index: 990;
+    opacity: 0.65;
+  }
+
+  #tb-treatment-yes, #tb-treatment-no, #safe-family-planning-yes {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    bottom: 0px;
+  }
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="regimen-change-popup-div">
+  <div id="regimen-change-popup-header">
+    <%if @current_weight_percentile.blank?%>
+      <center id='weight_readings_header'>Low BMI </center>
+    <%else%>
+      <center id='weight_readings_header'>Low weight percentile</center>
+    <%end%>
+  </div><br />
+  <div>
+
+    <span style="font-size: 16pt;">
+      <center>
+        <!--i><b id="regimen-change-header">Patient has a low BMI: <span id='low-bmi'></span></b></i><br /-->
+        <table class="bmi-alert" style="width: 100%;">
+          <tr>
+            <td id="previous_weight_sub">Height</td><td class='bmi-data' id="current-height"></td>
+          </tr>
+          <tr>
+            <td id="current_weight_sub">Weight</td><td class='bmi-data' id="current-weight"></td>
+          </tr>
+          <tr>
+            <%if @current_weight_percentile.blank?%>
+              <td id='weight_readings'>BMI</td><td class='bmi-data' id="low-bmi"></td>
+            <%else%>
+              <td id='weight_readings'>Weight percentile</td><td class='bmi-data' id="low-bmi"></td>
+            <%end%>
+          </tr>
+        </table>
+      </center>
+    </span>
+    <div style="padding-top: 65px;">
+
+      <span id="regimen-change-yes" onclick="recordNotification('>= 10% weight loss','Confirm weight loss');continueWithRegimenChange();" 
+        class="regimen-change-my_button">Confirm weight loss</span>
+      <span id="regimen-change-no" onclick="recordNotification('>= 10% weight loss','Recheck weight');hideRegimenChangePopup();" 
+        class="regimen-change-my_button">Recheck Height / Weight</span>
+    </div>
+  </div>
+</div>
+
+
+<div id="regimen-change-cover"></div>
+
+<style type="text/css">
+
+  .bmi-alert td {
+    border-style: solid;
+    border-width: 0px 0px 1px 0px;
+  }
+
+  .bmi-alert {
+    border-collapse: collapse;
+  }
+
+  .bmi-data {
+    text-align: right;
+    padding-right: 20px;
+  }
+
+  .regimen-change-my_button {
+    -moz-user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 16px;
+    font-weight: bolder;
+    line-height: 2.29;
+    margin-bottom: 0;
+    padding: 6px 56px;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    background-color: #337ab7;
+    border-color: #2e6da4;
+    color: #fff;
+    float: right;
+    margin-top: -5px;
+  }
+
+
+  #regimen-change-popup-div {
+    display: none;
+    background-color: #F4F4F4;
+    border: 2px solid #E0E0E0;
+    border-radius: 15px;
+    height: 270px;
+    padding: 5px;
+    position: absolute;
+    margin-top: 100px;
+    width: 600px;
+    margin-left: 18%;
+    z-index: 991;
+  }
+
+  #regimen-change-popup-header{
+    border-bottom: 2px solid #7D9EC0;
+    margin-left: -5px;
+    width: 101.5%;
+    background-color: #FFFFFF;
+    margin-top: -5px;
+    padding-top: 5px;
+    border-radius: 15px 15px 0 0;
+    font-size: 14pt;
+    font-weight: bolder;
+  }
+
+  #regimen-change-cover{
+    display: none;
+    position: absolute;
+    background-color: black;
+    width: 100%;
+    height: 102%;
+    left: 0%;
+    top: 0%;
+    z-index: 990;
+    opacity: 0.65;
+  }
+
+  #regimen-change-yes{
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    bottom: 0px;
+  }
+
+  #regimen-change-no{
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    bottom: 0px;
+    margin-right: 27px;
+  }
+</style>
+
+<script type="text/javascript">
+  function hideRegimenChangePopup(){
+    document.getElementById("regimen-change-popup-div").style.display = 'none';
+    document.getElementById("regimen-change-cover").style.display = 'none';
+    e = document.getElementsByClassName('low_bmi_found')[0];
+    clicked(e);
+  }
+
+  function continueWithRegimenChange(){
+    document.getElementById("regimen-change-popup-div").style.display = 'none';
+    document.getElementById("regimen-change-cover").style.display = 'none';
+    e = document.getElementsByClassName('low_bmi_found')[0];
+    index = e.id.replace('no_btn_container_','');
+    e = document.getElementById('yes_btn_container_' + index);
+    clicked(e);
+  }
+
+  function alertOnLowBMI(e){
+    document.getElementById("regimen-change-popup-div").style.display = 'inline';
+    document.getElementById("regimen-change-cover").style.display = 'inline';
+    document.getElementById('low-bmi').innerHTML = e.getAttribute('lowBMI');
+    document.getElementById('current-height').innerHTML = '<%=@current_height%>';
+    document.getElementById('current-weight').innerHTML = '<%=@current_weight%>';
+
+    if(calculatedWeightlossPercent >= 10) {
+      document.getElementById('weight_readings').innerHTML = 'Weight loss of:';
+      document.getElementById('previous_weight_sub').innerHTML = 'Previous weight:';
+      document.getElementById('current_weight_sub').innerHTML = 'Current weight:';
+      document.getElementById('current-height').innerHTML = "<%=@previous_weight.to_f%>" + " (Kg)";
+      document.getElementById('current-weight').innerHTML = "<%=@current_weight.to_f%>" + " (Kg)";
+      document.getElementById('weight_readings_header').innerHTML = 'Weight loss';
+    }
+  }
+
+
+  function addCustomRegimenButton(){
+    /*var button = document.createElement("button");
+    button.id = "customRegimen";
+    button.innerHTML = "<span>Customize Regimen</span>";
+    button.style.cssFloat = "right";
+    otherRegimen = false;
+    __$('touchscreenInput' + tstCurrentPage).removeAttribute("optional", "true");
+
+    button.onmousedown = function(){
+      __$('touchscreenInput' + tstCurrentPage).value = '';
+    }
+
+    button.onclick = function(){
+      __$('last_art_drugs_taken').value = '';
+      __$('touchscreenInput' + tstCurrentPage).value = '';
+      otherRegimen = true;
+
+
+      var selectedLi = jQuery('li').filter(function () {
+        return this.style.backgroundColor == 'lightblue'
+      });
+
+      __$('touchscreenInput' + tstCurrentPage).value = '';
+      __$('touchscreenInput' + tstCurrentPage).setAttribute("optional", "true");
+      gotoNextPage();
+    }
+
+    if(__$("buttons")){
+      __$("buttons").appendChild(button);
+    }*/
+  }
+
+  var lastARTDrugs = "";
+  var lastOtherDrugs = "";
+
+  function updateLastARVDrugs(){
+    lastARTDrugs = $('touchscreenInput'+tstCurrentPage).value;
+  }
+
+  function updateLastOtherMedications(){
+    lastOtherDrugs = $('touchscreenInput'+tstCurrentPage).value;
+  }
+
+  function removeCustomRegimenButton(){
+    jQuery("#customRegimen").remove();
+  }
+  
+</script>
+
+<script language="javascript" type="text/javascript" src="/javascripts/show_category_hack.js" defer="true"></script>
+
+
+<div id="popupLargeChart" class="popup" style="width:100%; margin:0, auto; " onmousedown="hideChart();"></div>
+
+
+<style>
+  #vitals_table {
+    width: 100%;
+    height: 98%;
+  }
+
+  .chart_containers {
+    width: 40%;
+  }
+
+
+
+
+
+
+
+
+
+
+
+  .boxer {
+    display: table;
+    border-collapse: collapse;
+  }
+
+  .boxer .box-row {
+    display: table-row;
+  }
+
+  .boxer .box {
+    display: table-cell;
+    text-align: left;
+    vertical-align: top;
+    border: 1px solid black;
+  }
+
+
+  #popupLargeChart {
+    position:absolute;
+    top: 10%;
+    left: 11%;
+    margin:-50px 0 0 -100px; /* [-(height/2)px 0 0 -(width/2)px] */
+    display:none;
+
+
+    background-color: #F4F4F4;
+    border: 2px solid #E0E0E0;
+    border-radius: 15px;
+    width: 90% !important;
+    height: 80%;
+    z-index: 991;
+
+
+
+
+
+  }
+
+</style>
+<script type="text/javascript">
+
+  jQuery.fn.center = function() {
+    parent = this.parent();
+    this.css({
+      "position": "absolute",
+      "top": (((jQuery(parent).height() - this.outerHeight()) / 2) + jQuery(parent).scrollTop() + "px"),
+      "left": (((jQuery(parent).width() - this.outerWidth()) / 2) + jQuery(parent).scrollLeft() + "px")
+    });
+    return this;
+  }
+  
+</script>

@@ -1,0 +1,7 @@
+
+<form action="/properties/create_dde_code_map" method="POST">
+  <%= text_field_tag "dde_code", "#{@dde_code}", {
+    :id => 'dde_code',
+    :field_type => "password",
+    :helpText => "set DDE code for <b>#{@site_code}</b>"} %>
+</form>

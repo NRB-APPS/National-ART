@@ -1,0 +1,3865 @@
+<title>Revised Cohort Report</title>
+<style type="text/css" xmlns="http://www.w3.org/1999/html">
+    td {
+        padding: 12px;
+    }
+    .table-main {
+        width: 99%;
+        height: 100%;
+        border: 0;
+        border-spacing: 0;
+        font-family: "Helvetica Neue", Arial, "Lucida Grande", sans-serif;
+        font-size: large;
+        overflow: auto;
+        text-overflow: ellipsis;
+        margin: auto;
+        page-break-inside: auto;
+        padding-bottom: 70px;
+    }
+    .table-top {
+        page-break-inside: auto;
+        width: 99%;
+        border: 0;
+        border-spacing: 0;
+        font-family: "Helvetica Neue", Arial, "Lucida Grande", sans-serif;
+        font-size: large;
+        overflow: auto;
+        text-overflow: ellipsis;
+        margin: auto;
+        page-break-inside: auto;
+    }
+    .border-null {
+        border: none;
+    }
+    .text-bold {
+        font-weight: bold;
+    }
+    .text-center {
+        text-align: center;
+    }
+    .text-italic {
+        font-style: italic;
+    }
+    .text-smaller {
+        font-size: smaller;
+    }
+    .index {
+        border: none;
+        width: 2%;
+    }
+    .border-null-right {
+        border-right: none;
+    }
+    .border-null-left {
+        border-left: none;
+    }
+    .border-null-top {
+        border-top: none;
+    }
+    .border-null-bottom {
+        border-bottom: none;
+    }
+    .border-left-dotted {
+        border-left-style: dotted;
+    }
+    .border-right-dotted {
+        border-right-style: dotted;
+    }
+    .border-bottom-dotted {
+        border-bottom-style: dotted;
+    }
+    .border-top-dotted {
+        border-top-style: dotted;
+    }
+    .buttons {
+        top: 0px;
+    }
+    .button {
+        font-size: 28px;
+        text-shadow: -1px -1px 0 rgba(0,0,0,0.3);
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: bold;
+        cursor: pointer;
+        color: #ffffff;
+        padding: 10px;
+        display: inline-block;
+        text-decoration: none;
+        min-width: 120px;
+        min-height: 55px;
+        margin: 3px;
+        border-radius: 3px !important;
+    }
+    .button-print:hover {
+        border: #5ca6c4;
+        background-color: #2F30EE;
+    }
+    .button-print {
+        border: #7eb9d0;
+        background-color: #5ca6c4;
+        float: left;
+    }
+    .button-finish:hover {
+        border: #224b09;
+        background-color: #224b09;
+    }
+    .button-finish {
+        border: #4ba614;
+        background-color: #4ba614;
+        float: right;
+    }
+
+    .button-disaggregated{
+      border: #7eb9d0;
+        background-color: #5ca6c4;
+        float: right;
+}
+
+    .row-button-print {
+        position: fixed;
+        left: 0px;
+        bottom: 0px;
+        height: 80px;
+        overflow: hidden;
+        padding-right: 20px;
+        width: 100%;
+        background-color: rgb(51,51,51);
+    }
+    .row-break {
+        line-height: 1px;
+    }
+    .clinic-head {
+        width: 10% !important;
+    }
+    .clinic-description {
+        width: 23%;
+    }
+    .clinic-result {
+        width: 16%;
+    }
+    .column-break {
+        width: 1%;
+        border: none;
+    }
+    .bolder {
+        border: black;
+        border-style: solid;
+        border-width: 2px;
+    }
+    .bolder-left {
+        border-left: black;
+        border-left-style: solid;
+        border-left-width: 2px;
+    }
+    .bolder-right {
+        border-right: black;
+        border-right-style: solid;
+        border-right-width: 2px;
+    }
+    .bolder-bottom {
+        border-bottom: black;
+        border-bottom-style: solid;
+        border-bottom-width: 2px;
+    }
+    .bolder-top {
+        border-top: black;
+        border-top-style: solid;
+        border-top-width: 2px;
+    }
+    .number {
+        text-align: right;
+    }
+  #consistency_check {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    margin-left: 25px;
+    margin-right: 15px;
+    color: #ea091a;
+    font-size: 18px;
+    font-family: Arial, Helvetica, sans-serif;
+    letter-spacing: 2px;
+    line-height: 32px
+  }
+  #incosistence_title {
+    font-size: 24px;
+    text-align: center;
+  }
+</style>
+
+<script>
+
+  var print_pdf_attr = {};
+
+ function drillDown(indicator) {
+        var patient_ids = [];
+        switch(indicator) {
+            case 'total_registered':
+            <% (@cohort.total_registered || []).each do |data| %>
+                patient_ids.push(<%= data['patient_id'] %>);
+            <% end %>
+                break;
+            case 'cum_total_registered':
+            <% (@cohort.cum_total_registered || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'initiated_on_art_first_time':
+            <% (@cohort.initiated_on_art_first_time || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'cum_initiated_on_art_first_time':
+            <% (@cohort.cum_initiated_on_art_first_time || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 're_initiated_on_art':
+            <% (@cohort.re_initiated_on_art || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'cum_re_initiated_on_art':
+            <% (@cohort.cum_re_initiated_on_art || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'transfer_in':
+            <% (@cohort.transfer_in || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'cum_transfer_in':
+            <% (@cohort.cum_transfer_in || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'all_males':
+            <% (@cohort.all_males || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'cum_all_males':
+            <% (@cohort.cum_all_males || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'non_pregnant_females':
+            <% (@cohort.non_pregnant_females || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'cum_non_pregnant_females':
+            <% (@cohort.cum_non_pregnant_females || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'pregnant_females_all_ages':
+            <% (@cohort.pregnant_females_all_ages || []).each do |patient_id|%>
+                patient_ids.push(<%= patient_id %>);
+            <% end %>
+                break;
+            case 'cum_pregnant_females_all_ages':
+            <% (@cohort.cum_pregnant_females_all_ages || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id %>);
+            <% end %>
+                break;
+            case 'unknown_age':
+            <% (@cohort.unknown_age || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'cum_unknown_age':
+            <% (@cohort.cum_unknown_age || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+               break;
+            case 'children_below_24_months_at_art_initiation':
+            <% (@cohort.children_below_24_months_at_art_initiation || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'cum_children_below_24_months_at_art_initiation':
+            <% (@cohort.cum_children_below_24_months_at_art_initiation || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'children_24_months_14_years_at_art_initiation':
+            <% (@cohort.children_24_months_14_years_at_art_initiation || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'cum_children_24_months_14_years_at_art_initiation':
+            <% (@cohort.cum_children_24_months_14_years_at_art_initiation || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'adults_at_art_initiation':
+            <% (@cohort.adults_at_art_initiation || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'cum_adults_at_art_initiation':
+            <% (@cohort.cum_adults_at_art_initiation || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'presumed_severe_hiv_disease_in_infants':
+            <% (@cohort.presumed_severe_hiv_disease_in_infants || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id[:patient_id] %>);
+            <% end %>
+                break;
+            case 'cum_presumed_severe_hiv_disease_in_infants':
+            <% (@cohort.cum_presumed_severe_hiv_disease_in_infants || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id[:patient_id] %>);
+            <% end %>
+                break;
+            case 'confirmed_hiv_infection_in_infants_pcr':
+            <% (@cohort.confirmed_hiv_infection_in_infants_pcr || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id[:patient_id] %>);
+            <% end %>
+                break;
+            case 'cum_confirmed_hiv_infection_in_infants_pcr':
+            <% (@cohort.cum_confirmed_hiv_infection_in_infants_pcr || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id[:patient_id] %>);
+            <% end %>
+                break;
+            case 'children_12_23_months':
+            <% (@cohort.children_12_23_months || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id[:patient_id] %>);
+            <% end %>
+                break;
+            case 'cum_children_12_23_months':
+            <% (@cohort.cum_children_12_23_months || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id[:patient_id] %>);
+            <% end %>
+                break;
+            case 'pregnant_women':
+            <% (@cohort.pregnant_women || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id[:patient_id] %>);
+            <% end %>
+                break;
+            case 'cum_pregnant_women':
+            <% (@cohort.cum_pregnant_women || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id[:patient_id] %>);
+            <% end %>
+                break;
+            case 'breastfeeding_mothers':
+            <% (@cohort.breastfeeding_mothers || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id[:patient_id] %>);
+            <% end %>
+                break;
+            case 'cum_breastfeeding_mothers':
+            <% (@cohort.cum_breastfeeding_mothers || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id[:patient_id] %>);
+            <% end %>
+                break;
+            case 'who_stage_two':
+            <% (@cohort.who_stage_two || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id[:patient_id] %>);
+            <% end %>
+                break;
+            case 'cum_who_stage_two':
+            <% (@cohort.cum_who_stage_two || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id[:patient_id] %>);
+            <% end %>
+                break;
+            case 'asymptomatic':
+            <% (@cohort.asymptomatic || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id[:patient_id] %>);
+            <% end %>
+                break;
+            case 'cum_asymptomatic':
+            <% (@cohort.cum_asymptomatic || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id[:patient_id] %>);
+            <% end %>
+                break;
+            case 'who_stage_three':
+            <% (@cohort.who_stage_three || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id[:patient_id] %>);
+            <% end %>
+                break;
+            case 'cum_who_stage_three':
+            <% (@cohort.cum_who_stage_three || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id[:patient_id] %>);
+            <% end %>
+                break;
+            case 'who_stage_four':
+            <% (@cohort.who_stage_four || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id[:patient_id] %>);
+            <% end %>
+                break;
+            case 'cum_who_stage_four':
+            <% (@cohort.cum_who_stage_four || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id[:patient_id] %>);
+            <% end %>
+                break;
+            case 'unknown_other_reason_outside_guidelines':
+            <% (@cohort.unknown_other_reason_outside_guidelines || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id[:patient_id] %>);
+            <% end %>
+                break;
+            case 'cum_unknown_other_reason_outside_guidelines':
+            <% (@cohort.cum_unknown_other_reason_outside_guidelines || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id[:patient_id] %>);
+            <% end %>
+                break;
+            case 'no_tb':
+            <% (@cohort.no_tb || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id %>);
+            <% end %>
+                break;
+            case 'cum_no_tb':
+            <% (@cohort.cum_no_tb || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id %>);
+            <% end %>
+                break;
+            case 'tb_within_the_last_two_years':
+            <% (@cohort.tb_within_the_last_two_years || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'cum_tb_within_the_last_two_years':
+            <% (@cohort.cum_tb_within_the_last_two_years || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'current_episode_of_tb':
+            <% (@cohort.current_episode_of_tb || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'cum_current_episode_of_tb':
+            <% (@cohort.cum_current_episode_of_tb || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'kaposis_sarcoma':
+            <% (@cohort.kaposis_sarcoma || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'cum_kaposis_sarcoma':
+            <% (@cohort.cum_kaposis_sarcoma || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'total_alive_and_on_art':
+            <% (@cohort.total_alive_and_on_art || []).each do |data| %>
+                patient_ids.push(<%= data['patient_id'].to_i %>);
+            <% end %>
+                break;
+            case 'died_within_the_1st_month_of_art_initiation':
+            <% (@cohort.died_within_the_1st_month_of_art_initiation || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'died_within_the_2nd_month_of_art_initiation':
+            <% (@cohort.died_within_the_2nd_month_of_art_initiation || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'died_within_the_3rd_month_of_art_initiation':
+            <% (@cohort.died_within_the_3rd_month_of_art_initiation || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'died_after_the_3rd_month_of_art_initiation':
+            <% (@cohort.died_after_the_3rd_month_of_art_initiation || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'died_total':
+            <% (@cohort.died_total || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'defaulted':
+            <% (@cohort.defaulted || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'stopped_art':
+            <% (@cohort.stopped_art || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'transfered_out':
+            <% (@cohort.transfered_out || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id['patient_id'] %>);
+            <% end %>
+                break;
+            case 'zero_p':
+            <% (@cohort.zero_p || []).each do |data| %>
+                patient_ids.push(<%= data[:patient_id] %>);
+            <% end %>
+                break;
+            case 'one_p':
+            <% (@cohort.one_p || []).each do |data| %>
+                patient_ids.push(<%= data[:patient_id] %>);
+            <% end %>
+                break;
+            case 'two_p':
+            <% (@cohort.two_p || []).each do |data| %>
+                patient_ids.push(<%= data[:patient_id] %>);
+            <% end %>
+                break;
+            case 'three_p':
+            <% (@cohort.three_p || []).each do |data| %>
+                patient_ids.push(<%= data[:patient_id] %>);
+            <% end %>
+                break;
+            case 'four_p':
+            <% (@cohort.four_p || []).each do |data| %>
+                patient_ids.push(<%= data[:patient_id] %>);
+            <% end %>
+                break;
+            case 'nine_p':
+            <% (@cohort.nine_p || []).each do |data| %>
+                patient_ids.push(<%= data[:patient_id] %>);
+            <% end %>
+                break;
+            case 'elleven_p':
+            <% (@cohort.elleven_p || []).each do |data| %>
+                patient_ids.push(<%= data[:patient_id] %>);
+            <% end %>
+                break;
+            case 'zero_a':
+            <% (@cohort.zero_a || []).each do |data| %>
+                patient_ids.push(<%= data[:patient_id] %>);
+            <% end %>
+                break;
+            case 'one_a':
+            <% (@cohort.one_a || []).each do |data| %>
+                patient_ids.push(<%= data[:patient_id] %>);
+            <% end %>
+                break;
+            case 'two_a':
+            <% (@cohort.two_a || []).each do |data| %>
+                patient_ids.push(<%= data[:patient_id] %>);
+            <% end %>
+                break;
+            case 'three_a':
+            <% (@cohort.three_a || []).each do |data| %>
+                patient_ids.push(<%= data[:patient_id] %>);
+            <% end %>
+                break;
+            case 'four_a':
+            <% (@cohort.four_a || []).each do |data| %>
+                patient_ids.push(<%= data[:patient_id] %>);
+            <% end %>
+                break;
+            case 'five_a':
+            <% (@cohort.five_a || []).each do |data| %>
+                patient_ids.push(<%= data[:patient_id] %>);
+            <% end %>
+                break;
+            case 'six_a':
+            <% (@cohort.six_a || []).each do |data| %>
+                patient_ids.push(<%= data[:patient_id] %>);
+            <% end %>
+                break;
+            case 'seven_a':
+            <% (@cohort.seven_a || []).each do |data| %>
+                patient_ids.push(<%= data[:patient_id] %>);
+            <% end %>
+                break;
+            case 'eight_a':
+            <% (@cohort.eight_a || []).each do |data| %>
+                patient_ids.push(<%= data[:patient_id] %>);
+            <% end %>
+                break;
+            case 'nine_a':
+            <% (@cohort.nine_a || []).each do |data| %>
+                patient_ids.push(<%= data[:patient_id] %>);
+            <% end %>
+                break;
+            case 'ten_a':
+            <% (@cohort.ten_a || []).each do |data| %>
+                patient_ids.push(<%= data[:patient_id] %>);
+            <% end %>
+                break;
+            case 'elleven_a':
+            <% (@cohort.elleven_a || []).each do |data| %>
+                patient_ids.push(<%= data[:patient_id] %>);
+            <% end %>
+                break;
+            case 'twelve_a':
+            <% (@cohort.twelve_a || []).each do |data| %>
+                patient_ids.push(<%= data[:patient_id] %>);
+            <% end %>
+                break;
+            case 'unknown_regimen':
+            <% (@cohort.unknown_regimen || []).each do |data| %>
+                patient_ids.push(<%= data[:patient_id] %>);
+            <% end %>
+                break;
+            case 'total_patients_without_side_effects':
+            <% (@cohort.total_patients_without_side_effects || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id %>);
+            <% end %>
+                break;
+            case 'total_patients_with_side_effects':
+            <% (@cohort.total_patients_with_side_effects || []).each do |data| %>
+                patient_ids.push(<%= data['patient_id'] %>);
+            <% end %>
+                break;
+            case 'unknown_side_effects':
+            <% (@cohort.unknown_side_effects || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id %>);
+            <% end %>
+                break;
+            case 'patients_with_0_6_doses_missed_at_their_last_visit':
+            <% (@cohort.patients_with_0_6_doses_missed_at_their_last_visit || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id %>);
+            <% end %>
+                break;
+            case 'patients_with_7_plus_doses_missed_at_their_last_visit':
+            <% (@cohort.patients_with_7_plus_doses_missed_at_their_last_visit || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id %>);
+            <% end %>
+                break;
+            case 'patients_with_unknown_adhrence':
+            <% (@cohort.patients_with_unknown_adhrence || []).each do |patient_id| %>
+                patient_ids.push(<%= patient_id %>);
+            <% end %>
+                break;
+            case 'tb_not_suspected':
+            <% (@cohort.tb_not_suspected || []).each do |data| %>
+                patient_ids.push(<%= data[:patient_id] %>);
+            <% end %>
+                break;
+            case 'tb_suspected':
+            <% (@cohort.tb_suspected || []).each do |data| %>
+                patient_ids.push(<%= data[:patient_id] %>);
+            <% end %>
+                break;
+            case 'tb_confirmed_currently_not_yet_on_tb_treatment':
+            <% (@cohort.tb_confirmed_currently_not_yet_on_tb_treatment || []).each do |data| %>
+                patient_ids.push(<%= data[:patient_id] %>);
+            <% end %>
+                break;
+            case 'tb_confirmed_on_tb_treatment':
+            <% (@cohort.tb_confirmed_on_tb_treatment || []).each do |data| %>
+                patient_ids.push(<%= data[:patient_id] %>);
+            <% end %>
+                break;
+            case 'unknown_tb_status':
+            <% (@cohort.unknown_tb_status || []).each do |data| %>
+                patient_ids.push(<%= data[:patient_id] %>);
+            <% end %>
+                break;
+            case 'all_other_patients':
+            <% (@cohort.total_other_patients || []).each do |data| %>
+                patient_ids.push(<%= data %>);
+            <% end %>
+                break;
+            case 'total_breastfeeding':
+            <% (@cohort.total_breastfeeding_women || []).each do |data| %>
+                patient_ids.push(<%= data['person_id'] %>);
+            <% end %>
+                break;
+            case 'total_pregnant':
+            <% (@cohort.total_pregnant_women || []).each do |data| %>
+                patient_ids.push(<%= data['person_id'] %>);
+            <% end %>
+                break;
+            default:
+
+        }
+
+        document.getElementById('patient_ids').value = patient_ids.join(',');
+        document.getElementById('indicator').value = indicator;
+
+        document.pat_drilldown.target = "myList";
+        var w = (window.innerWidth - 80) ; var h = (window.innerHeight - 8);
+        window.open("","myList","width=" + w + ",height=" + h + ",toolbar=0");
+        document.pat_drilldown.submit();
+
+    }
+
+    var quarter = '<%= params[:quarter] %> ';
+    function showDisaggregatedReport(){
+      body = document.getElementsByTagName("body")[0];
+
+      form = document.createElement("form");
+      form.method = "POST"
+      form.action = "/cohort_tool/disaggregated_cohort";
+      body.appendChild(form);
+
+      input = document.createElement("input");
+      input.type = "hidden";
+      input.value = quarter;
+      input.name = "quarter";
+      form.appendChild(input);
+
+      form.submit();
+
+    }
+
+
+</script>
+
+
+<div id="consistency_check">
+  <div id="patients_consistency"></div>
+  <div id="cum_patients_consistency"></div>
+  <div id="gender_consistency"></div>
+  <div id="cum_gender_consistency"></div>
+  <div id="age_consistency"></div>
+  <div id="cum_age_consistency"></div>
+  <div id="reasons_consistency"></div>
+  <div id="cum_reasons_consistency"></div>
+  <div id="conditions_consistency"></div>
+  <div id="cum_conditions_consistency"></div>
+  <div id="died_consistency"></div>
+  <div id="total_consistency"></div>
+  <div id="regimen_consistency"></div>
+  <div id="pregnant_consistency"></div>
+  <div id="tb_status_consistency"></div>
+  <div id="side_effect_consistency"></div>
+  <div id="adherence_consistency"></div>
+</div>
+
+<table class="table-top" border="2px;">
+    <tr>
+        <td class="index">1.</td>
+        <td class="border-top-dotted border-left-dotted border-null-bottom text-bold">
+            Clinic name
+        </td>
+        <td colspan="6" class="bolder">
+            <%= Location.current_health_center.name %>
+             <div style="float:right;font-style:italic;font-size:14;font-weight:bold;">Version 16</div>
+        </td>
+    </tr>
+    <tr>
+        <td class="index">2.</td>
+        <td class="border-left-dotted border-null-bottom border-null-top">
+            Supervisors
+        </td>
+        <td colspan="2" class="bolder-left text-bold border-null-bottom border-right-dotted">
+            Name
+        </td>
+        <td colspan="4" class="bolder-right text-bold border-null-bottom border-null-left">
+            Signature
+        </td>
+    </tr>
+    <tr>
+        <td class="index">3.</td>
+        <td class="border-left-dotted border-null-bottom border-null-top">
+            &nbsp;
+        </td>
+        <td colspan="2" class="bolder-left border-top-dotted border-right-dotted border-null-bottom">
+            &nbsp;
+        </td>
+        <td colspan="4" class="bolder-right border-null-left border-top-dotted border-null-bottom">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">4.</td>
+        <td class="border-left-dotted border-null-bottom border-null-top">
+            &nbsp;
+        </td>
+        <td colspan="2" class="bolder-left border-top-dotted border-null-bottom border-right-dotted">
+            &nbsp;
+        </td>
+        <td colspan="4" class="bolder-right border-top-dotted border-null-bottom border-null-left">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">5.</td>
+        <td class="border-left-dotted border-null-bottom border-null-top">
+            &nbsp;
+        </td>
+        <td colspan="2" class="bolder-left border-top-dotted border-null-bottom border-right-dotted">
+            &nbsp;
+        </td>
+        <td colspan="4" class="bolder-right border-top-dotted border-null-bottom border-null-left">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">6.</td>
+        <td class="border-left-dotted border-null-bottom border-null-top">
+            &nbsp;
+        </td>
+        <td colspan="2" class="bolder-left border-top-dotted border-right-dotted">
+            &nbsp;
+        </td>
+        <td colspan="4" class="bolder-right border-null-left border-top-dotted">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">7.</td>
+        <td width="20%" colspan="2" class="border-bottom-dotted border-left-dotted border-null-top">
+            Quarter evaluated
+        </td>
+        <td class="bolder">
+            <%year = @quarter.match(/[0-9](.*)/i)[1].to_i rescue nil%>
+            Year <%= (year.blank? == true ? nil : ": #{year}") %>
+        </td>
+        <td colspan="4" class="bolder">
+            <%year = @quarter.match(/[0-9](.*)/i)[0].to_i rescue nil%>
+            Quarter <%= (year.blank? == true ? nil : ": #{year}") %>
+        </td>
+    </tr>
+    <tr class="row-break">
+        <td class="border-null" colspan="7">
+            &nbsp;
+        </td>
+    </tr>
+</table>
+<!--
+<tr>
+    <td class="border-null">
+        &nbsp;
+    </td>
+    <td colspan="2" class="border-null text-bold">
+        HIV CARE CLINIC
+    </td>
+    <td class="border-null text-center text-italic" colspan="5">
+        *Supervisors: No need to copy the 'Clinic own data' on this page
+    </td>
+</tr>
+<tr>
+    <td class="border-null">
+        &nbsp;
+    </td>
+    <td class="border-null" colspan="2">
+        &nbsp;
+    </td>
+    <td colspan="2" class="text-bold text-center border-null">
+        Newly registered in quarter
+    </td>
+    <td class="column-break">
+        &nbsp;
+    </td>
+    <td colspan="2" class="text-bold text-center border-null">
+        Cumulative ever registered
+    </td>
+</tr>
+<tr>
+    <td class="border-null">
+        &nbsp;
+    </td>
+    <td class="border-null text-bold" colspan="2">
+        HCC Patient registration details
+    </td>
+    <td class="border-null text-center text-italic text-smaller">
+        Clinic own data*
+    </td>
+    <td class="border-null text-center text-italic text-smaller">
+        Checked data
+    </td>
+    <td class="column-break">
+        &nbsp;
+    </td>
+    <td class="border-null text-center text-italic text-smaller">
+        Clinic own data*
+    </td>
+    <td class="border-null text-center text-italic text-smaller">
+        Checked data
+    </td>
+</tr>
+<tr>
+    <td class="index">
+        8.
+    </td>
+    <td colspan="2" class="clinic-description border-bottom-dotted border-top-dotted border-left-dotted">
+        Total Registered
+    </td>
+    <td class="clinic-result">
+        &nbsp;
+    </td>
+    <td class="clinic-result">
+        &nbsp;
+    </td>
+    <td class="column-break">
+        &nbsp;
+    </td>
+    <td class="clinic-result">
+        &nbsp;
+    </td>
+    <td class="clinic-result">
+        &nbsp;
+    </td>
+</tr>
+<tr class="row-break">
+    <td colspan="7" class="border-null">
+        &nbsp;
+    </td>
+</tr>
+<tr>
+    <td class="index">
+        9.
+    </td>
+    <td class="clinic-head text-bold border-top-dotted border-left-dotted border-null-bottom border-null-right">
+        FT
+    </td>
+    <td class="clinic-description border-null-bottom border-top-dotted border-null-left">
+        Patients enrolled first time
+    </td>
+    <td class="clinic-result">
+        &nbsp;
+    </td>
+    <td class="clinic-result">
+        &nbsp;
+    </td>
+    <td class="column-break">
+        &nbsp;
+    </td>
+    <td class="clinic-result">
+        &nbsp;
+    </td>
+    <td class="clinic-result">
+        &nbsp;
+    </td>
+</tr>
+<tr>
+    <td class="index">
+        10.
+    </td>
+    <td class="text-bold border-left-dotted border-null-top border-null-bottom border-null-right">
+        Re
+    </td>
+    <td class="border-null-left border-null-top border-null-bottom">
+        Patients re-enrolled
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td class="column-break">
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+</tr>
+<tr>
+    <td class="index">
+        11.
+    </td>
+    <td class="text-bold border-left-dotted border-bottom-dotted border-null-top border-null-right">
+        TI
+    </td>
+    <td class="border-null-top border-bottom-dotted border-null-left">
+        Patients transferred in
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td class="column-break">
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+</tr>
+<tr class="row-break">
+    <td colspan="7" class="border-null">
+        &nbsp;
+    </td>
+</tr>
+<tr>
+    <td class="index">
+        12.
+    </td>
+    <td class="text-bold border-top-dotted border-left-dotted border-null-bottom border-null-right">
+        M
+    </td>
+    <td class="border-top-dotted border-null-bottom border-null-left">
+        Males (all ages)
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td class="column-break">
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+</tr>
+<tr>
+    <td class="index">
+        13.
+    </td>
+    <td class="text-bold border-left-dotted border-null-top border-null-bottom border-null-right">
+        FNP
+    </td>
+    <td class="border-null-left border-null-top border-null-bottom">
+        Non-pregnant Females (all ages)
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td class="column-break">
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+</tr>
+<tr>
+    <td class="index">
+        14.
+    </td>
+    <td class="text-bold border-left-dotted border-bottom-dotted border-null-top border-null-right">
+        FP
+    </td>
+    <td class="border-null-top border-bottom-dotted border-null-left">
+        Pregnant Females (Should not be in HCC!)
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td class="column-break">
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+</tr>
+<tr class="row-break">
+    <td colspan="7" class="border-null">
+        &nbsp;
+    </td>
+</tr>
+<tr>
+    <td class="index">
+        15.
+    </td>
+    <td class="text-bold border-top-dotted border-left-dotted border-null-bottom border-null-right">
+        A1
+    </td>
+    <td class="border-null-bottom border-top-dotted border-null-left">
+        Infants below 2 months at enrolment
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td class="column-break">
+        &nbsp;
+    </td>
+    <td>
+        &nbsp;
+    </td>
+    <td>
+      &nbsp;
+  </td>
+</tr>
+<tr>
+  <td class="index">
+      16.
+  </td>
+  <td class="text-bold border-left-dotted border-null-top border-null-right border-null-bottom">
+      A2
+  </td>
+  <td class="border-null-top border-null-left border-null-bottom">
+      Children 2 - below 24 months at enrolm.
+  </td>
+  <td>
+      &nbsp;
+  </td>
+  <td>
+      &nbsp;
+  </td>
+  <td class="column-break">
+      &nbsp;
+  </td>
+  <td>
+      &nbsp;
+  </td>
+  <td>
+      &nbsp;
+  </td>
+</tr>
+<tr>
+  <td class="index">
+      17.
+  </td>
+  <td class="text-bold border-left-dotted border-null-top border-null-bottom border-null-right">
+      B
+  </td>
+  <td class="border-null-left border-null-top border-null-bottom">
+      Children 24 months - 14 yrs at enrolm.
+  </td>
+  <td>
+      &nbsp;
+  </td>
+  <td>
+      &nbsp;
+  </td>
+  <td class="column-break">
+      &nbsp;
+  </td>
+  <td>
+      &nbsp;
+  </td>
+  <td>
+      &nbsp;
+  </td>
+</tr>
+<tr>
+  <td class="index">
+      18.
+  </td>
+  <td class="text-bold border-left-dotted border-bottom-dotted border-null-top border-null-right">
+      C
+  </td>
+  <td class="border-bottom-dotted border-null-top border-null-left">
+      Adults 15 years or older at enrolment
+  </td>
+  <td>
+      &nbsp;
+  </td>
+  <td>
+      &nbsp;
+  </td>
+  <td class="column-break">
+      &nbsp;
+  </td>
+  <td>
+      &nbsp;
+  </td>
+  <td>
+      &nbsp;
+  </td>
+</tr>
+<tr class="row-break">
+  <td colspan="7" class="border-null">
+      &nbsp;
+  </td>
+</tr>
+<tr>
+  <td class="index">
+      19.
+  </td>
+  <td class="text-bold border-top-dotted border-left-dotted border-null-bottom border-null-right">
+      Exp
+  </td>
+  <td class="border-top-dotted border-null-bottom border-null-left">
+      Exposed infants
+  </td>
+  <td>
+      &nbsp;
+  </td>
+  <td>
+      &nbsp;
+  </td>
+  <td class="column-break">
+      &nbsp;
+  </td>
+  <td>
+      &nbsp;
+  </td>
+  <td>
+      &nbsp;
+  </td>
+</tr>
+<tr>
+  <td class="index">
+      20.
+  </td>
+  <td class="text-bold border-left-dotted border-bottom-dotted border-null-top border-null-right">
+      Conf
+  </td>
+  <td class="border-bottom-dotted border-null-top border-null-left">
+      Confirmed infected patients (<u>pre-ART</u>)
+  </td>
+  <td>
+      &nbsp;
+  </td>
+  <td>
+      &nbsp;
+  </td>
+  <td class="column-break">
+      &nbsp;
+  </td>
+  <td>
+      &nbsp;
+  </td>
+  <td>
+      &nbsp;
+  </td>
+</tr>
+<tr class="row-break">
+  <td class="border-null" colspan="7">
+      &nbsp;
+  </td>
+</tr>
+<tr>
+  <td class="border-null">
+      &nbsp;
+  </td>
+  <td colspan="5" class="text-bold border-null">
+      Primary outcomes of all <u>Pre-ART patients</u> ever registered as of the end of quarter
+  </td>
+  <td class="border-null text-center text-italic text-smaller">
+      Clinic own data*
+  </td>
+  <td class="border-null text-center text-italic text-smaller">
+      Checked data
+  </td>
+</tr>
+<tr>
+  <td class="index">
+      21.
+  </td>
+  <td colspan="5" class="border-top-dotted border-left-dotted border-bottom-dotted">
+      Total retained alive in pre-ART follow-up
+  </td>
+  <td>
+      &nbsp;
+  </td>
+  <td>
+      &nbsp;
+  </td>
+</tr>
+<tr class="row-break">
+  <td colspan="7" class="border-null">
+      &nbsp;
+  </td>
+</tr>
+<tr>
+  <td class="index">
+      22.
+  </td>
+  <td colspan="5" class="border-left-dotted border-top-dotted border-null-bottom">
+      Started ART
+  </td>
+  <td>
+      &nbsp;
+  </td>
+  <td>
+      &nbsp;
+  </td>
+</tr>
+<tr>
+  <td class="index">
+      23.
+  </td>
+  <td colspan="5" class="border-left-dotted border-null-top border-null-bottom">
+      Transferred out
+  </td>
+  <td>
+      &nbsp;
+  </td>
+  <td>
+      &nbsp;
+  </td>
+</tr>
+<tr>
+  <td class="index">
+      24.
+  </td>
+  <td colspan="5" class="border-left-dotted border-null-bottom border-null-top">
+      Defaulted (more than 2 months late for next appointment)
+  </td>
+  <td>
+      &nbsp;
+  </td>
+  <td>
+      &nbsp;
+  </td>
+</tr>
+<tr>
+  <td class="index">
+      25.
+  </td>
+  <td colspan="5" class="border-left-dotted border-bottom-dotted border-null-top">
+      Died
+  </td>
+  <td>
+      &nbsp;
+  </td>
+  <td>
+      &nbsp;
+  </td>
+</tr>
+<tr class="row-break">
+  <td class="border-null" colspan="7">
+      &nbsp;
+  </td>
+</tr>
+-->
+<table class="table-main" border="2px;">
+  <tr>
+      <td class="border-null">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-null text-bold">
+          ART CLINIC
+      </td>
+      <td class="border-null text-center text-italic" colspan="5">
+          *Supervisors: No need to copy the 'Clinic own data' on this page
+      </td>
+  </tr>
+  <tr>
+      <td class="border-null">
+          &nbsp;
+      </td>
+      <td class="border-null" colspan="2">
+          &nbsp;
+      </td>
+      <td colspan="2" class="text-bold text-center border-null">
+          Newly registered in quarter
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td colspan="2" class="text-bold text-center border-null">
+          Cumulative ever registered
+      </td>
+  </tr>
+  <tr>
+      <td class="border-null">
+          &nbsp;
+      </td>
+      <td class="border-null text-bold" colspan="2">
+          Patient registration details
+      </td>
+      <td class="border-null text-center text-italic text-smaller">
+          Clinic own data*
+      </td>
+      <td class="border-null text-center text-italic text-smaller">
+          Checked data
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="border-null text-center text-italic text-smaller">
+          Clinic own data*
+      </td>
+      <td class="border-null text-center text-italic text-smaller">
+          Checked data
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          26.
+      </td>
+      <td colspan="2" class="border-bottom-dotted border-top-dotted border-left-dotted">
+          Total Registered
+      </td>
+      <td class="number">
+          <a href="javascript:drillDown('total_registered');" id="total_registered">
+              <%= @cohort.total_registered.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number">
+          <a href="javascript:drillDown('cum_total_registered');" id="cum_total_registered">
+              <%= @cohort.cum_total_registered.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr class="row-break">
+      <td colspan="7" class="border-null">
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          27.
+      </td>
+      <td class="clinic-head text-bold border-left-dotted border-top-dotted border-null-bottom border-null-right">
+          FT
+      </td>
+      <td class="clinic-description border-top-dotted border-null-bottom border-null-left">
+          Patients initiated on ART first time
+      </td>
+      <td class="clinic-result number patients_on_art">
+          <a href="javascript:drillDown('initiated_on_art_first_time');" id="initiated_on_art_first_time" class="on-art">
+              <%= @cohort.initiated_on_art_first_time.count rescue 0 %>
+          </a>
+      </td>
+      <td class="clinic-result">
+          &nbsp;
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="clinic-result number cum_patients_on_art">
+          <a href="javascript:drillDown('cum_initiated_on_art_first_time');" id="cum_initiated_on_art_first_time" class="cum-on-art">
+              <%= @cohort.cum_initiated_on_art_first_time.count rescue 0 %>
+          </a>
+      </td>
+      <td class="clinic-result">
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          28.
+      </td>
+      <td class="text-bold border-left-dotted border-null-top border-null-bottom border-null-right">
+          Re
+      </td>
+      <td class="border-null-left border-null-top border-null-bottom">
+          Patients re-initiated on ART
+      </td>
+      <td class="number patients_on_art">
+          <a href="javascript:drillDown('re_initiated_on_art');" id="re_initiated_on_art" class="on-art">
+              <%= @cohort.re_initiated_on_art.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number cum_patients_on_art">
+          <a href="javascript:drillDown('cum_re_initiated_on_art');" id="cum_re_initiated_on_art" class="cum-on-art">
+              <%= @cohort.cum_re_initiated_on_art.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          29.
+      </td>
+      <td class="text-bold border-bottom-dotted border-left-dotted border-null-top border-null-right">
+          TI
+      </td>
+      <td class="border-bottom-dotted border-null-top border-null-left">
+          Patients transferred in on ART
+      </td>
+      <td class="number patients_on_art">
+          <a href="javascript:drillDown('transfer_in');" id="transfer_in" class="on-art">
+              <%= @cohort.transfer_in.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number cum_patients_on_art">
+          <a href="javascript:drillDown('cum_transfer_in');" id="cum_transfer_in" class="cum-on-art">
+              <%= @cohort.cum_transfer_in.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr class="row-break">
+      <td colspan="8" class="border-null">
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          30.
+      </td>
+      <td class="text-bold border-left-dotted border-top-dotted border-null-bottom border-null-right">
+          M
+      </td>
+      <td class="border-top-dotted border-null-bottom border-null-left">
+          Males (all ages)
+      </td>
+      <td  class="number gender_class">
+          <a href="javascript:drillDown('all_males');" id="all_males" class="gender1">
+              <%= @cohort.all_males.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number cum_gender_class">
+          <a href="javascript:drillDown('cum_all_males');" id="cum_all_males" class="cum-gender">
+              <%= @cohort.cum_all_males.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          31.
+      </td>
+      <td class="text-bold border-left-dotted border-null-top border-null-bottom border-null-right">
+          FNP
+      </td>
+      <td class="border-null-left border-null-top border-null-bottom">
+          Non-pregnant Females (all ages)
+      </td>
+      <td class="number gender_class">
+          <a href="javascript:drillDown('non_pregnant_females');" id="non_pregnant_females" class="gender1">
+              <%= @cohort.non_pregnant_females.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number cum_gender_class">
+          <a href="javascript:drillDown('cum_non_pregnant_females');" id="cum_non_pregnant_females" class="cum-gender">
+              <%= @cohort.cum_non_pregnant_females.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          32.
+      </td>
+      <td class="text-bold border-bottom-dotted border-left-dotted border-null-top border-null-right">
+          FP
+      </td>
+      <td class="border-bottom-dotted border-null-top border-null-left">
+          Pregnant Females (all ages)
+      </td>
+      <td class="number gender_class">
+          <a href="javascript:drillDown('pregnant_females_all_ages');" id="pregnant_females_all_ages" class="gender1">
+              <%= @cohort.pregnant_females_all_ages.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number cum_gender_class">
+          <a href="javascript:drillDown('cum_pregnant_females_all_ages');" id="cum_pregnant_females_all_ages" class="cum-gender">
+              <%= @cohort.cum_pregnant_females_all_ages.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr class="row-break">
+      <td colspan="7" class="border-null">
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          33.
+      </td>
+      <td class="text-bold border-left-dotted border-top-dotted border-null-bottom border-null-right">
+          A
+      </td>
+      <td class="border-top-dotted border-null-bottom border-null-left">
+          Children below 24 m at ART initiation
+      </td>
+      <td class="number age_class">
+          <a href="javascript:drillDown('children_below_24_months_at_art_initiation');" id="children_below_24_months_at_art_initiation" class="age">
+              <%= @cohort.children_below_24_months_at_art_initiation.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number cum_age_class">
+          <a href="javascript:drillDown('cum_children_below_24_months_at_art_initiation');" id="cum_children_below_24_months_at_art_initiation" class="cum-age">
+              <%= @cohort.cum_children_below_24_months_at_art_initiation.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          34.
+      </td>
+      <td class="text-bold border-left-dotted border-null-top border-null-bottom border-null-right">
+          B
+      </td>
+      <td class="border-null-left border-null-top border-null-bottom">
+          Children 24 m - 14 yrs at ART initiation
+      </td>
+      <td class="number age_class">
+          <a href="javascript:drillDown('children_24_months_14_years_at_art_initiation');" id="children_24_months_14_years_at_art_initiation" class="age">
+              <%= @cohort.children_24_months_14_years_at_art_initiation.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number cum_age_class">
+          <a href="javascript:drillDown('cum_children_24_months_14_years_at_art_initiation');" id="cum_children_24_months_14_years_at_art_initiation" class="cum-age">
+              <%= @cohort.cum_children_24_months_14_years_at_art_initiation.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          35.
+      </td>
+      <td class="text-bold border-left-dotted border-null-top border-null-bottom border-null-right">
+          C
+      </td>
+      <td class="border-null-left border-null-top border-null-bottom">
+          Adults 15 years or older at ART initiation
+      </td>
+      <td class="number age_class">
+          <a href="javascript:drillDown('adults_at_art_initiation');" id="adults_at_art_initiation" class="age">
+              <%= @cohort.adults_at_art_initiation.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number cum_age_class">
+          <a href="javascript:drillDown('cum_adults_at_art_initiation');" id="cum_adults_at_art_initiation" class="cum-age">
+              <%= @cohort.cum_adults_at_art_initiation.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          &nbsp;
+      </td>
+      <td class="text-bold border-left-dotted border-bottom-dotted border-null-top border-null-right">
+          &nbsp;
+      </td>
+      <td class="border-bottom-dotted border-null-top border-null-left">
+          Unknown age
+      </td>
+      <td class="number age_class">
+          <a href="javascript:drillDown('unknown_age');" id="unknown_age" class="age">
+              <%= @cohort.unknown_age.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number cum_age_class">
+          <a href="javascript:drillDown('cum_unknown_age');" id="cum_unknown_age" class="cum-age">
+              <%= @cohort.cum_unknown_age.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          &nbsp;
+      </td>
+      <td colspan="6" class="border-null">
+          Reason for starting ART
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          36.
+      </td>
+      <td class="text-bold border-left-dotted border-top-dotted border-null-bottom border-null-right">
+          PSHD
+      </td>
+      <td class="border-top-dotted border-null-bottom border-null-left">
+          Pres. Sev. HIV disease age < 12 m
+      </td>
+      <td class="number reason_class">
+          <a href="javascript:drillDown('presumed_severe_hiv_disease_in_infants');" id="presumed_severe_hiv_disease_in_infants" class="reason">
+              <%= @cohort.presumed_severe_hiv_disease_in_infants.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number cum_reason_class">
+          <a href="javascript:drillDown('cum_presumed_severe_hiv_disease_in_infants');" id="cum_presumed_severe_hiv_disease_in_infants" class="cum-reason">
+              <%= @cohort.cum_presumed_severe_hiv_disease_in_infants.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          37.
+      </td>
+      <td class="text-bold border-left-dotted border-null-bottom border-null-top border-null-right">
+          PCR
+      </td>
+      <td class="border-null-bottom border-null-top border-null-left">
+          Infants < 12 mths PCR+
+      </td>
+      <td class="number reason_class">
+          <a href="javascript:drillDown('confirmed_hiv_infection_in_infants_pcr');" id="confirmed_hiv_infection_in_infants_pcr" class="reason">
+              <%= @cohort.confirmed_hiv_infection_in_infants_pcr.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number cum_reason_class">
+          <a href="javascript:drillDown('cum_confirmed_hiv_infection_in_infants_pcr');" id="cum_confirmed_hiv_infection_in_infants_pcr" class="cum-reason">
+              <%= @cohort.cum_confirmed_hiv_infection_in_infants_pcr.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          38.
+      </td>
+      <td class="text-bold border-left-dotted border-null-bottom border-null-top border-null-right">
+          U5
+      </td>
+      <td class="border-null-bottom border-null-top border-null-left">
+          Children 12-59 mths
+      </td>
+      <td class="number reason_class">
+          <a href="javascript:drillDown('children_12_23_months');" id="children_12_23_months" class="reason">
+              <%= @cohort.children_12_23_months.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number cum_reason_class">
+          <a href="javascript:drillDown('cum_children_12_23_months');" id="cum_children_12_23_months" class="cum-reason">
+              <%= @cohort.cum_children_12_23_months.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          39.
+      </td>
+      <td class="text-bold border-left-dotted border-null-right border-null-top border-null-bottom">
+          Preg
+      </td>
+      <td class="border-null-left border-null-top border-null-bottom">
+          Pregnant women
+      </td>
+      <td class="number reason_class">
+          <a href="javascript:drillDown('pregnant_women');" id="pregnant_women" class="reason">
+              <%= @cohort.pregnant_women.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number cum_reason_class">
+          <a href="javascript:drillDown('cum_pregnant_women');" id="cum_pregnant_women" class="cum-reason">
+              <%= @cohort.cum_pregnant_women.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr style="page-break-after: always;">
+      <td class="index" style="page-break-inside: avoid; page-break-after: always;">
+          40.
+      </td>
+      <td class="text-bold border-left-dotted border-null-bottom border-null-right border-null-top">
+          BF
+      </td>
+      <td class="border-null-bottom border-null-top border-null-left">
+          Breastfeeding mothers
+      </td>
+      <td class="number reason_class">
+          <a href="javascript:drillDown('breastfeeding_mothers');" id="breastfeeding_mothers" class="reason">
+              <%= @cohort.breastfeeding_mothers.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number cum_reason_class">
+          <a href="javascript:drillDown('cum_breastfeeding_mothers');" id="cum_breastfeeding_mothers" class="cum-reason">
+              <%= @cohort.cum_breastfeeding_mothers.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          41.
+      </td>
+      <td class="text-bold border-left-dotted border-null-bottom border-null-right border-null-top">
+          CD4
+      </td>
+      <td class="border-null-bottom border-null-top border-null-left">
+          CD4 below threshold
+      </td>
+      <td class="number reason_class">
+          <a href="javascript:drillDown('who_stage_two');" id="who_stage_two" class="reason">
+              <%= @cohort.who_stage_two.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number cum_reason_class">
+          <a href="javascript:drillDown('cum_who_stage_two');" id="cum_who_stage_two" class="cum-reason">
+              <%= @cohort.cum_who_stage_two.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          42.
+      </td>
+      <td class="text-bold border-left-dotted border-null-bottom border-null-right border-null-top">
+          Asy
+      </td>
+      <td class="border-null-bottom border-null-top border-null-left">
+          Asymptomatic / mild
+      </td>
+      <td class="number reason_class">
+          <a href="javascript:drillDown('asymptomatic');" id="asymptomatic" class="reason">
+              <%= @cohort.asymptomatic.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number cum_reason_class">
+          <a href="javascript:drillDown('cum_asymptomatic');" id="cum_asymptomatic" class="cum-reason">
+              <%= @cohort.cum_asymptomatic.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          43.
+      </td>
+      <td class="text-bold border-left-dotted border-null-bottom border-null-right border-null-top">
+          3
+      </td>
+      <td class="border-null-bottom border-null-top border-null-left">
+          WHO stage 3
+      </td>
+      <td class="number reason_class">
+          <a href="javascript:drillDown('who_stage_three');" id="who_stage_three" class="reason">
+              <%= @cohort.who_stage_three.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number cum_reason_class">
+          <a href="javascript:drillDown('cum_who_stage_three');" id="cum_who_stage_three" class="cum-reason">
+              <%= @cohort.cum_who_stage_three.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          44.
+      </td>
+      <td class="text-bold border-left-dotted border-null-bottom border-null-right border-null-top">
+          4
+      </td>
+      <td class="border-null-bottom border-null-top border-null-left">
+          WHO stage 4
+      </td>
+      <td class="number reason_class">
+          <a href="javascript:drillDown('who_stage_four');" id="who_stage_four" class="reason">
+              <%= @cohort.who_stage_four.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number cum_reason_class">
+          <a href="javascript:drillDown('cum_who_stage_four');" id="cum_who_stage_four" class="cum-reason">
+              <%= @cohort.cum_who_stage_four.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          45.
+      </td>
+      <td class="text-bold border-bottom-dotted border-left-dotted border-null-right border-null-top">
+          Unk
+      </td>
+      <td class="border-bottom-dotted border-null-top border-null-left">
+          Unknown / reason outside guidelines
+      </td>
+      <td class="number reason_class">
+          <a href="javascript:drillDown('unknown_other_reason_outside_guidelines');" id="unknown_other_reason_outside_guidelines" class="reason">
+              <%= @cohort.unknown_other_reason_outside_guidelines.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number cum_reason_class">
+          <a href="javascript:drillDown('cum_unknown_other_reason_outside_guidelines');" id="cum_unknown_other_reason_outside_guidelines" class="cum-reason">
+              <%= @cohort.cum_unknown_other_reason_outside_guidelines.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr class="row-break">
+      <td colspan="7" class="border-null">
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          &nbsp;
+      </td>
+      <td colspan="6" class="border-null">
+          Stage defining conditions at ART initiation
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          46.
+      </td>
+      <td class="text-bold border-top-dotted border-left-dotted border-null-bottom border-null-right">
+          Nev/>2yrs
+      </td>
+      <td class="border-top-dotted border-null-bottom border-null-left">
+          Never TB or TB over 2 years ago
+      </td>
+      <td class="number condition_class">
+          <a href="javascript:drillDown('no_tb');" id="no_tb" class="condition">
+              <%= @cohort.no_tb.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number cum_condition_class">
+          <a href="javascript:drillDown('cum_no_tb');" id="cum_no_tb" class="cum-condition">
+              <%= @cohort.cum_no_tb.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          47.
+      </td>
+      <td class="text-bold border-left-dotted border-null-bottom border-null-top border-null-right">
+          Last 2yrs
+      </td>
+      <td class="border-null-bottom border-null-top border-null-left">
+          TB within the last 2 years
+      </td>
+      <td class="number condition_class">
+          <a href="javascript:drillDown('tb_within_the_last_two_years');" id="tb_within_the_last_two_years" class="condition">
+              <%= @cohort.tb_within_the_last_two_years.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number cum_condition_class">
+          <a href="javascript:drillDown('cum_tb_within_the_last_two_years');" id="cum_tb_within_the_last_two_years" class="cum-condition">
+              <%= @cohort.cum_tb_within_the_last_two_years.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          48.
+      </td>
+      <td class="text-bold border-left-dotted border-bottom-dotted border-null-right border-null-top">
+          Curr
+      </td>
+      <td class="border-bottom-dotted border-null-top border-null-left">
+          Current episode of TB
+      </td>
+      <td class="number condition_class">
+          <a href="javascript:drillDown('current_episode_of_tb');" id="current_episode_of_tb" class="condition">
+              <%= @cohort.current_episode_of_tb.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number cum_condition_class">
+          <a href="javascript:drillDown('cum_current_episode_of_tb');" id="cum_current_episode_of_tb" class="cum-condition">
+              <%= @cohort.cum_current_episode_of_tb.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr class="row-break">
+      <td colspan="7" class="border-null">
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          49.
+      </td>
+      <td class="text-bold border-bottom-dotted border-top-dotted border-left-dotted border-null-right">
+          KS
+      </td>
+      <td class="border-bottom-dotted border-top-dotted border-null-left">
+          Kaposi's Sarcoma
+      </td>
+      <td class="number">
+          <a href="javascript:drillDown('kaposis_sarcoma');" id="kaposis_sarcoma">
+              <%= @cohort.kaposis_sarcoma.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number">
+          <a href="javascript:drillDown('cum_kaposis_sarcoma');">
+              <%= @cohort.cum_kaposis_sarcoma.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="border-null">
+          &nbsp;
+      </td>
+      <td colspan="5" class="text-bold border-null">
+          Primary outcomes as of the end of the quarter evaluated
+      </td>
+      <td colspan="2" class="text-bold border-null">
+          Out of all patients ever registered
+      </td>
+  </tr>
+  <tr>
+      <td class="border-null">
+          &nbsp;
+      </td>
+      <td colspan="5" class="text-bold border-null">
+          &nbsp;
+      </td>
+      <td class="border-null text-center text-italic text-smaller">
+          Clinic own data**
+      </td>
+      <td class="border-null text-center text-italic text-smaller">
+          Checked data
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          50.
+      </td>
+      <td colspan="4" class="border-bottom-dotted border-top-dotted border-left-dotted">
+          Total alive and on ART
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number reg_on_art_class">
+          <a href="javascript:drillDown('total_alive_and_on_art');" id="total_alive_and_on_art" class="registered-on-art">
+              <%= @cohort.total_alive_and_on_art.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr class="row-break">
+      <td colspan="7" class="border-null">
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          51.
+      </td>
+      <td class="text-bold border-top-dotted border-left-dotted border-null-bottom border-null-right">
+          M1
+      </td>
+      <td colspan="3" class="border-top-dotted border-null-bottom border-null-left">
+          Died within the 1st month after ART initiation
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number dead_class">
+          <a href="javascript:drillDown('died_within_the_1st_month_of_art_initiation');" class="dead">
+              <%= @cohort.died_within_the_1st_month_of_art_initiation.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          52.
+      </td>
+      <td class="text-bold border-left-dotted border-null-bottom border-null-top border-null-right">
+          M2
+      </td>
+      <td colspan="3" class="border-null-bottom border-null-top border-null-left">
+          Died within the 2nd month after ART initiation
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number dead_class">
+          <a href="javascript:drillDown('died_within_the_2nd_month_of_art_initiation');" class="dead">
+              <%= @cohort.died_within_the_2nd_month_of_art_initiation.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          53.
+      </td>
+      <td class="text-bold border-left-dotted border-null-bottom border-null-top border-null-right">
+          M3
+      </td>
+      <td colspan="3" class="border-null-bottom border-null-top border-null-left">
+          Died within the 3rd month after ART initiation
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number dead_class">
+          <a href="javascript:drillDown('died_within_the_3rd_month_of_art_initiation');" class="dead">
+              <%= @cohort.died_within_the_3rd_month_of_art_initiation.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          54.
+      </td>
+      <td class="text-bold border-left-dotted border-bottom-dotted border-null-top border-null-right">
+          M4+
+      </td>
+      <td colspan="3" class="border-bottom-dotted border-null-top border-null-left">
+          Died after the end of the 3rd month after ART initiation
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number dead_class">
+          <a href="javascript:drillDown('died_after_the_3rd_month_of_art_initiation');" class="dead">
+              <%= @cohort.died_after_the_3rd_month_of_art_initiation.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          55.
+      </td>
+      <td colspan="4" class="border-top-dotted border-left-dotted border-null-bottom">
+          <b>Died</b> total
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number reg_on_art_class">
+          <a href="javascript:drillDown('died_total');" id="died_total" class="registered-on-art">
+              <%= @cohort.died_total.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          56.
+      </td>
+      <td colspan="4" class="border-left-dotted border-null-bottom border-null-top">
+          <b>Def</b>aulted (more than 2 months overdue after expected to have run out of ARVs)
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number reg_on_art_class">
+          <a href="javascript:drillDown('defaulted');" class="registered-on-art">
+              <%= @cohort.defaulted.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          57.
+      </td>
+      <td colspan="4" class="border-left-dotted border-null-bottom border-null-top">
+          <b>Stop</b>ped taking ARVs (clinician or patient own decision, last known alive)
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number reg_on_art_class">
+          <a href="javascript:drillDown('stopped_art');" class="registered-on-art">
+              <%= @cohort.stopped_art.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          58.
+      </td>
+      <td colspan="4" class="border-left-dotted border-bottom-dotted border-null-top">
+          <b>T</b>ransferred <b>O</b>ut
+      </td>
+      <td class="column-break">
+          &nbsp;
+      </td>
+      <td class="number reg_on_art_class">
+          <a href="javascript:drillDown('transfered_out');" class="registered-on-art">
+              <%= @cohort.transfered_out.count rescue 0 %>
+          </a>
+      </td>
+      <td>
+          &nbsp;
+      </td>
+  </tr>
+  <tr class="row-break">
+      <td colspan="7" class="border-null">
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index border-null">
+          &nbsp;
+      </td>
+      <td class="border-null text-bold" colspan="6">
+          Secondary outcomes of those alive on ART
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          61.
+      </td>
+      <td class="border-top-dotted border-left-dotted border-null-bottom border-null-right">
+          ART Regimens
+      </td>
+      <td colspan="2" class="border-top-dotted border-null-bottom border-null-left border-null-right">
+          Paediatric formulations (blue card)
+      </td>
+      <td colspan="2" class="border-null-bottom border-null-left border-top-dotted">
+          Regimen <b>0P</b>
+      </td>
+      <td colspan="2" class="number regimen_class">
+          <a href="javascript:drillDown('zero_p');" class="regimen">
+              <%= @cohort.zero_p.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          62.
+      </td>
+      <td rowspan="4" colspan="3" class="text-italic text-center  border-left-dotted border-null-right
+      border-null-bottom border-null-top">
+          Count regimen for <u>all patients registered</u> at this site,
+          including those who currently get supplies from another site
+      </td>
+      <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+          Regimen <b>2P</b>
+      </td>
+      <td colspan="2" class="number regimen_class">
+          <a href="javascript:drillDown('two_p');" class="regimen">
+              <%= @cohort.two_p.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          63.
+      </td>
+      <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+          Regimen <b>4P</b>
+      </td>
+      <td colspan="2" class="number regimen_class">
+          <a href="javascript:drillDown('four_p');" class="regimen">
+              <%= @cohort.four_p.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          64.
+      </td>
+      <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+          Regimen <b>9P</b>
+      </td>
+      <td colspan="2" class="number regimen_class">
+          <a href="javascript:drillDown('nine_p');" class="regimen">
+              <%= @cohort.nine_p.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          65.
+      </td>
+      <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+          Regimen <b>11P</b>
+      </td>
+      <td colspan="2" class="number regimen_class">
+          <a href="javascript:drillDown('elleven_p');" class="regimen">
+              <%= @cohort.elleven_p.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+<!--
+  <tr>
+      <td class="index">
+          66.
+      </td>
+      <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+          Regimen <b>9P</b>
+      </td>
+      <td colspan="2" class="number">
+          <a href="javascript:drillDown('nine_p');">
+              <%= @cohort.nine_p.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          67.
+      </td>
+      <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+          Regimen <b>11P</b>
+      </td>
+      <td colspan="2" class="number">
+          <a href="javascript:drillDown('elleven_p');">
+              <%= @cohort.elleven_p.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+!-->
+  <tr>
+      <td class="index">
+          66.
+      </td>
+      <td class="border-left-dotted border-null-top border-null-bottom border-null-right">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-top-dotted border-null-left border-null-bottom border-null-right">
+          Adult formulations (yellow card)
+      </td>
+      <td colspan="2" class="border-top-dotted border-null-bottom border-null-left">
+          Regimen <b>0A</b>
+      </td>
+      <td colspan="2" class="number regimen_class">
+          <a href="javascript:drillDown('zero_a');" class="regimen">
+              <%= @cohort.zero_a.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          67.
+      </td>
+      <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+          Regimen <b>2A</b>
+      </td>
+      <td colspan="2" class="number regimen_class">
+          <a href="javascript:drillDown('two_a');" class="regimen">
+              <%= @cohort.two_a.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          68.
+      </td>
+      <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+          Regimen <b>4A</b>
+      </td>
+      <td colspan="2" class="number regimen_class">
+          <a href="javascript:drillDown('four_a');" class="regimen">
+              <%= @cohort.four_a.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          69.
+      </td>
+      <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+          Regimen <b>5A</b>
+      </td>
+      <td colspan="2" class="number regimen_class">
+          <a href="javascript:drillDown('five_a');" class="regimen">
+              <%= @cohort.five_a.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          70.
+      </td>
+      <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+          Regimen <b>6A</b>
+      </td>
+      <td colspan="2" class="number regimen_class">
+          <a href="javascript:drillDown('six_a');" class="regimen">
+              <%= @cohort.six_a.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          71.
+      </td>
+      <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+          Regimen <b>7A</b>
+      </td>
+      <td colspan="2" class="number regimen_class">
+          <a href="javascript:drillDown('seven_a');" class="regimen">
+              <%= @cohort.seven_a.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          72.
+      </td>
+      <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+          Regimen <b>8A</b>
+      </td>
+      <td colspan="2" class="number regimen_class">
+          <a href="javascript:drillDown('eight_a');" class="regimen">
+              <%= @cohort.eight_a.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          73.
+      </td>
+      <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+          Regimen <b>9A</b>
+      </td>
+      <td colspan="2" class="number regimen_class">
+          <a href="javascript:drillDown('nine_a');" class="regimen">
+              <%= @cohort.nine_a.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          74.
+      </td>
+      <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+          Regimen <b>10A</b>
+      </td>
+      <td colspan="2" class="number regimen_class">
+          <a href="javascript:drillDown('ten_a');" class="regimen">
+              <%= @cohort.ten_a.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          75.
+      </td>
+      <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+          Regimen <b>11A</b>
+      </td>
+      <td colspan="2" class="number regimen_class">
+          <a href="javascript:drillDown('elleven_a');" class="regimen">
+              <%= @cohort.elleven_a.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          76.
+      </td>
+      <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+          Regimen <b>12A</b>
+      </td>
+      <td colspan="2" class="number regimen_class">
+          <a href="javascript:drillDown('twelve_a');" class="regimen">
+              <%= @cohort.twelve_a.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+<!--
+  <tr>
+      <td class="index">
+          79.
+      </td>
+      <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+          Regimen <b>12A</b>
+      </td>
+      <td colspan="2" class="number">
+          <a href="javascript:drillDown('elleven_a');">
+              <%= @cohort.elleven_a.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          80.
+      </td>
+      <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+          Regimen <b>12A</b>
+      </td>
+      <td colspan="2" class="number">
+          <a href="javascript:drillDown('twelve_a');">
+              <%= @cohort.twelve_a.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+-->
+  <tr>
+      <td class="index">
+
+      </td>
+      <td colspan="3" class="text-center border-left-dotted border-bottom-dotted border-null-top border-null-right">
+          Specify above regimens counted as 'Other'
+      </td>
+      <td colspan="2" class="border-bottom-dotted border-null-top border-null-left">
+          Other (paed. / adult)
+      </td>
+      <td colspan="2" class="number regimen_class">
+          <a href="javascript:drillDown('unknown_regimen');" class="regimen">
+              <%= @cohort.unknown_regimen.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+  <tr class="row-break">
+      <td colspan="7" class="border-null">
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          77.
+      </td>
+      <td class="text-bold border-top-dotted border-left-dotted border-null-bottom border-null-right">
+          Pregnant / Breastfeeding
+      </td>
+      <td colspan="2" class="border-top-dotted border-null-bottom border-null-left border-null-right">
+          (as of the last visit before end of quarter)
+      </td>
+      <td colspan="2" class="border-top-dotted border-null-bottom border-null-left" colspan="2">
+          <b>Preg</b>nant
+      </td>
+      <td colspan="2" class="number pregnant_class">
+          <a href="javascript:drillDown('total_pregnant');" class="preg_breastfeed">
+              <%= "#{@cohort.total_pregnant_women.count rescue 0}" %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          78.
+      </td>
+      <td class="border-left-dotted border-null-bottom border-null-top border-null-right">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-null-left border-null-right border-null-top border-null-bottom">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+          <b>B</b>reast<b>f</b>eeding
+      </td>
+      <td colspan="2" class="number pregnant_class">
+          <a href="javascript:drillDown('total_breastfeeding');" class="preg_breastfeed">
+             <%= "#{@cohort.total_breastfeeding_women.count rescue 0}" %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          79.
+      </td>
+      <td class="border-left-dotted border-bottom-dotted border-null-top border-null-right">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-bottom-dotted border-null-top border-null-left border-null-right">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-bottom-dotted border-null-top border-null-left">
+          All <b>others</b> (not circled)
+      </td>
+      <td colspan="2" class="number pregnant_class ">
+          <a href="javascript:drillDown('all_other_patients');" class="preg_breastfeed">
+              <%= "#{@cohort.total_other_patients.count rescue 0}" %>
+          </a>
+      </td>
+  </tr>
+  <tr class="row-break">
+      <td colspan="7" class="border-null">
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          80.
+      </td>
+      <td class="border-top-dotted border-left-dotted border-null-bottom border-null-right">
+          <b>Current TB status</b> any form of TB
+      </td>
+      <td colspan="2" class="border-top-dotted border-null-bottom border-null-left border-null-right">
+          (as of the last visit before end of quarter)
+      </td>
+      <td colspan="2" class="border-top-dotted border-null-left border-null-bottom">
+          TB <b>not</b> suspected
+      </td>
+      <td colspan="2" class="number tb_status_class">
+          <a href="javascript:drillDown('tb_not_suspected');" class="tb_status">
+              <%= @cohort.tb_not_suspected.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          81.
+      </td>
+      <td class="border-left-dotted border-null-bottom border-null-top border-null-right">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-null-right border-null-bottom border-null-top border-null-left">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-null-left border-null-top border-null-bottom">
+          TB <b>suspected</b>
+      </td>
+      <td colspan="2" class="number tb_status_class">
+          <a href="javascript:drillDown('tb_suspected');" class="tb_status">
+              <%= @cohort.tb_suspected.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          82.
+      </td>
+      <td colspan="3" class="border-left-dotted border-null-bottom border-null-top border-null-right">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-null-top border-null-bottom border-null-left">
+          TB conf., <b>not</b> on Rx
+      </td>
+      <td colspan="2" class="number tb_status_class">
+          <a href="javascript:drillDown('tb_confirmed_currently_not_yet_on_tb_treatment');" class="tb_status">
+              <%= @cohort.tb_confirmed_currently_not_yet_on_tb_treatment.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          83.
+      </td>
+      <td colspan="3" class="border-left-dotted border-null-right border-null-bottom border-null-top">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-null-left border-null-top border-null-bottom">
+          TB conf., <b>on TB Rx</b>
+      </td>
+      <td colspan="2" class="number tb_status_class">
+          <a href="javascript:drillDown('tb_confirmed_on_tb_treatment');" class="tb_status">
+              <%= @cohort.tb_confirmed_on_tb_treatment.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          84.
+      </td>
+      <td colspan="3" class="border-left-dotted border-bottom-dotted border-null-top border-null-right">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-bottom-dotted border-null-top border-null-left">
+          Unknown (not circled)
+      </td>
+      <td colspan="2" class="number tb_status_class">
+          <a href="javascript:drillDown('unknown_tb_status');" class="tb_status">
+              <%= @cohort.unknown_tb_status.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+  <tr class="row-break">
+      <td colspan="7" class="border-null">
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          85.
+      </td>
+      <td class="text-bold border-top-dotted border-left-dotted border-null-bottom border-null-right">
+          Side effects
+      </td>
+      <td colspan="2" class="border-top-dotted border-null-bottom border-null-left border-null-right">
+          (as of the last visit before end of quarter)
+      </td>
+      <td colspan="2" class="text-bold border-top-dotted border-null-bottom border-null-left" colspan="2">
+          None
+      </td>
+      <td colspan="2" class="number side_effects_class">
+          <a href="javascript:drillDown('total_patients_without_side_effects');" class="side_effects">
+              <%=
+                 if @cohort.total_patients_without_side_effects.blank?
+                   @cohort.total_patients_without_side_effects = [].count
+                 else
+                   @cohort.total_patients_without_side_effects.count
+                 end
+              %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          86.
+      </td>
+      <td class="border-left-dotted border-null-bottom border-null-top border-null-right">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-null-left border-null-right border-null-top border-null-bottom">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+          <b>Any</b> side effects
+      </td>
+      <td colspan="2" class="number side_effects_class">
+          <a href="javascript:drillDown('total_patients_with_side_effects');" class="side_effects">
+              <%= @cohort.total_patients_with_side_effects.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          87.
+      </td>
+      <td class="border-left-dotted border-bottom-dotted border-null-top border-null-right">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-bottom-dotted border-null-top border-null-left border-null-right">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-bottom-dotted border-null-top border-null-left">
+          <b>Unk</b>own (not circled)
+      </td>
+      <td colspan="2" class="number side_effects_class">
+          <a href="javascript:drillDown('unknown_side_effects');" class="side_effects">
+              <%=
+                 if @cohort.unknown_side_effects.blank?
+                   @cohort.unknown_side_effects = [].count
+                 else
+                   @cohort.unknown_side_effects.count
+                 end
+              %>
+          </a>
+      </td>
+  </tr>
+  <tr class="row-break">
+      <td colspan="7" class="border-null">
+          &nbsp;
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          88.
+      </td>
+      <td class="text-bold border-left-dotted border-top-dotted border-null-bottom border-null-right">
+          Adherence
+      </td>
+      <td colspan="2" class="border-top-dotted border-null-bottom border-null-left border-null-right">
+          (as of the last visit before end of quarter)
+      </td>
+      <td colspan="2" class="border-top-dotted border-null-bottom border-null-left">
+          <b>0 - 3 doses missed</b>
+      </td>
+      <td colspan="2" class="number adherence_class">
+          <a href="javascript:drillDown('patients_with_0_6_doses_missed_at_their_last_visit');" class="adherence">
+              <%= @cohort.patients_with_0_6_doses_missed_at_their_last_visit.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          89.
+      </td>
+      <td class="border-left-dotted border-null-top border-null-bottom border-null-right">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-null-bottom border-null-top border-null-left border-null-right">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+          <b>4+</b> doses missed
+      </td>
+      <td colspan="2" class="number adherence_class">
+          <a href="javascript:drillDown('patients_with_7_plus_doses_missed_at_their_last_visit');" class="adherence">
+              <%= @cohort.patients_with_7_plus_doses_missed_at_their_last_visit.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          90.
+      </td>
+      <td class="border-left-dotted border-bottom-dotted border-null-top border-null-right">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-bottom-dotted border-null-top border-null-right border-null-left">
+          &nbsp;
+      </td>
+      <td colspan="2" class="border-bottom-dotted border-null-top border-null-left">
+          <b>Unk</b>nown (not circled)
+      </td>
+      <td colspan="2" class="number adherence_class">
+          <a href="javascript:drillDown('patients_with_unknown_adhrence');" class="adherence">
+              <%= @cohort.patients_with_unknown_adhrence.count rescue 0 %>
+          </a>
+      </td>
+  </tr>
+  <tr>
+      <td colspan="7" class="border-null">
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          91.
+      </td>
+      <td class="border-top-dotted border-left-dotted border-bottom-dotted border-null-right">
+          <b>CPT</b>
+      </td>
+      <td colspan="2" class="border-top-dotted border-dotted-bottom border-null-left border-null-right">
+         Apprx. % of patients retained in <b>ART</b> who are currently on CPT
+       </td>
+      <td colspan="2" class="border-top-dotted border-null-left border-dotted-bottom">
+      </td>
+      <td colspan="2" class="number">
+            <%= "#{@cohort.total_patients_on_arvs_and_cpt}  %" %>
+      </td>
+  </tr>
+<!--<tr>  
+  <tr>
+      <td colspan="7" class="border-null">
+      </td>
+  </tr>
+  
+        <td class="index">
+            92.
+        </td>
+        <td class="text-bold border-top-dotted border-left-dotted border-null-bottom border-null-right">
+            IPT
+        </td>
+        <td colspan="2" class="border-top-dotted border-null-bottom border-null-left border-null-right">
+           Apprx. % of patients retained in <b>pre-ART</b> who are currently on IPT
+        </td>
+        <td colspan="2" class="border-top-dotted border-null-bottom border-null-left" colspan="2">
+        </td>
+        <td colspan="2" class="number">
+                <%#= "0  %" %>
+        </td> 
+    </tr>
+    <tr>
+        <td class="index">
+        </td>
+        <td class="border-left-dotted border-bottom-dotted border-null-top border-null-right">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-null-left border-null-right border-null-top border-bottom-dotted">
+             Apprx. % of patients retained in <b>ART</b> who are currently on IPT
+        </td>
+        <td colspan="2" class="border-bottom-dotted border-null-top border-null-left">
+        </td>
+        <td colspan="2" class="number">
+              <%#= "#{@cohort.total_patients_on_arvs_and_ipt}  %" %>
+        </td>
+    </tr>-->
+ <tr>
+      <td colspan="7" class="border-null">
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          92.
+      </td>
+      <td class="border-top-dotted border-left-dotted border-bottom-dotted border-null-right">
+          <b>PIFP</b>
+      </td>
+      <td colspan="2" class="border-top-dotted border-dotted-bottom border-null-left border-null-right">
+           Apprx. % of patients retained in <b>ART</b> who are currently on IPT
+      </td>
+      <td colspan="2" class="border-top-dotted border-null-left border-dotted-bottom">
+      </td>
+      <td colspan="2" class="number">
+              <%= "#{@cohort.total_patients_on_arvs_and_ipt}  %" %>
+      </td>
+  </tr>
+
+  <tr>
+      <td colspan="7" class="border-null">
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          93.
+      </td>
+      <td class="border-top-dotted border-left-dotted border-bottom-dotted border-null-right">
+          <b>PIFP</b>
+      </td>
+      <td colspan="2" class="border-top-dotted border-dotted-bottom border-null-left border-null-right">
+          Apprx. % of <u>women</u> who received Depo at <b>ART</b> in the last quarter
+      </td>
+      <td colspan="2" class="border-top-dotted border-null-left border-dotted-bottom">
+      </td>
+      <td colspan="2" class="number">
+              <%= "#{@cohort.total_patients_on_family_planning}  %" %>
+      </td>
+  </tr>
+  <tr>
+      <td colspan="7" class="border-null">
+      </td>
+  </tr>
+  <tr>
+      <td class="index">
+          94.
+      </td>
+      <td class="border-top-dotted border-left-dotted border-bottom-dotted border-null-right">
+          <b>BP screen</b>
+      </td>
+      <td colspan="2" class="border-top-dotted border-dotted-bottom border-null-left border-null-right">
+          Apprx. % of <u>adult <b>ART</b></u> patients with BP recorded at least once this year
+      </td>
+      <td colspan="2" class="border-top-dotted border-null-left border-dotted-bottom">
+      </td>
+      <td colspan="2" class="number">
+        <%= "#{@cohort.total_patients_with_screened_bp}  %" %>
+      </td>
+  </tr>
+  <tr>
+      <td colspan="7" class="border-null">
+      </td>
+  </tr>
+</table>
+
+<!-- Controls -->
+<div class="row-button-print">
+  <div class="buttons">
+    <button class="button button-finish" onmousedown="javascript:location='/'">Finish</button>
+    <button class="button button-print" onmousedown="javascript:printPDF();">Print</button>
+    <button class="button button-disaggregated" onmousedown="showDisaggregatedReport();">Cohort disaggregated report</button>
+
+  </div>
+</div>
+
+<form id="patients" method="post" action="/cohort_tool/list_more_details" name="pat_drilldown">
+  <input id='patient_ids' type='hidden' name = 'patient_ids' />
+  <input id='indicator' type='hidden' name = 'indicator' />
+</form>
+
+<script type="text/javascript">
+  /**############### Initializing numbers to be compared #################*/
+  var total_registered = parseInt(document.getElementById("total_registered").innerHTML);
+  var cum_total_registered = parseInt(document.getElementById("cum_total_registered").innerHTML);
+  var total_alive_and_on_art = parseInt(document.getElementById("total_alive_and_on_art").innerHTML);
+
+  report_inconsistency = 0;
+
+  /**############### Initializing total values to zero ####################*/
+  total_on_art = 0;
+  total_cum_on_art = 0;
+  total_gender = 0;
+  total_cum_gender = 0;
+  total_age = 0;
+  total_cum_age = 0;
+  total_reasons = 0;
+  total_cum_reasons = 0;
+  total_conditions = 0;
+  total_cum_conditions = 0;
+  total_dead = 0;
+  died_total = parseInt(document.getElementById("died_total").innerHTML);
+  total_registered_on_art = 0;
+  total_regimen = 0;
+  total_tb_status = 0;
+  total_side_effects = 0;
+  total_adherence = 0;
+  total_pregnant = 0;
+
+  /**################# getting class objects ##############################*/
+  on_art = document.getElementsByClassName("on-art");
+  cum_on_art = document.getElementsByClassName("cum-on-art")
+  gender1 = document.getElementsByClassName("gender1");
+  cum_gender = document.getElementsByClassName("cum-gender");
+  age = document.getElementsByClassName("age");
+  cum_age = document.getElementsByClassName("cum-age");
+  reasons = document.getElementsByClassName("reason");
+  cum_reasons = document.getElementsByClassName("cum-reason");
+  conditions = document.getElementsByClassName("condition");
+  cum_conditions = document.getElementsByClassName("cum-condition");
+  dead = document.getElementsByClassName("dead");
+  registered_on_art = document.getElementsByClassName("registered-on-art");
+  regimen = document.getElementsByClassName("regimen");
+  tb_status = document.getElementsByClassName("tb_status");
+  side_effects = document.getElementsByClassName("side_effects");
+  adherence = document.getElementsByClassName("adherence");
+  pregnant = document.getElementsByClassName("preg_breastfeed");
+
+  /****************************block 1****************************/
+  /** Compare the sum of patients  initiated, re-initiated and   */
+  /** transfer in against total registered                       */
+  /***************************************************************/
+
+  for(var i = 0; i < on_art.length; i++){
+
+    total_on_art += parseInt(on_art[i].innerHTML);
+
+  }
+
+  for(var i = 0; i < cum_on_art.length; i++){
+
+    total_cum_on_art += parseInt(cum_on_art[i].innerHTML);
+
+  }
+
+  if(total_on_art !== total_registered){
+
+    patient_consistency_div = document.getElementById("patients_consistency");
+    patients_on_art = document.getElementsByClassName("patients_on_art")
+    report_inconsistency += 1;
+
+    patient_consistency_div.innerHTML = "26. Newly total registered in quarter is not equal to "
+    patient_consistency_div.innerHTML += "sum of (Newly registered in quarter) values from 27 through 29";
+
+    for(var i = 0; i < patients_on_art.length; i++){
+
+      patients_on_art[i].style.border = "3px solid red"
+
+    }
+
+  }
+
+  if(total_cum_on_art !== cum_total_registered){
+
+    cum_patients_consistency_div = document.getElementById("patients_consistency");
+    cum_patients_on_art = document.getElementsByClassName("cum_patients_on_art");
+    report_inconsistency += 1;
+
+    cum_patients_consistency_div.innerHTML = "26. Cumulative total registered is not equal to ";
+    cum_patients_consistency_div.innerHTML += "the sum of (Cumulative ever registered) values from 27 through 29";
+
+    for(var i = 0; i < cum_patients_on_art.length; i++){
+
+      cum_patients_on_art[i].style.border = "3px solid red"
+
+    }
+
+  }
+
+  /***************************************************************/
+
+  /***************************block 2*****************************/
+  /** Compare the sum of Males, Non-pregnant Females and         */
+  /** Pregnant Females against total registered                  */
+  /***************************************************************/
+
+  for(var i = 0; i < gender1.length; i++){
+
+    total_gender += parseInt(gender1[i].innerHTML);
+
+  }
+  console.log(total_gender);
+
+  for(var i = 0; i < cum_gender.length; i++){
+
+    total_cum_gender += parseInt(cum_gender[i].innerHTML);
+
+  }
+
+  if(total_gender !== total_registered){
+
+    gender_class = document.getElementsByClassName("gender_class")
+    gender_consistency_div = document.getElementById("gender_consistency");
+    report_inconsistency += 1;
+
+    gender_consistency_div.innerHTML = "26. Newly total registered in quarter is not equal to ";
+    gender_consistency_div.innerHTML += "the sum of (Newly registered in quarter) values from 30 through 32";
+
+    for(var i = 0; i < gender_class.length; i++){
+
+      gender_class[i].style.border = "3px solid red"
+
+    }
+
+  }
+
+  if(total_cum_gender !== cum_total_registered){
+
+    cum_gender_class = document.getElementsByClassName("cum_gender_class")
+    cum_gender_consistency_div = document.getElementById("cum_gender_consistency");
+    report_inconsistency += 1;
+
+    cum_gender_consistency_div.innerHTML = "26. Cumulative total registered is not equal to "
+    cum_gender_consistency_div.innerHTML += "the sum of (Cumulative ever registered) values from 30 through 32";
+
+    for(var i = 0; i < cum_gender_class.length; i++){
+
+      cum_gender_class[i].style.border = "3px solid red"
+
+    }
+
+  }
+
+  /***************************************************************/
+
+  /************************block 3********************************/
+  /* Compare the sum of Children below 24 m at ART initiation,   */
+  /* Children 24 m - 14 yrs at ART initiation,                   */
+  /* Adults 15 years or older at ART initiation and Unknown age  */
+  /* against total registered                                    */
+  /***************************************************************/
+
+  for(var i = 0; i < age.length; i++){
+
+    total_age += parseInt(age[i].innerHTML);
+
+  }
+
+  for(var i = 0; i < cum_age.length; i++){
+
+    total_cum_age += parseInt(cum_age[i].innerHTML);
+
+  }
+
+  if(total_age !== total_registered){
+
+    age_class = document.getElementsByClassName("age_class");
+    age_consistency_div = document.getElementById("age_consistency");
+    report_inconsistency += 1;
+
+    age_consistency_div.innerHTML = "26. Newly total registered in quarter is not equal to ";
+    age_consistency_div.innerHTML += "the sum of (Newly registered in quarter) values from 33 through 35";
+
+    for(var i = 0; i < age_class.length; i++){
+
+      age_class[i].style.border = "3px solid red"
+
+    }
+
+  }
+
+  if(total_cum_age !== cum_total_registered){
+
+    age_class = document.getElementsByClassName("cum_age_class");
+    cum_age_consistency_div = document.getElementById("cum_age_consistency");
+    report_inconsistency += 1;
+
+    cum_age_consistency_div.innerHTML = "26. Cumulative ever registered is not equal to ";
+    cum_age_consistency_div.innerHTML += "the sum of (Cumulative ever registered) values from 33 through 35";
+
+    for(var i = 0; i < cum_age_class.length; i++){
+
+      cum_age_class[i].style.border = "3px solid red"
+
+    }
+
+  }
+
+  /***************************************************************/
+
+  /****************************block 4****************************/
+  /* Comparing the sum values of Reason for starting ART against */
+  /* total registered                                            */
+  /***************************************************************/
+
+  for(var i = 0; i < reasons.length; i++){
+
+    total_reasons += parseInt(reasons[i].innerHTML);
+
+  }
+
+  for(var i = 0; i < cum_reasons.length; i++){
+
+    total_cum_reasons += parseInt(cum_reasons[i].innerHTML);
+
+  }
+
+  if(total_reasons !== total_registered){
+
+    reason_class = document.getElementsByClassName("reason_class")
+    reasons_consistency_div = document.getElementById("reasons_consistency");
+    report_inconsistency += 1;
+
+    reasons_consistency_div.innerHTML = "26. Newly total registered in quarter is not equal to ";
+    reasons_consistency_div.innerHTML += "Reasons for starting ART.";
+
+    for(var i = 0; i < reason_class.length; i++){
+
+      reason_class[i].style.border = "3px solid red"
+
+    }
+
+  }
+
+  if(total_cum_reasons !== cum_total_registered){
+
+    cum_reason_class = document.getElementsByClassName("cum_reason_class")
+    cum_reasons_consistency = document.getElementById("cum_reasons_consistency");
+    report_inconsistency += 1;
+
+    cum_reasons_consistency.innerHTML = "26. Cumulative total registered is not equal to "
+    cum_reasons_consistency.innerHTML += "Reason for starting ART.";
+
+    for(var i = 0; i < cum_reason_class.length; i++){
+
+      cum_reason_class[i].style.border = "3px solid red"
+
+    }
+
+  }
+
+  /***************************************************************/
+
+  /***************************block 5*****************************/
+  /*  Comparing the sum values of                                */
+  /*  Stage defining conditions at ART initiation against        */
+  /*  total registered                                           */
+  /***************************************************************/
+
+  for(var i = 0; i < conditions.length; i++){
+
+    total_conditions += parseInt(conditions[i].innerHTML);
+
+  }
+
+  for(var i = 0; i < cum_conditions.length; i++){
+
+    total_cum_conditions += parseInt(cum_conditions[i].innerHTML);
+
+  }
+
+  if(total_conditions !== total_registered){
+
+    condition_class = document.getElementsByClassName("condition_class");
+    conditions_consistency_div = document.getElementById("conditions_consistency");
+    report_inconsistency += 1;
+
+    conditions_consistency_div.innerHTML = "26. Newly total registered in quarter) is not equal to "
+    conditions_consistency_div.innerHTML += "Stage defining condition.";
+
+    for(var i = 0; i < condition_class.length; i++){
+
+      condition_class[i].style.border = "3px solid red"
+
+    }
+
+  }
+
+  if(total_cum_conditions !== cum_total_registered){
+
+    cum_condition_class = document.getElementsByClassName("cum_condition_class");
+    cum_conditions_consistency_div = document.getElementById("cum_conditions_consistency");
+    report_inconsistency += 1;
+
+    cum_conditions_consistency_div.innerHTML = "26. Cumulative total registered is not equal to "
+    cum_conditions_consistency_div.innerHTML += "Stage defining conditions.";
+
+    for(var i = 0; i < cum_condition_class.length; i++){
+
+      cum_condition_class[i].style.border = "3px solid red"
+
+    }
+
+  }
+
+  /***************************************************************/
+
+  /*****************************block 6***************************/
+  /*  Comparing the sum of the values of all the patients died   */
+  /*  against the value "Died total"
+   /***************************************************************/
+
+  for(var i = 0; i < dead.length; i++){
+
+    total_dead += parseInt(dead[i].innerHTML);
+
+  }
+
+  if(total_dead !== died_total){
+
+    dead_class = document.getElementsByClassName("dead_class");
+    died_consistency_div = document.getElementById("died_consistency");
+    report_inconsistency += 1;
+
+    died_consistency_div.innerHTML = "55. Died total is not equal to  ";
+    died_consistency_div.innerHTML += "the sum of all dead patients.";
+
+
+    for(var i = 0; i < dead_class.length; i++){
+
+      dead_class[i].style.border = "3px solid red"
+
+    }
+
+  }
+
+  /***************************************************************/
+
+  /*****************************block 7***************************/
+  /*  Comparing the sum of Total alive and on ART, Died total,   */
+  /*  Defaulted, Stopped taking ARVs and Transferred Out against */
+  /*  total registered (cummulative)                             */
+  /***************************************************************/
+
+  for(var i = 0; i < registered_on_art.length; i++){
+
+    total_registered_on_art += parseInt(registered_on_art[i].innerHTML);
+
+  }
+
+  if(total_registered_on_art !== cum_total_registered){
+
+    reg_on_art_class = document.getElementsByClassName("reg_on_art_class");
+    total_consistency_div = document.getElementById("total_consistency");
+    report_inconsistency += 1;
+
+    total_consistency_div.innerHTML = "26. Cumulative total registered is not equal to ";
+    total_consistency_div.innerHTML += "(total alive patients + dead + defaulted + stopped taking art + transfered out).";
+
+
+    for(var i = 0; i < reg_on_art_class.length; i++){
+
+      reg_on_art_class[i].style.border = "3px solid red"
+
+    }
+
+  }
+
+  /***************************************************************/
+
+  /*************************block 8*******************************/
+  /*  Comparing the sum of all the regimens against total alive  */
+  /*  and on art                                                 */
+  /***************************************************************/
+
+  for(var i =0; i < regimen.length; i++){
+
+    total_regimen += parseInt(regimen[i].innerHTML);
+
+  }
+
+  if(total_alive_and_on_art != total_regimen){
+
+    regimen_class = document.getElementsByClassName("regimen_class");
+    regimen_consistency_div = document.getElementById("regimen_consistency");
+    report_inconsistency += 1;
+
+    regimen_consistency_div.innerHTML = "50. Total alive and on ART  is not equal to "
+    regimen_consistency_div.innerHTML += "Secondary outcomes of those alive on ART.";
+
+
+    for(var i =0; i < regimen_class.length; i++){
+
+      regimen_class[i].style.border = "3px solid red"
+
+    }
+
+  }
+
+  /***************************************************************/
+
+  /**************************block 9 *****************************/
+  /*  Comparing the sum of values in Pregnant / Breastfeeding    */
+  /*  against total alive                                        */
+  /***************************************************************/
+
+  for(var i = 0; i < tb_status.length; i++){
+
+    total_tb_status += parseInt(tb_status[i].innerHTML);
+
+  }
+
+  if(total_tb_status !== total_alive_and_on_art){
+
+    tb_status_class = document.getElementsByClassName("tb_status_class");
+    tb_status_consistency_div = document.getElementById("tb_status_consistency");
+    report_inconsistency += 1;
+
+    tb_status_consistency_div.innerHTML = "50. Total alive and on ART is not equal to ";
+    tb_status_consistency_div.innerHTML += "all patients with any form of TB status.";
+
+
+    for(var i = 0; i < tb_status_class.length; i++){
+
+      tb_status_class[i].style.border = "3px solid red"
+
+    }
+
+  }
+
+  /***************************************************************/
+
+  /************************block 10*******************************/
+  /*  Comparing the sum of values in tb status against total     */
+  /*  alive                                                      */
+  /***************************************************************/
+
+  for(var i = 0; i < pregnant.length; i++){
+
+    total_pregnant += parseInt(pregnant[i].innerHTML);
+
+  }
+
+  if(total_pregnant !== total_alive_and_on_art){
+
+    pregnant_class = document.getElementsByClassName("pregnant_class");
+    pregnant_consistency_div = document.getElementById("pregnant_consistency");
+    report_inconsistency += 1;
+
+    pregnant_consistency_div.innerHTML = "50. Total alive and on ART is not equal to ";
+    pregnant_consistency_div.innerHTML += "all patients with pregnant/breastfeeds during visit.";
+
+    for(var i = 0; i < pregnant_class.length; i++){
+
+      pregnant_class[i].style.border = "3px solid red"
+
+    }
+
+  }
+
+  /***************************************************************/
+
+  /*****************************block 11**************************/
+  /*  Comparing the sum of all the value in Side effects against */
+  /*  total alive                                                */
+  /***************************************************************/
+
+  for(var i = 0; i < side_effects.length; i++){
+
+    total_side_effects += parseInt(side_effects[i].innerHTML);
+
+  }
+
+  if(total_side_effects !== total_alive_and_on_art){
+
+    side_effects_class = document.getElementsByClassName("side_effects_class");
+    side_effect_consistency_div = document.getElementById("side_effect_consistency");
+    report_inconsistency += 1;
+
+    side_effect_consistency_div.innerHTML = "50. Total alive and on ART is not equal to ";
+    side_effect_consistency_div.innerHTML += "total number of patients with/without Side effects.";
+
+    for(var i = 0; i < side_effects_class.length; i++){
+
+      side_effects_class[i].style.border = "3px solid red"
+
+    }
+
+  }
+
+  /***************************************************************/
+
+  /*********************block 12 *********************************/
+  /*  Comparing the sum values in adherence block against total  */
+  /*  alive                                                      */
+  /***************************************************************/
+
+  for(var i = 0; i < adherence.length; i++){
+
+    total_adherence += parseInt(adherence[i].innerHTML);
+
+  }
+
+  if(total_adherence !== total_alive_and_on_art){
+
+    adherence_class = document.getElementsByClassName("adherence_class");
+    adherence_consistency_div = document.getElementById("adherence_consistency");
+    report_inconsistency += 1;
+
+    adherence_consistency_div.innerHTML = "50. Total alive and on ART is not equal to ";
+    adherence_consistency_div.innerHTML += "total number of patients adhering to drugs.";
+
+    for(var i = 0; i < adherence_class.length; i++){
+
+      adherence_class[i].style.border = "3px solid red"
+    }
+  }
+
+  /***************************************************************/
+
+  if(report_inconsistency > 0){
+    var title_div = document.createElement("div");
+    var title = document.createTextNode("This report has the following ("+report_inconsistency+") inconsistences:");
+    title_div.setAttribute("id", "incosistence_title");
+    title_div.appendChild(title);
+
+    var current_div = document.getElementById("consistency_check");
+    document.body.insertBefore(title_div, current_div);
+  }
+
+
+
+
+    <%
+    cohort_numbers = <<EOF
+"@cohort[:total_registered]",
+"@cohort[:cum_total_registered]",
+"@cohort[:initiated_on_art_first_time]",
+"@cohort[:cum_initiated_on_art_first_time]",
+"@cohort[:re_initiated_on_art]",
+"@cohort[:cum_re_initiated_on_art]",
+"@cohort[:transfer_in]",
+"@cohort[:cum_transfer_in]",
+"@cohort[:all_males]",
+"@cohort[:cum_all_males]",
+"@cohort[:non_pregnant_females]",
+"@cohort[:cum_non_pregnant_females]",
+"@cohort[:pregnant_females_all_ages]",
+"@cohort[:cum_pregnant_females_all_ages]",
+"@cohort[:unknown_age]",
+"@cohort[:cum_unknown_age]",
+"@cohort[:children_below_24_months_at_art_initiation]",
+"@cohort[:cum_children_below_24_months_at_art_initiation]",
+"@cohort[:children_24_months_14_years_at_art_initiation]",
+"@cohort[:cum_children_24_months_14_years_at_art_initiation]",
+"@cohort[:cum_children_24_months_14_years_at_art_initiation]",
+"@cohort[:cum_children_24_months_14_years_at_art_initiation]",
+"@cohort[:presumed_severe_hiv_disease_in_infants]",
+"@cohort[:cum_presumed_severe_hiv_disease_in_infants]",
+"@cohort[:confirmed_hiv_infection_in_infants_pcr]",
+"@cohort[:cum_confirmed_hiv_infection_in_infants_pcr]",
+"@cohort[:children_12_23_months]",
+"@cohort[:cum_children_12_23_months]",
+"@cohort[:pregnant_women]",
+"@cohort[:cum_pregnant_women]",
+"@cohort[:breastfeeding_mothers]",
+"@cohort[:cum_breastfeeding_mothers]",
+"@cohort[:who_stage_two]",
+"@cohort[:cum_who_stage_two]",
+"@cohort[:asymptomatic]",
+"@cohort[:cum_asymptomatic]",
+"@cohort[:who_stage_three]",
+"@cohort[:cum_who_stage_three]",
+"@cohort[:who_stage_four]",
+"@cohort[:cum_who_stage_four]",
+"@cohort[:unknown_other_reason_outside_guidelines]",
+"@cohort[:cum_unknown_other_reason_outside_guidelines]",
+"@cohort[:no_tb]",
+"@cohort[:cum_no_tb]",
+"@cohort[:tb_within_the_last_two_years]",
+"@cohort[:cum_tb_within_the_last_two_years]",
+"@cohort[:current_episode_of_tb]",
+"@cohort[:cum_current_episode_of_tb]",
+"@cohort[:kaposis_sarcoma]",
+"@cohort[:cum_kaposis_sarcoma]",
+"@cohort[:total_alive_and_on_art]",
+"@cohort[:died_within_the_1st_month_of_art_initiation]",
+"@cohort[:died_within_the_2nd_month_of_art_initiation]",
+"@cohort[:died_within_the_3rd_month_of_art_initiation]",
+"@cohort[:died_after_the_3rd_month_of_art_initiation]",
+"@cohort[:died_total]",
+"@cohort[:defaulted]",
+"@cohort[:stopped_art]",
+"@cohort[:transfered_out]",
+"@cohort[:zero_p]",
+"@cohort[:one_p]",
+"@cohort[:two_p]",
+"@cohort[:three_p]",
+"@cohort[:four_p]",
+"@cohort[:nine_p]",
+"@cohort[:elleven_p]",
+"@cohort[:zero_a]",
+"@cohort[:one_a]",
+"@cohort[:two_a]",
+"@cohort[:three_a]",
+"@cohort[:four_a]",
+"@cohort[:five_a]",
+"@cohort[:six_a]",
+"@cohort[:seven_a]",
+"@cohort[:eight_a]",
+"@cohort[:nine_a]",
+"@cohort[:ten_a]",
+"@cohort[:elleven_a]",
+"@cohort[:twelve_a]",
+"@cohort[:unknown_regimen]",
+"@cohort[:total_patients_without_side_effects]",
+"@cohort[:total_patients_with_side_effects]",
+"@cohort[:unknown_side_effects]",
+"@cohort[:patients_with_0_6_doses_missed_at_their_last_visit]",
+"@cohort[:patients_with_7_plus_doses_missed_at_their_last_visit]",
+"@cohort[:patients_with_unknown_adhrence]",
+"@cohort[:tb_not_suspected]",
+"@cohort[:tb_suspected]",
+"@cohort[:tb_confirmed_currently_not_yet_on_tb_treatment]",
+"@cohort[:tb_confirmed_on_tb_treatment]",
+"@cohort[:unknown_tb_status]",
+"@cohort[:total_other_patients]",
+"@cohort[:total_breastfeeding_women]",
+"@cohort[:total_pregnant_women]",
+"@cohort[:total_patients_on_arvs_and_cpt]",
+"@cohort[:total_patients_on_arvs_and_ipt]",
+"@cohort[:total_patients_on_family_planning]",
+"@cohort[:total_patients_with_screened_bp]",
+"@cohort[:adults_at_art_initiation]",
+"@cohort[:cum_adults_at_art_initiation]"
+EOF
+
+  cohort_attr = cohort_numbers.tr(" \t\r\n", '').split(',')
+  print_pdf_attr_ruby = {}
+
+  (cohort_attr || []).each do |cohort_number|
+    c_attr = cohort_number[1..-2].sub("@cohort[:",'').sub(']','')
+     if c_attr.match(/total_patients_on_arvs_and_cpt|total_patients_on_arvs_and_ipt|total_patients_on_family_planning|total_patients_with_screened_bp/i)
+        print_pdf_attr_ruby[c_attr] = @cohort.send(c_attr)
+     else
+        print_pdf_attr_ruby[c_attr] = @cohort.send(c_attr).count rescue 0 rescue @cohort.send(c_attr)
+     end
+  end
+
+  (print_pdf_attr_ruby || {}).each do |name, count|%>
+    print_pdf_attr["<%= name %>"] = "<%= count %>";
+  <%end%>
+
+</script>
+
+<form id="pdf" method="post" action="/cohort_tool/pdf_printout_cohort.pdf" name="pdf_printout">
+</form>
+
+<script>
+function getTotal(app){
+        jQuery.ajax({
+            url: '/concepts/' + app,
+            success: function(result){
+                console.log(result)
+                document.getElementById('total_app_concepts').innerHTML = result;
+            },
+            error: function(error){
+                console.log(error)
+            }
+        })
+    }
+
+
+function printPDF() {
+  var pdfForm = document.getElementById('pdf')
+  for (name in print_pdf_attr){
+    var input = document.createElement('input');
+    input.setAttribute('type','hidden');
+    input.setAttribute('name',"cohort_params[" + name + "]");
+    input.setAttribute('value', print_pdf_attr[name]);
+    pdfForm.appendChild(input);
+  }
+
+  var year = <%= @quarter.match(/[0-9](.*)/i)[1].to_i rescue nil %>
+  <%year = @quarter.match(/[0-9](.*)/i)[0].to_i rescue nil%>
+  var cohort_quarter = '<%= (year.blank? == true ? nil : ": #{year}") %>';
+
+  var input = document.createElement('input');
+  input.setAttribute('type','hidden');
+  input.setAttribute('name',"cohort_year");
+  input.setAttribute('value', year);
+  pdfForm.appendChild(input);
+
+  input = document.createElement('input');
+  input.setAttribute('type','hidden');
+  input.setAttribute('name',"cohort_quarter");
+  input.setAttribute('value', cohort_quarter);
+  pdfForm.appendChild(input);
+
+
+  document.pdf_printout.target = "my_pdf";
+  var w = (window.innerWidth - 80) ; var h = (window.innerHeight - 8);
+  window.open("","my_pdf","width=" + w + ",height=" + h + ",toolbar=0");
+  document.pdf_printout.submit();
+}
+
+</script>
+
+<!- ###   ### -->

@@ -1,0 +1,111 @@
+
+<html>
+  <head>
+    <%= javascript_include_tag "prototype" %>
+    <%= javascript_include_tag 'jquery' %>
+    <%= stylesheet_link_tag 'extra_buttons' %>
+    <%= javascript_include_tag 'jquery_data_table.js' %>
+    <%= stylesheet_link_tag 'jquery.dataTables' %>
+    <%=javascript_include_tag "jquery.table2CSV.min" %>
+
+    <style>
+
+      #clear{
+        position:absolute;
+        left:470px;
+        bottom:2px;
+      }
+      #num{
+        position:absolute;
+        left:470px;
+        bottom:2px;
+        width:200px;
+      }
+      #keypad{
+        background-color: #FFFFFF;
+        border: 2px solid #9999FF;
+        border-radius: 15px 15px 15px 15px;
+        display: none;
+        height: 304px;
+        padding: 5px;
+        position: absolute;
+        right: 13px;
+        top: 194px;
+        width: 672px;
+      }
+
+      div {
+        -moz-user-select: none;
+      }
+
+      .logo {
+        float:left
+      }
+
+      #find{
+        display: none;
+      }
+
+      .horizontal_line hr{
+        position:absolute;
+        bottom:104px;
+      }
+      #number{
+        background-color: #4A708B;
+        border-bottom: 1px outset black;
+        text-decoration: none;
+        color: white;
+        padding: 10px 16px 10px 10px;
+        text-align: center;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body >
+    <%= image_tag(@logo, :class => "logo")%>
+    <br /><b style="margin-left:75px"><%= @location_name %></b><br />
+    <b style="position:relative; top:0px;margin-left:75px">HTN REPORT BY AGE GROUPS</b><br />
+    <b style="position:relative; top:0px;margin-left:75px">From: <%=@start_date.strftime("%d-%m-%Y")%> </b><br />
+    <br /><br /><br />
+    <!--<div style="position: absolute;overflow:auto; height: 483px; left: 56px; width: 94% ">-->
+    <div style="overflow:auto; height: 65%; ; width: 97%; padding-left: 20px; ">
+      <table width="99%">
+        <tbody>
+          <% @data.sort.each do |month_range, values| %>
+            <%
+            start_month = month_range.split('__')[0].to_date.strftime("%d %b %Y")
+            end_month = month_range.split('__')[1].to_date.strftime("%d %b %Y")
+          %>
+            <tr style="background-color: lightblue; color: black; text-align: center; font-weight: bolder; font-size: 14pt;">
+              <th colspan="<%=@age_groups.count + 1 %>"><%= start_month + ' - ' + end_month %></th>
+            </tr>
+
+            <tr style="background-color: #FFF68F;">
+              <td style="text-align: center;">
+                <span style="color: blue; font-weight: bolder;">Gender</span>
+              </td>
+              <% values.each do |age_group, data| %>
+                <td style="text-align: center;">
+                  <span style="color: blue; font-weight: bolder;">>=<%= age_group.split("__").join(" - ") %></span>
+                </td>
+              <% end %>
+            </tr>
+            <tr>
+              <td style="background-color: #FFF68F; font-size: 14pt;">Males</td>
+              <% values.each do |age_group, data| %>
+                <td id="number"><%= data["M"] %></td>
+              <% end %>
+            </tr>
+            <tr>
+              <td style="background-color: #FFF68F; font-size: 14pt;">Females</td>
+              <% values.each do |age_group, data| %>
+                <td id="number"><%= data["F"] %></td>
+              <% end %>
+            </tr>
+          <% end %>
+        </tbody>
+
+      </table>
+    </div>
+  </body>
+</html>

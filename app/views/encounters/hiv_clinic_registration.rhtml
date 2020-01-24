@@ -1,0 +1,2746 @@
+
+<style>
+  .tt_controls_date_of_confirmatory_hiv_test #num { display:none; }
+
+  .tt_controls_date_last_taken #num { display:none; }
+
+  .tt_controls_date_of_confirmatory_hiv_test table {  position: absolute; top: -360px; }
+
+  .tt_controls_date_art_last_taken table {  position: absolute; top: -360px; }
+
+  .tt_controls_last_arv_drugs_taken .keyboard { display:none; }
+
+  .tt_controls_cd4_count #qwerty , .tt_controls_cd4_percent #qwerty {
+    display: none;
+  }
+
+  .tt_controls_cd4_count #equals, .tt_controls_cd4_percent #equals {
+    display: inline;
+  }
+
+  .tt_controls_cd4_count #lessthan, .tt_controls_cd4_count #greaterthan {
+    position: absolute;
+    right: 65%;
+  }
+
+  .tt_controls_cd4_percent #lessthan, .tt_controls_cd4_percent #greaterthan {
+    position: absolute;
+    right: 65%;
+  }
+
+  .tt_controls_cd4_count #greaterthan , .tt_controls_cd4_percent #greaterthan{
+    position: absolute;
+    right: 65%;
+    top: 5px;
+  }
+
+  .tt_controls_cd4_count #lessthan , .tt_controls_cd4_percent #lessthan {
+    top: 145px;
+  }
+
+  .tt_controls_cd4_count #lessthan, .tt_controls_cd4_count #greaterthan { display:block; float:right }
+  .tt_controls_cd4_percent #lessthan, .tt_controls_cd4_percent #greaterthan { display:block; float:right }
+
+  .tt_controls_weight_kg #qwerty , .tt_controls_height_cm #qwerty {
+    display: none;
+  }
+
+  .tt_controls_confirmatory_hiv_test_year #Unknown { display: inline; }
+
+  .tt_controls_confirmatory_hiv_test_month .keyboard { display:none; }
+
+  #tt_page_month_of_cd4_count .inputFrameClass {  height: 86%; }
+
+  #tt_page_month_of_cd4_count #viewport {  height: 85%; }
+
+  #tt_page_confirmatory_hiv_test_month .options {  height: 90%; }
+
+  #tt_page_confirmatory_hiv_test_month .inputFrameClass {  height: 86%; }
+
+  .tt_controls_month_started_art .keyboard { display:none; }
+
+  #tt_page_month_started_art .options {  height: 90%; }
+
+  #tt_page_month_started_art .inputFrameClass {  height: 86%; }
+
+  .tt_controls_year_last_taken_arvs #Unknown { display: inline; }
+
+  .tt_controls_month_art_last_taken .keyboard { display:none; }
+
+  #tt_page_month_last_taken_arvs .options {  height: 90%; }
+
+  #tt_page_month_art_last_taken .inputFrameClass {  height: 86%; }
+
+  .tt_controls_year_started_art #Unknown { display: inline; }
+
+  .tt_controls_month_of_cd4_count .keyboard{ display: none !important; }
+
+  .NoKeyboard .options {
+    height: 591px !important;
+  }
+</style>
+
+<%#= javascript_include_tag "dateformat" %>
+
+<script>
+  var tt_cancel_destination = "/patients/show/<%= @patient.patient_id %>"
+<% @session_date = "#{session[:datetime].to_date rescue Date.today}" %>
+<% @todayDate = @session_date.to_date %>
+<% @alert_date = @session_date.to_date - 90.days %>
+  var todayDate = createDates("<%= @todayDate.year %>","<%= @todayDate.month %>","<%= @todayDate.day %>");
+  var originaltestDate = ""
+<% if ! @hiv_test_date.blank? %>
+    var originaltestDate = createDates("<%= @hiv_test_date.year rescue nil %>","<%= @hiv_test_date.month rescue nil %>","<%= @hiv_test_date.day rescue nil %>")
+<% end %>
+  var alertDate = createDates("<%= @alert_date.year %>","<%= @alert_date.month %>","<%= @alert_date.day %>");
+  //var testDate = null;
+  var patient_age = null;
+  var ageInMonths = '<%= @patient_bean.age_in_months %>'
+  var currentYear = '<%= @todayDate.year %>'
+  var currentMonth = '<%= @todayDate.month %>'
+  var selected_stage_conditions = {};
+  var selected_stage_conditions_copy = {}
+  var tstCurrentDate = '<%= session[:datetime].to_date.strftime("%Y-%m-%d") rescue Date.today.strftime("%Y-%m-%d") %>';
+  var firstPositiveHivTestType = "<%= @confirmatory_hiv_test_type -%>";
+  var age = <%= @patient_bean.age -%>;
+  var regimen_formulations = <%= @regimen_formulations.to_json -%>;
+  var birthdate = new Date("<%= @patient.person.birthdate.to_date.strftime("%m/%d/%Y") %>")
+  var dateCreated = new Date("<%=@patient.person.date_created %>");
+  var patientBirthdateEstimated = "<%=@patient.person.birthdate_estimated %>";
+  var median_weight_height = <%= @median_weight_height.to_json -%>;
+  var sessionDate = new Date('<%=  @session_date.to_date.strftime('%d/%b/%Y') %>');
+  var birthYear = parseInt('<%= @birth_date.year %>');
+  var birthMonth = parseInt('<%= @birth_date.month %>');
+  var birthDay = parseInt('<%= @birth_date.day %>');
+
+  function checkTestDate(td){
+    var testDate = createDates($('year_art_last_taken').value, $('month_art_last_taken').value , td.value);
+    var years = testDate.getFullYear();
+    var month = testDate.getMonth() + 1;
+    years = currentYear - years;
+    month = currentMonth - month;
+    var total = (years * 12) + month;
+
+    if (originaltestDate == ""){
+      if ((total > ageInMonths) || ( testDate > todayDate)){
+        return false
+      }
+      else {
+        return true
+      }
+
+    }
+    else if ((total > ageInMonths) || (testDate <= originaltestDate) || ( testDate > todayDate)){
+      return false
+    }
+    else {
+      return true
+    }
+
+  }
+
+  function checkCd4Date(){
+    $('cd4_count_date').value = createDates($('year_of_cd4').value, $('month_of_cd4').value , $('day_of_cd4').value);
+  }
+
+  //checks if the patient needs to be referred to HTC basesd on the test date
+  function updateTestDate(){
+    var testDate = createDates($('year_art_last_taken').value, $('month_art_last_taken').value , $('day_art_last_taken').value);
+    $('date_art_last_taken').value = testDate;
+    if (testDate == 'Invalid Date'){
+      return true
+    }
+    else {
+      return isTestOverDue(testDate,alertDate);
+    }
+  }
+
+  function checkConfirmDate(){
+    var testDate = createDates($('confirmatory_hiv_test_year').value, $('confirmatory_hiv_test_month').value , $('confirmatory_hiv_test_day').value);
+    var years = testDate.getFullYear();
+    var month = testDate.getMonth() + 1;
+
+    years = currentYear - years;
+    month = currentMonth - month;
+    var total = (years * 12) + month;
+
+
+    if($('date_started_art') != null){
+      if ((testDate > $('date_started_art').value) || (total > ageInMonths) || (testDate <= originaltestDate) || ( testDate > todayDate)){
+        return false
+      }
+      else{ return true}
+    }
+    else if ((total > ageInMonths) || (testDate <= originaltestDate) || ( testDate > todayDate)){
+      return false
+    }
+    else {
+      return true
+    }
+
+  }
+
+  //checks if the patient needs to be referred to HTC basesd on the test date
+  function updateConfirmDate(){
+
+    var testDate = createDates($('confirmatory_hiv_test_year').value, $('confirmatory_hiv_test_month').value , $('confirmatory_hiv_test_day').value);
+    $('confirmatory_hiv_test_date').value = testDate;
+    if (testDate == 'Invalid Date'){
+      return true
+    }
+    else {
+      return isTestOverDue(testDate,alertDate);
+    }
+  }
+
+  function checkStartDate(){
+    var testDate = createDates($('year_started_art').value, $('month_started_art').value , $('day_started_art').value);
+    var years = testDate.getFullYear();
+    var month = testDate.getMonth() + 1;
+
+    years = currentYear - years;
+    month = currentMonth - month;
+    var total = (years * 12) + month;
+
+    if ((total > ageInMonths) || (testDate <= originaltestDate) || ( testDate > todayDate)){
+      return false
+    }
+    else {
+      return true
+    }
+
+  }
+
+
+  //checks if the patient needs to be referred to HTC basesd on the test date
+
+  function calculateAge(birthdate,birthdate_estimated,date_created,today) {
+    patient_age = (today.getFullYear() - birthdate.getFullYear()) + ((today.getFullYear() - (birthdate.getMonth() + 1)) + ((today.getDate() - birthdate.getDate()) < 0 ? -1 : 0) < 0 ? - 1 : 0)
+    birth_date= birthdate
+    estimate = birthdate_estimated
+    if (birth_date.month == 7 && birth_date.day == 1 && estimate == 1 && Time.now.month < birth_date.month && date_created.getFullYear() == (new Date().getFullYear())) {
+      return patient_age + 1
+    }else{
+      return patient_age
+    }
+  }
+  
+  function updateStartDate(){
+    var testDate = createDates($('year_started_art').value, $('month_started_art').value , $('day_started_art').value);
+    $('date_started_art').value = testDate;
+    age = calculateAge(birthdate , patientBirthdateEstimated , dateCreated, testDate);
+    if (testDate == 'Invalid Date'){
+      return true
+    }
+    else {
+      return isTestOverDue(testDate,alertDate);
+    }
+  }
+
+  function updateInitiationDate(){
+
+    var testDate = createDates($('hiv_initiation_year').value, $('hiv_initiation_month').value , $('hiv_initiation_day').value);
+    $('hiv_initiation_date').value = testDate;
+    return isTestOverDue(testDate,alertDate);
+  }
+
+  function isTestOverDue(testDate,alertDate) {
+    if (testDate <= alertDate){
+      return true;
+    }else {
+      return false;
+    }
+  }
+
+  function createDates(year,month,day) {
+    date_str = year
+
+    if(month.length == 1)
+      month = '0' + month
+
+    date_str+='-' + month
+
+    if(day.length == 1)
+      day = '0' + day
+
+    date_str+='-' + day
+
+    intyear = 0 ; intmonth = 0 ; intday = 0;
+    intyear = parseInt(date_str.substring(0,4))
+    intmonth = (parseInt(date_str.substring(5,7)) - 1)
+    intday = (parseInt(date_str.substring(8,10)))
+
+    if (intmonth == -1)
+      intmonth = (parseInt(date_str.substring(5,7).substring(1,2)) - 1)
+
+    if (intday == 0)
+      intday = parseInt(date_str.substring(8,10).substring(1,2))
+
+    return new Date(intyear,intmonth,intday);
+  }
+
+
+  function validateDOB() {
+    setDOB();
+    curr_date = new Date();
+
+    if (dateCreate(set_dob) == 'Invalid Date') {
+      if (set_dob.split('-')[1] == 'Unknown')
+        return true
+
+      if (curr_date.getFullYear() == parseInt(dob_year)) {
+        if ((curr_date.getMonth() + 1) < parseInt(dob_month)){
+          if (document.getElementById('tt_page_month_started_art') != null)
+            return true
+
+          return false
+        }
+      }
+
+      if (dob_month == 'Unknown'){
+        if (curr_date.getFullYear() == parseInt(dob_year)) {
+          if ((curr_date.getMonth() + 1) < parseInt(dob_month))
+            return false
+        }
+      }
+    }else{
+      if (document.getElementById('tt_page_month_started_art') != null)
+        return true
+
+      if (curr_date < dateCreate(set_dob))
+        return false
+    }
+    return true
+  }
+
+  function checkBirthDate(){
+    var dateCheck = "";
+    var confirmatoryHIVtestDate = new Date ($('confirmatory_hiv_test_date').value);
+    //var patientBirthDate = new Date("<%#= @patient.person.birthdate.year %>","<%#= @patient.person.birthdate.month - 1 %>","<%#= @patient.person.birthdate.day %>");
+    var patientBirthDate = new Date("<%= @patient_bean.birthdate %>")
+
+
+    if (patientBirthDate <= confirmatoryHIVtestDate){
+      dateCheck = 'true'
+    } else {
+      dateCheck = 'false'
+    }
+    return dateCheck;
+  }
+
+  function showConditions() {
+    if ($("ever_registered_at_ART_clinic").value == "NO") {
+      return false;
+    }else if($('has_transfer_letter').value == "YES") {
+      return true;
+    }else {return false;}
+  }
+
+  function updateCD4CountKeyPad() {
+    curr_page = tstCurrentPage - 1
+    buttons = document.getElementsByClassName("keyboardButton");
+    $("clearButton").setAttribute("onmousedown","clearInput();updateCD4CountKeyPad();");
+    $("backButton").setAttribute("onmousedown",";gotoPage(" + curr_page + ", null, true);resetPad();");
+    $("nextButton").setAttribute("onmousedown","gotoNextPage();resetPad();");
+
+    for(i = 0; i < buttons.length ; i++) {
+      if (buttons[i].id == "equals" || buttons[i].id == "greaterthan" || buttons[i].id == "lessthan") {
+        buttons[i].disabled = false;
+        if( buttons[i].id == "equals"){
+          buttons[i].setAttribute("onmousedown","press('=');resetKeyPad();");
+        }else if( buttons[i].id == "lessthan") {
+          buttons[i].setAttribute("onmousedown","press('<');resetKeyPad();");
+        }else if( buttons[i].id == "greaterthan") {
+          buttons[i].setAttribute("onmousedown","press('>');resetKeyPad();");
+        }
+      }else{
+        buttons[i].disabled = true;
+      }
+    }
+  }
+
+
+  function updateCD4CountOld() {
+    var cd4_available = $('new_cd4_count_available').value == 'YES';
+    var cd4_count = cd4_available ? $('cd4_count').value : null;
+
+    try { cd4_count_numeric = parseInt(cd4_count); } catch(e) { cd4_count_numeric = null; }
+
+    if (cd4_count_numeric == null || ''+cd4_count_numeric == 'NaN') {
+      try {
+        var matches = cd4_count.match(/^(>|<|=)([0-9\.]+)$/);
+        cd4_count_modifier = matches[1];
+        cd4_count_estimate = parseInt(matches[2]);
+        cd4_count_numeric = cd4_count_estimate;
+        if (cd4_count_modifier == '<') cd4_count_numeric -= 1;
+        if (cd4_count_modifier == '>') cd4_count_numeric += 1;
+      } catch(e) {
+        cd4_count_modifier = null;
+        cd4_count_estimate = null;
+        cd4_count_numeric = null;
+      }
+    }
+
+    if (cd4_count_numeric == null || '' + cd4_count_numeric == 'NaN') {
+      $('cd4_count_less_than_250').value = "UNKNOWN";
+      $('cd4_count_less_than_350').value = "UNKNOWN";
+    } else {
+      $('cd4_count_less_than_250').value = (cd4_count_numeric <= 250) ? "YES" : "NO";
+      $('cd4_count_less_than_350').value = (cd4_count_numeric <= 350) ? "YES" : "NO";
+    }
+  }
+
+  function updateCD4Count() {
+    var cd4_available = $('new_cd4_count_available').value == 'YES';
+    var cd4_count = cd4_available ? $('cd4_count').value : null;
+    var cd4_count_modifier = '';
+
+    try {
+      cd4_count_numeric = parseInt(cd4_count.match(/[0-9](.*)/i)[0]);
+    } catch(e) { cd4_count_numeric = null; }
+
+    if (cd4_count_numeric == null || ''+cd4_count_numeric == 'NaN') {
+      try {
+        var matches = cd4_count.match(/^(\<|\>)([0-9\.]+)$/)
+        cd4_count_modifier = matches[1];
+        cd4_count_estimate = parseInt(matches[2]);
+        cd4_count_numeric = cd4_count_estimate;
+        if (cd4_count_modifier == '<') cd4_count_numeric -= 1;
+        if (cd4_count_modifier == '>') cd4_count_numeric += 1;
+      } catch(e) {
+        cd4_count_modifier = null;
+        cd4_count_estimate = null;
+        cd4_count_numeric = null;
+      }
+    } else {
+      var matches = cd4_count.match(/^(=|\<|\>)([0-9\.]+)$/)
+      cd4_count_modifier = matches[1];
+    }
+
+    if (cd4_count_numeric == null || ''+cd4_count_numeric == 'NaN') {
+      $('cd4_count_less_than_250').value = "UNKNOWN";
+      $('cd4_count_less_than_350').value = "UNKNOWN";
+      $('cd4_count_less_than_500').value = "UNKNOWN";
+    } else {
+
+      if(cd4_count_numeric <= 250 && cd4_count_modifier != ">") {
+
+        $('cd4_count_less_than_250').value = "YES";
+      } else {
+        $('cd4_count_less_than_250').value = "NO";
+      }
+
+      if(cd4_count_numeric <= 350 && cd4_count_modifier != ">") {
+        $('cd4_count_less_than_350').value = "YES";
+      } else {
+        $('cd4_count_less_than_350').value = "NO";
+      }
+
+      if(cd4_count_numeric <= 500 && cd4_count_modifier != ">") {
+        $('cd4_count_less_than_500').value = "YES";
+      } else {
+        $('cd4_count_less_than_500').value = "NO";
+      }
+    }
+  }
+  
+  function updateCD4Percent() {
+    var cd4_percent_available = $('new_cd4_percent_available').value == 'YES';
+    var cd4_percent = cd4_percent_available ? $('cd4_percent').value : null;
+    var cd4_percent_numeric, cd4_percent_estimate, cd4_percent_modifier;
+
+    try { cd4_percent_numeric = parseInt(cd4_percent); } catch(e) { cd4_percent_numeric = null; }
+
+    if (cd4_percent_numeric == null || ''+cd4_percent_numeric == 'NaN') {
+      try {
+        var matches = cd4_percent.match(/^(>|<|=)([0-9\.]+)$/);
+        cd4_percent_modifier = matches[1];
+        cd4_percent_estimate = parseInt(matches[2]);
+        cd4_percent_numeric = cd4_percent_estimate;
+        if (cd4_percent_modifier == '<') cd4_percent_numeric -= 1;
+        if (cd4_percent_modifier == '>') cd4_percent_numeric += 1;
+      } catch(e) {
+        cd4_percent_modifier = null;
+        cd4_percent_estimate = null;
+        cd4_percent_numeric = null;
+      }
+    }
+
+    if (cd4_percent_numeric == null || ''+cd4_percent_numeric == 'NaN') {
+      $('cd4_percent_less_than_25').value = "UNKNOWN";
+    } else {
+      $('cd4_percent_less_than_25').value = (cd4_percent_numeric < 25) ? "YES" : "NO";
+    }
+  }
+
+
+
+  function resetPad() {
+    curr_page = tstCurrentPage - 1
+    buttons = document.getElementsByClassName("keyboardButton");
+    for(i = 0; i < buttons.length ; i++) {
+      buttons[i].disabled = false;
+    }
+    $("clearButton").setAttribute("onmousedown","clearInput();");
+    $("backButton").setAttribute("onmousedown",";gotoPage(" + curr_page + ", null, true);");
+    $("nextButton").setAttribute("onmousedown","gotoNextPage();");
+  }
+
+  function resetKeyPad() {
+    buttons = document.getElementsByClassName("keyboardButton");
+    for(i = 0; i < buttons.length ; i++) {
+      if (buttons[i].id == "equals" || buttons[i].id == "greaterthan" || buttons[i].id == "lessthan") {
+        buttons[i].disabled = true;
+      }else{
+        buttons[i].disabled = false;
+      }
+    }
+  }
+
+  function updateCD4CountKeyPad() {
+    curr_page = tstCurrentPage - 1
+    buttons = document.getElementsByClassName("keyboardButton");
+    $("clearButton").setAttribute("onmousedown","clearInput();updateCD4CountKeyPad();");
+    $("backButton").setAttribute("onmousedown",";gotoPage(" + curr_page + ", null, true);resetPad();");
+    $("nextButton").setAttribute("onmousedown","gotoNextPage();resetPad();");
+
+    for(i = 0; i < buttons.length ; i++) {
+      if (buttons[i].id == "equals" || buttons[i].id == "greaterthan" || buttons[i].id == "lessthan") {
+        buttons[i].disabled = false;
+        if( buttons[i].id == "equals"){
+          buttons[i].setAttribute("onmousedown","press('=');resetKeyPad();");
+        }else if( buttons[i].id == "lessthan") {
+          buttons[i].setAttribute("onmousedown","press('<');resetKeyPad();");
+        }else if( buttons[i].id == "greaterthan") {
+          buttons[i].setAttribute("onmousedown","press('>');resetKeyPad();");
+        }
+      }else{
+        buttons[i].disabled = true;
+      }
+    }
+  }
+
+  function getDateStartedART() {
+    var year = $("year_started_art").value;
+    var month = $("month_started_art").value;
+    var day = $("day_started_art").value;
+
+    if (month.length == 1)
+      month = 0 + month;
+
+    if (day.length == 1)
+      day = 0 + day;
+
+    if(year == "Unknown") {
+      return new Date();
+    }else if(month == "Unknown") {
+      return new Date(year + "-07-01")
+    }else if(day == "Unknown") {
+      return new Date(year + "-" + month + "-01")
+    }else{
+      return new Date(year + "-" + month + "-" + day)
+    }
+  }
+
+  function calculateWHOstage() {
+    stage = "I";
+    if ($("has_transfer_letter").value == "YES") {
+      if ($("stage_4_conditions").value.length > 0) {
+        stage = "IV";
+      }else if ($("stage_3_conditions").value.length > 0) {
+        stage = "III";
+      }else if ($("stage_2_conditions").value.length > 0) {
+        stage = "II";
+      }
+      var startDate = getDateStartedART();
+    }
+
+    if(showARTstartDate() && $("year_started_art").value.toUpperCase() == "UNKNOWN") {
+      ARTstartDateEstimate = $("art_start_date_estimation").value;
+<% curr_session_date = session[:datetime].to_date rescue Date.today %>
+      if (ARTstartDateEstimate == "6 months ago") {
+        var startDate = new Date("<%= (curr_session_date - 6.months).to_s%>");
+      }else if (ARTstartDateEstimate == "12 months ago") {
+        var startDate = new Date("<%= (curr_session_date - 12.months).to_s%>");
+      }else if (ARTstartDateEstimate == "18 months ago") {
+        var startDate = new Date("<%= (curr_session_date - 18.months).to_s%>");
+      }else if (ARTstartDateEstimate == "24 months ago") {
+        var startDate = new Date("<%= (curr_session_date - 24.months).to_s%>");
+      }else if (ARTstartDateEstimate == "Over 2 years ago") {
+        var startDate = new Date("<%= (curr_session_date - 30.months).to_s%>");
+      }else{
+        var startDate = getDateStartedART();
+      }
+    }
+
+    var patientBirthdate = new Date("<%=@patient.person.birthdate %>");
+    var dateCreated = new Date("<%=@patient.person.date_created %>");
+    var patientBirthdateEstimated = "<%=@patient.person.birthdate_estimated %>";
+
+    if(!startDate)
+      return
+
+    var patient_age = age(patientBirthdate , patientBirthdateEstimated , dateCreated, startDate);
+
+    if (patient_age <= 14) {
+      $("who_stage").value = "WHO stage " + stage + " peds";
+    }else{
+      $("who_stage").value = "WHO stage " + stage + " adult";
+    }
+    $("date_started_art").value = dateFormat(startDate,"yyyy-mm-dd");
+  }
+
+  function age(birthdate,birthdate_estimated,date_created,today) {
+    patient_age = (today.getFullYear() - birthdate.getFullYear()) + ((today.getFullYear() - (birthdate.getMonth() + 1)) + ((today.getDate() - birthdate.getDate()) < 0 ? -1 : 0) < 0 ? - 1 : 0)
+    birth_date= birthdate
+    estimate = birthdate_estimated
+    if (birth_date.month == 7 && birth_date.day == 1 && estimate == 1 && Time.now.month < birth_date.month && date_created.getFullYear() == (new Date().getFullYear())) {
+      return patient_age + 1
+    }else{
+      return patient_age
+    }
+  }
+
+  function calculateBMI() {
+    var currentWeight = $("weight").value;
+    var currentHeight = $("height").value;
+    currentBmi = (currentWeight/(currentHeight*currentHeight)*10000).toFixed(1);
+    try {
+      $('bmi').value = currentBmi;
+    }catch(e){}
+  }
+
+  function buildDate(type) {
+    if (type.match(/confirmatory/i)) {
+      var year = $("confirmatory_hiv_test_year").value;
+      var year_element = $("confirmatory_hiv_test_year");
+      var month = $("confirmatory_hiv_test_month").value;
+      var month_element = $("confirmatory_hiv_test_month");
+      var day = $("confirmatory_hiv_test_day").value;
+      var day_element = $("confirmatory_hiv_test_day");
+    }else if (type.match(/art_last_taken/i)) {
+      var year = $("year_art_last_taken").value;
+      var year_element = $("year_art_last_taken");
+      var month = $("month_art_last_taken").value;
+      var month_element = $("month_art_last_taken");
+      var day = $("day_art_last_taken").value;
+      var day_element = $("day_art_last_taken");
+    }
+
+    if(year.length < 1) {
+      if (type.match(/confirmatory/i)) {
+        $("confirmatory_hiv_test_date").value = null;
+      }else if (type.match(/art_last_taken/i)) {
+        $("date_art_last_taken").value = null;
+      }
+      return
+    }
+
+    if(day.length < 1) {
+      try {
+        var days = day_element;
+        for(i = 0;i<days.length;i++) {
+          if(days[i].value.length > 0){
+            day = days[i].value;
+            break;
+          }
+        }
+      }catch(e){ return }
+    }
+
+    if (month.length == 1)
+      month = 0 + month;
+
+    if (day.length == 1)
+      day = 0 + day;
+
+
+
+    if (type.match(/confirmatory/i)) {
+      if(year == "Unknown") {
+        $("confirmatory_hiv_test_date").value = year;
+      }else if(month == "Unknown") {
+        $("confirmatory_hiv_test_date").value = year + "-07-01";
+      }else if(day == "Unknown") {
+        $("confirmatory_hiv_test_date").value = year + "-" + month + "-01";
+      }else{
+        $("confirmatory_hiv_test_date").value = year + "-" + month + "-" + day;
+      }
+    }else if (type.match(/art_last_taken/i)) {
+      if(year == "Unknown") {
+        $("date_art_last_taken").value = year;
+      }else if(month == "Unknown") {
+        $("date_art_last_taken").value = year + "-07-01";
+      }else if(day == "Unknown") {
+        $("date_art_last_taken").value = year + "-" + month + "-01";
+      }else{
+        $("date_art_last_taken").value = year + "-" + month + "-" + day;
+      }
+    }
+  }
+
+  function setUnkownStage() {
+    if($("has_transfer_letter").value == "YES")
+      return
+
+    everReceivedARVs = $("ever_received_art").value;
+    everRegisteredAtARTclinic = $("ever_registered_at_ART_clinic").value;
+
+    if (everRegisteredAtARTclinic == "YES" && everReceivedARVs == "YES" && $("has_transfer_letter").value == "NO") {
+      $("reason_for_art_eligibility").value = "Unknown";
+      $("drug_start_date").value = "Estimated";
+      calculateWHOstage();
+    }else{
+      $("reason_for_art_eligibility").value = null;
+      $("drug_start_date").value = null;
+    }
+  }
+
+  function setReasonForStarting() {
+    var backButton = $("backButton");
+    backButton.setAttribute("onmousedown","resetReasonForStarting();gotoPage('" + (tstCurrentPage - 1) + "',null,true);");
+    $("reason_for_art_eligibility").value = null;
+    $("drug_start_date").value = null;
+  }
+
+  function resetReasonForStarting() {
+    var backButton = $("backButton");
+    backButton.setAttribute("onmousedown","gotoPage('" + tstCurrentPage + "',null,true);");
+    $("reason_for_art_eligibility").value = null;
+  }
+
+  function validateDate() {
+    return false;
+  }
+
+  function showARTstartDate() {
+    if($("ever_received_art").value == "YES" && $("ever_registered_at_ART_clinic").value == "YES"){
+      if($("has_transfer_letter").value == "NO" || $("has_transfer_letter").value == "YES")
+        return true
+    }
+    return false
+  }
+
+  var lastARTDrugs = "";
+  var lastOtherDrugs = "";
+
+  function updateLastARVDrugs(){
+    lastARTDrugs = $('touchscreenInput'+tstCurrentPage).value;
+  }
+
+  function updateLastOtherMedications(){
+    lastOtherDrugs = $('touchscreenInput'+tstCurrentPage).value;
+  }
+
+  function updateReasonForArtEligibility() {
+
+    if (tstCurrentDate < '2011-07-01') {
+      oldReasonForEligibility();
+      return
+    }
+
+    var reasonForArtEligibility = "NONE";
+    // Lymphocyte thresholds for ages 0-15
+    var lymphocyteThresholds = [4000, 4000, 4000, 3000, 3000, 2500, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000];
+
+    var lymphocyteCountAvailable = false;
+
+    if ($('new_lymphocyte_count_available')) {
+      lymphocyteCountAvailable = $('new_lymphocyte_count_available').value == 'YES';
+    }
+
+    var lymphocyteCount = lymphocyteCountAvailable ? $('lymphocyte_count').value : null;
+    var lymphocyteCountNumeric = null;
+
+    try { lymphocyteCountNumeric = parseInt(lymphocyteCount); } catch(e) { }
+
+    if (age > 14) {
+      if (whoStage >= 3) {
+        reasonForArtEligibility = whoStageConcept(whoStage, "ADULT");
+      }
+
+      else if (tstCurrentDate >= '2014-04-01' && $('cd4_count_less_than_250').value == "YES") {
+        reasonForArtEligibility = "CD4 count less than or equal to 250"
+      }
+
+      else if (tstCurrentDate < '2014-04-01' && $('cd4_count_less_than_350').value == "YES"){
+        reasonForArtEligibility = "CD4 COUNT LESS THAN OR EQUAL TO 350";
+      }
+
+      else if (tstCurrentDate >= '2014-04-01' && $('cd4_count_less_than_350').value == "YES"){
+        reasonForArtEligibility = "CD4 COUNT LESS THAN OR EQUAL TO 350";
+      }
+
+      else if (tstCurrentDate >= '2014-04-01' && $('cd4_count_less_than_500').value == "YES"){
+        reasonForArtEligibility = "CD4 COUNT LESS THAN OR EQUAL TO 500";
+      }
+      
+      else {
+        if (whoStage == 1 && lymphocyteCount < 1200 && lymphocyteCount != null) {
+          reasonForArtEligibility = "LYMPHOCYTE COUNT BELOW THRESHOLD WITH WHO STAGE 1";
+        } else if (whoStage == 2 && lymphocyteCount < 1200 && lymphocyteCount != null) {
+          reasonForArtEligibility = "LYMPHOCYTE COUNT BELOW THRESHOLD WITH WHO STAGE 2";
+        } else if ($('pregnant') && $('pregnant').value == "YES") {
+          reasonForArtEligibility = "PATIENT PREGNANT";
+        } else if ($('breast_feeding') && $('breast_feeding').value == "YES") {
+          reasonForArtEligibility = "BREASTFEEDING";
+        }
+      }
+    } else {
+      var presumedSevereHivConditions = "";
+      if ($('presumed_severe_hiv_conditions')) presumedSevereHivConditions = selectedValues($('presumed_severe_hiv_conditions'));
+      var presumedSevereHiv = false;
+
+      if (firstPositiveHivTestType == "HIV rapid test") {
+        if (
+        presumedSevereHivConditions.indexOf("Pneumocystis pneumonia") > -1 ||
+          presumedSevereHivConditions.indexOf("Candidiasis of oseophagus, trachea and bronchi or lungs") > -1 ||
+          presumedSevereHivConditions.indexOf("Cryptococcal meningitis") > -1 ||
+          presumedSevereHivConditions.indexOf("Severe unexplained wasting or malnutrition not responding to treatment (weight-for-height/ -age <70% or MUAC <11cm or oedema)") > -1 ||
+          presumedSevereHivConditions.indexOf("Toxoplasmosis of the brain (from age 1 month)") > -1) {
+          presumedSevereHiv = true;
+        } else if (
+        ((presumedSevereHivConditions.indexOf("Oral candidiasis") > -1) && (presumedSevereHivConditions.indexOf("Severe sepsis") > -1)) ||
+          ((presumedSevereHivConditions.indexOf("Oral candidiasis") > -1) && (presumedSevereHivConditions.indexOf("Severe pneumonia") > -1)) ||
+          ((presumedSevereHivConditions.indexOf("Severe pneumonia") > -1) && (presumedSevereHivConditions.indexOf("Severe sepsis") > -1))) {
+          presumedSevereHiv = true;
+        }
+      }
+
+      try {
+        if (ageInMonths < 12 && firstPositiveHivTestType == "HIV rapid test" && presumedSevereHiv) {
+          reasonForArtEligibility = "PRESUMED SEVERE HIV";
+        } else if (whoStage >= 3) {
+          reasonForArtEligibility = whoStageConcept(whoStage, "PEDS");
+        } else if (ageInMonths < 12 && firstPositiveHivTestType == "HIV DNA POLYMERASE CHAIN REACTION") {
+          reasonForArtEligibility = "HIV DNA POLYMERASE CHAIN REACTION";
+        } else if (ageInMonths < 24) {
+          reasonForArtEligibility = "HIV infected";
+        } else if (cd4_count_numeric <= 750 && (ageInMonths >= 24 && ageInMonths < 56) && (whoStage) <= 2) {
+          reasonForArtEligibility = "CD4 COUNT LESS THAN OR EQUAL TO 750";
+        } else if ($('cd4_count_less_than_500') && $('cd4_count_less_than_500').value == "YES" && (whoStage) <= 2) {
+          reasonForArtEligibility = "CD4 COUNT LESS THAN OR EQUAL TO 500";
+        } else if (lymphocyteCount && (lymphocyteCount < lymphocyteThresholds[age]) && lymphocyteCount != null) {
+          reasonForArtEligibility = "LYMPHOCYTE COUNT BELOW THRESHOLD WITH WHO STAGE 2";
+        } else if ($('pregnant') && $('pregnant').value == "YES") {
+          reasonForArtEligibility = "PATIENT PREGNANT";
+        } else if ($('breast_feeding') && $('breast_feeding').value == "YES") {
+          reasonForArtEligibility = "BREASTFEEDING";
+        } else if (tstCurrentDate >= '2014-04-01' && age > 5 && $('cd4_count_less_than_500').value == "YES"){
+          reasonForArtEligibility = "CD4 COUNT LESS THAN OR EQUAL TO 500";
+        } else if (tstCurrentDate >= '2014-04-01' && age <= 5){
+          reasonForArtEligibility = "HIV infected";
+        }
+      } catch (e) {}
+    }
+
+<% if @session_date.to_date < @new_guide_lines_start_date.to_date %>
+<% else %>
+      if (reasonForArtEligibility == "NONE"){
+        reasonForArtEligibility = "Asymptomatic";
+      }
+      //reasonForArtEligibility = "HIV infected";
+<% end %>
+
+    $('reason_for_art_eligibility').value = reasonForArtEligibility;
+  }
+
+  function oldReasonForEligibility(){
+    var reasonForArtEligibility = "NONE";
+    // Lymphocyte thresholds for ages 0-15
+    var lymphocyteThresholds = [4000, 4000, 4000, 3000, 3000, 2500, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000];
+
+    var lymphocyteCountAvailable = false;
+
+    if ($('new_lymphocyte_count_available')) {
+      lymphocyteCountAvailable = $('new_lymphocyte_count_available').value == 'YES';
+    }
+
+    var lymphocyteCount = lymphocyteCountAvailable ? $('lymphocyte_count').value : null;
+    var lymphocyteCountNumeric = null;
+
+    try { lymphocyteCountNumeric = parseInt(lymphocyteCount); } catch(e) { }
+
+    if (age > 14) {
+      if (whoStage >= 3) {
+        reasonForArtEligibility = whoStageConcept(whoStage, "ADULT");
+      } else if ($('cd4_count_less_than_250').value == "YES") {
+        reasonForArtEligibility = "CD4 count less than or equal to 250"
+      } else {
+        if ($('pregnant') && $('pregnant').value == "YES" && $('cd4_count_less_than_250').value == "YES") {
+          reasonForArtEligibility = "CD4 count less than or equal to 250";
+        } else if (whoStage == 1 && lymphocyteCount < 1200 && lymphocyteCount != null) {
+          reasonForArtEligibility = "LYMPHOCYTE COUNT BELOW THRESHOLD WITH WHO STAGE 1";
+        } else if (whoStage == 2 && lymphocyteCount < 1200 && lymphocyteCount != null) {
+          reasonForArtEligibility = "LYMPHOCYTE COUNT BELOW THRESHOLD WITH WHO STAGE 2";
+        } //else if ($('pregnant') && $('pregnant').value == "YES") {
+        //reasonForArtEligibility = "PATIENT PREGNANT";
+        //} else if ($('breast_feeding') && $('breast_feeding').value == "YES") {
+        //reasonForArtEligibility = "BREASTFEEDING";
+        //}
+      }
+    } else {
+      var presumedSevereHivConditions = "";
+      if ($('presumed_severe_hiv_conditions')) presumedSevereHivConditions = selectedValues($('presumed_severe_hiv_conditions'));
+      var presumedSevereHiv = false;
+
+      if (firstPositiveHivTestType == "HIV rapid test") {
+        if (
+        presumedSevereHivConditions.indexOf("Pneumocystis pneumonia") > -1 ||
+          presumedSevereHivConditions.indexOf("Candidiasis of oseophagus, trachea and bronchi or lungs") > -1 ||
+          presumedSevereHivConditions.indexOf("Cryptococcal meningitis") > -1 ||
+          presumedSevereHivConditions.indexOf("Severe unexplained wasting or malnutrition not responding to treatment (weight-for-height/ -age <70% or MUAC <11cm or oedema)") > -1 ||
+          presumedSevereHivConditions.indexOf("Toxoplasmosis of the brain (from age 1 month)") > -1) {
+          presumedSevereHiv = true;
+        } else if (
+        ((presumedSevereHivConditions.indexOf("Oral candidiasis") > -1) && (presumedSevereHivConditions.indexOf("Severe sepsis") > -1)) ||
+          ((presumedSevereHivConditions.indexOf("Oral candidiasis") > -1) && (presumedSevereHivConditions.indexOf("Severe pneumonia") > -1)) ||
+          ((presumedSevereHivConditions.indexOf("Severe pneumonia") > -1) && (presumedSevereHivConditions.indexOf("Severe sepsis") > -1))) {
+          presumedSevereHiv = true;
+        }
+      }
+
+      try {
+        if (ageInMonths < 12 && firstPositiveHivTestType == "HIV rapid test" && presumedSevereHiv) {
+          reasonForArtEligibility = "PRESUMED SEVERE HIV";
+        } else if (whoStage >= 3) {
+          reasonForArtEligibility = whoStageConcept(whoStage, "PEDS");
+        } else if (ageInMonths < 12 && firstPositiveHivTestType == "HIV DNA POLYMERASE CHAIN REACTION") {
+          reasonForArtEligibility = "HIV DNA POLYMERASE CHAIN REACTION";
+        } else if (ageInMonths < 24) {
+          reasonForArtEligibility = "HIV infected";
+        } else if (cd4_count_numeric <= 750 && (ageInMonths >= 24 && ageInMonths < 56) && (whoStage) <= 2) {
+          reasonForArtEligibility = "CD4 COUNT LESS THAN OR EQUAL TO 750";
+        } else if ($('cd4_count_less_than_250') && $('cd4_count_less_than_250').value == "YES" && (whoStage) <= 2) {
+          reasonForArtEligibility = "CD4 COUNT LESS THAN OR EQUAL TO 250";
+        } else if (lymphocyteCount && (lymphocyteCount < lymphocyteThresholds[age]) && lymphocyteCount != null) {
+          reasonForArtEligibility = "LYMPHOCYTE COUNT BELOW THRESHOLD WITH WHO STAGE 2";
+        }// else if ($('pregnant') && $('pregnant').value == "YES") {
+        //  reasonForArtEligibility = "PATIENT PREGNANT";
+        //} else if ($('breast_feeding') && $('breast_feeding').value == "YES") {
+        //  reasonForArtEligibility = "BREASTFEEDING";
+        //}
+      } catch (e) {}
+    }
+
+    $('reason_for_art_eligibility').value = reasonForArtEligibility;
+  }
+
+  function summary() {
+    //calculateWHOstage(); //For calculating date started ART - Transfer in patients
+    if (age >= 15 ){
+      updateWhoStage();
+    }else{
+      updateWhoStagePaeds() //This is a hack. Take note
+    }
+    
+    updateReasonForArtEligibility();
+    var conditions = selectedConditions();
+    var display = "<div><span class='title'>" + $('who_stage').value + "</span></div>";
+    display += "<div><span class='title'>Condition on starting ART: " + $('reason_for_art_eligibility').value + "</span></div>";
+
+    $('inputFrame'+tstCurrentPage).innerHTML = '<div id="summary">' + display + '</div>' ;
+    $("clearButton").style.display = "none";
+
+    if (conditions.length > 0) {
+      $('inputFrame'+tstCurrentPage).innerHTML += '<div id="selected_stage_conditions"><hr /><br />' + conditions + '</div>' ;
+    }
+  }
+
+  function selectedConditions() {
+    html = "<ul><h3>Selected stage defining conditions</h3>"
+    for (condition in selected_stage_conditions) {
+      if (selected_stage_conditions[condition].length > 0) {
+        conditions = selected_stage_conditions[condition].split(';');
+        for (i = 0 ; i < conditions.length ; i++) {
+          html += '<li>' + conditions[i] + '</li>'
+        }
+      }
+    }
+    if (html == "<ul><h3>Selected stage defining conditions</h3>") return '';
+    return html + '</ul>';
+  }
+
+  function whoStageConcept(stage, adultOrPeds) {
+    try {
+      selected_stage_three_conditions = selected_stage_conditions[3].split(';');
+    } catch(e) {
+      selected_stage_three_conditions = null;
+    }
+
+    if (selected_stage_three_conditions) {
+      conditions_found = 0;
+      severe_weight_loss = false;
+
+      for (i = 0 ; i < selected_stage_three_conditions.length ; i++) {
+        if (selected_stage_three_conditions[i] == 'Severe weight loss >10% and/or BMI <18.5kg/m^2, unexplained') {
+          severe_weight_loss = true;
+        } else if (selected_stage_three_conditions[i] == 'Diarrhoea, chronic (>1 month) unexplained') {
+          conditions_found++;
+        } else if (selected_stage_three_conditions[i] == 'Fever, persistent unexplained, intermittent or constant, >1 month') {
+          conditions_found++;
+        }
+      }
+
+      if (conditions_found > 0 && severe_weight_loss) {
+<%	if !@retrospective %>
+          selected_stage_conditions[4] = 'HIV wasting syndrome (severe weight loss + persistent fever or severe weight loss + chronic diarrhoea)';
+          $('calculated_who_stage_4').value = selected_stage_conditions[4];
+<%	end	%>
+
+        return  "WHO STAGE " + numeral(4) + " " + adultOrPeds;
+      }
+    }
+
+    return "WHO STAGE " + numeral(stage) + " " + adultOrPeds;
+  }
+
+  function numeral(num) {
+    switch(num) {
+      case 1:
+        return "I";
+      case 2:
+        return "II";
+      case 3:
+        return "III";
+      case 4:
+        return "IV";
+    }
+  }
+
+  var whoStage = null;
+
+
+  function updateWhoStage() {
+    // Everyone is supposed to be HIV positive so start them at 1
+    whoStage = 1;
+    for (var i=1; i<=4; i++) {
+      try {
+
+        if ( $("stage_" + i + "_conditions").value != '') whoStage = i;
+      } catch(e) {
+
+      }
+
+    }
+
+    var adultOrPeds = (age > 14) ? "ADULT" : "PEDS";
+
+    if (ageInMonths < 12 && firstPositiveHivTestType == "HIV rapid test") {
+      $('who_stage').value = "PRESUMED SEVERE HIV";
+    } else {
+      $('who_stage').value = whoStageConcept(whoStage, adultOrPeds);
+    }
+  }
+
+  function updateWhoStagePaeds() {
+    // Everyone is supposed to be HIV positive so start them at 1
+    whoStage = 1;
+    for (var i=1; i<=4; i++) {
+      try {
+
+        if ( jQuery(".stage_" + i + "_conditions")[0].value != '') whoStage = i;
+      } catch(e) {
+
+      }
+
+    }
+
+    var adultOrPeds = "PEDS";
+    $('who_stage').value = whoStageConcept(whoStage, adultOrPeds);
+  }
+
+  /*function resetStageDefiningConditions(){
+    selected_stage_conditions = JSON.parse(JSON.stringify(selected_stage_conditions_copy))
+    stage_defining_conditions = __$('touchscreenInput' + tstCurrentPage).value;
+
+    if (stage_defining_conditions.length > 0){
+      if (stage_defining_conditions.match(/Asymptomatic HIV infection/i)){
+        if (selected_stage_conditions[4]) delete selected_stage_conditions[4]; //Delete Stage 4 conditions
+        if (selected_stage_conditions[3]) delete selected_stage_conditions[3]; //Delete Stage 3 conditions
+        if (selected_stage_conditions[2]) delete selected_stage_conditions[2]; //Delete Stage 2 conditions
+      }
+    }
+  }*/
+
+  function hideCategory() {
+    document.getElementById('category').style = 'display: none;'
+  }
+ 
+  var patientAge = parseInt("<%= @patient_bean.age.to_i %>");
+  var patientGender = "<%=@patient_bean.sex.upcase%>"
+
+  function checkPregnancyAndAge() {
+    if ((patientAge >= 55)) {
+      return "true";
+    } else {
+      return "false";
+    }
+  }
+
+  function checkBreastfeedingAndAge() {
+    if ((patientAge >= 55)) {
+      return "true";
+    } else {
+      return "false";
+    }
+  }
+
+  var otherRegimen = false;
+
+  function addCustomRegimenButton(){
+    /*var button = document.createElement("button");
+    button.id = "customRegimen";
+    button.innerHTML = "<span>Customize Regimen</span>";
+    button.style.cssFloat = "right";
+    otherRegimen = false;
+    __$('touchscreenInput' + tstCurrentPage).removeAttribute("optional", "true");
+
+    button.onmousedown = function(){
+      __$('touchscreenInput' + tstCurrentPage).value = '';
+    }
+    
+    button.onclick = function(){
+      __$('last_art_drugs_taken').value = '';
+      __$('touchscreenInput' + tstCurrentPage).value = '';
+      otherRegimen = true;
+
+
+      var selectedLi = jQuery('li').filter(function () {
+        return this.style.backgroundColor == 'lightblue'
+      });
+
+      __$('touchscreenInput' + tstCurrentPage).value = '';
+      __$('touchscreenInput' + tstCurrentPage).setAttribute("optional", "true");
+      gotoNextPage();
+    }
+
+    if(__$("buttons")){
+      __$("buttons").appendChild(button);
+    }*/
+  }
+
+  function removeCustomRegimenButton(){
+    jQuery("#customRegimen").remove();
+  }
+
+  function forceStageOneAvailabe(){
+    stage_four_conditions = $('stage_4_conditions');
+    stage_three_conditions = $('stage_3_conditions');
+    stage_two_conditions = $('stage_2_conditions');
+
+    __$('touchscreenInput' + tstCurrentPage).setAttribute("optional", "true");
+
+    if ((stage_four_conditions.value.length == 0) && (stage_three_conditions.value.length == 0) && stage_two_conditions.value.length == 0){
+      __$('touchscreenInput' + tstCurrentPage).removeAttribute("optional");
+    }
+  }
+
+  function forceStageOneAvailabePaeds(){
+    stage_four_conditions = jQuery('.stage_4_conditions')[0];
+    stage_three_conditions = jQuery('.stage_3_conditions')[0];
+    stage_two_conditions = jQuery('.stage_2_conditions')[0];
+
+    __$('touchscreenInput' + tstCurrentPage).setAttribute("optional", "true");
+
+    if ((stage_four_conditions.value.length == 0) && (stage_three_conditions.value.length == 0) && stage_two_conditions.value.length == 0){
+      __$('touchscreenInput' + tstCurrentPage).removeAttribute("optional");
+    }
+  }
+
+
+  function everReceivedARTMonth() {
+    var ever_received_art = $('ever_received_art').value;
+    var ever_registered_at_ART_clinic = $("ever_registered_at_ART_clinic").value;
+    var year_started_art = $("year_started_art").value;
+    
+    if(ever_received_art.toLowerCase() == 'no')
+      return "false";
+
+    if(ever_registered_at_ART_clinic.toLowerCase() == 'no')
+      return "false";
+
+    if(year_started_art.toLowerCase() == "unknown")
+      return "false";
+
+    return "true";
+  }
+
+  function everReceivedARTDay() {
+    var ever_received_art = $('ever_received_art').value;
+    var ever_registered_at_ART_clinic = $("ever_registered_at_ART_clinic").value;
+    var year_started_art = $("year_started_art").value;
+    var month_started_art = $("month_started_art").value
+
+    if(ever_received_art.toLowerCase() == 'no')
+      return "false";
+
+    if(ever_registered_at_ART_clinic.toLowerCase() == 'no')
+      return "false";
+
+    if(year_started_art.toLowerCase() == "unknown")
+      return "false";
+
+    if(month_started_art.toLowerCase() == "unknown")
+      return "false";
+
+    return "true";
+  }
+
+
+</script>
+<%#= raise @patient.person.birthdate.day.to_s %>
+<%# if @patient.patient_programs.current.local.map(&:program).map(&:name).include?('HIV PROGRAM') %>
+
+<%#= raise @current_hiv_program_status.to_s.to_yaml %>
+<% if @current_hiv_program_status.to_s == "Patient transferred out" %>
+  <div class="inputPage NoKeyboard" id="page" style="display: block;">
+    <div id="trigger"></div>
+    <div id="infoBar" class="infoBarClass"></div>
+    <label id="helpText" class="helpTextClass" for="">This patient was transferred out, no need for initiation.........</label>
+  </div>
+  <div id="buttons" class="buttonsDiv" style="top:456;">
+    <div id="tt_extraButtons"></div>
+    <button onmousedown="window.location=tt_cancel_destination;" id="cancelButton" class="button navButton red"><span>Cancel</span></button>
+  </div>
+  <script>
+    setTimeout("window.location=tt_cancel_destination;", 5000);
+  </script>
+<% elsif ! @require_hiv_clinic_registration %>
+  <div class="inputPage NoKeyboard" id="page" style="display: block;">
+    <div id="trigger"></div>
+    <div id="infoBar" class="infoBarClass"></div>
+    <label id="helpText" class="helpTextClass" for="">This patient has already been initiated in the HIV program at this location</label>
+  </div>
+  <div id="buttons" class="buttonsDiv" style="top:456;">
+    <div id="tt_extraButtons"></div>
+    <button onmousedown="window.location=tt_cancel_destination;" id="cancelButton" class="button navButton red"><span>Cancel</span></button>
+  </div>
+  <script>
+    setTimeout("window.location=tt_cancel_destination;", 5000);
+  </script>
+<% else %>
+  <form id='appointment' action="/encounters/create" method='post'>
+    <%= hidden_field_tag "encounter[encounter_type_name]", "HIV CLINIC REGISTRATION" %>
+    <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+    <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+    <%= hidden_field_tag "encounter[provider_id]", current_user.user_id %>
+
+    <label for='ever_received_art'>Ever received ARVs for treatment or prophylaxis?</label>
+    <%= hidden_field_tag("programs[][patient_program_id]", nil) %>
+    <%= hidden_field_tag("programs[][program_id]", Program.find_by_name('HIV PROGRAM').id) %>
+    <%= hidden_field_tag("programs[][location_id]", Location.current_health_center.id) %>
+    <%= hidden_field_tag("programs[][date_enrolled]", session[:datetime] ) %>
+    <%= hidden_field_tag("programs[][states][][state]", "Pre-ART (Continue)") %>
+
+    <%= touch_yes_no_tag "FOLLOW UP AGREEMENT", @patient, nil,
+      {	:id => "agrees_to_followup",
+      :helpText => "Agrees to be contacted by phone/visited at home?" } %>
+
+    <%= touch_select_tag("EVER RECEIVED ART", @patient, options_for_select([['Yes','YES'],['No','NO']]), {:id => 'ever_received_art'}) %>
+
+  <%#= touch_date_tag "DATE ART LAST TAKEN", @patient, nil,
+  {	:id => "date_art_last_taken",
+  :absoluteMax => Date.today,
+  :condition => '$("ever_received_art").value == "YES"',
+  :helpText => "Date ART last taken"} %>
+
+    <!--
+    -->
+    <%= text_field_tag "year_art_last_taken", nil,
+      { :helpText => 'Year last taken ARVs<span style="font-size:0.7em;font-style:italic"> (Chaka chimene munamwa ma ARV komaliza ndi chiti?)</span>',
+      :field_type => 'number',
+      :absoluteMin => "#{@birth_date.year}", :min => "#{@birth_date.year}", :absoluteMax => (session[:datetime].to_date.year rescue Date.today.year),
+      :tt_pageStyleClass => "Numeric NumbersOnly",
+      :condition => '$("ever_received_art").value == "YES"',
+      :id => "year_art_last_taken" }  %>
+
+    <%= select_tag "month_art_last_taken", month_name_options,
+      { :tt_onLoad => "__$('keyboard').style.display = 'none'; validateMonthARTTaken()",
+      :helpText => 'Month last taken ARVs<span style="font-size:0.7em;font-style:italic"> (Mwezi umene munamwa ma ARV komaliza ndi uti?)</span>',
+      :condition => '$("year_art_last_taken").value.toLowerCase() != "unknown" && $("ever_received_art").value == "YES"',
+      :id => "month_art_last_taken" ,
+      :validationMessage => 'Please enter a valid date'}%>
+
+    <%= text_field_tag "day_art_last_taken",  nil,
+      :field_type => 'number',
+      :helpText => 'Day last taken ARVs<span style="font-size:0.7em;font-style:italic"> (Tsiku limene munamwa ma ARV komaliza ndi liti?)</span>',
+      :condition => '($("year_art_last_taken").value !="Unknown") && ($("month_art_last_taken").value != "Unknown") && $("ever_received_art"). value == "YES"',
+      :tt_onLoad => "getDayOfMonthPicker($('year_art_last_taken').value, $('month_art_last_taken').value);$('nextButton').style.display = 'block'; validateDayARTTaken();",
+      :tt_onUnLoad => 'updateTestDate();',
+      :validationCode => 'checkTestDate(this);',
+      :id => "day_art_last_taken" ,
+      :validationMessage => "Date ARV last taken out of range"%>
+
+    <%= touch_hidden_tag "DATE ART LAST TAKEN", @patient, nil, {:id => "date_art_last_taken", :value_datetime => true}%>
+
+
+    <%= touch_yes_no_unknown_tag "HAS THE PATIENT TAKEN ART IN THE LAST TWO MONTHS", @patient, nil,
+      {	:id => "taken_art_in_last_two_months",
+      :condition => '$("year_art_last_taken").value.toUpperCase() == "UNKNOWN"',
+      :helpText => "Taken ARV&apos;s in the last two months? <span style='font-size:0.7em;font-style:italic'>(Kodi mwamwa ma ARV m'miyezi iwiri yapitayi?)</span>" } %>
+
+    <%= touch_yes_no_unknown_tag "HAS THE PATIENT TAKEN ART IN THE LAST TWO WEEKS", @patient, nil,
+      {	:id => "taken_art_in_last_two_weeks",
+      :condition => '$("taken_art_in_last_two_months").value == "YES" && $("year_art_last_taken").value.toUpperCase() == "UNKNOWN"',
+      :helpText => "Taken ARV's in the last two weeks? <span style='font-size:0.7em;font-style:italic'>(Kodi mwamwa ma ARV sabata ziwiri zapitazi?)</span>" } %>
+
+  <%#= touch_select_tag "LAST ART DRUGS TAKEN", @patient, options_for_select(@arv_drugs),
+  {	:id => "last_art_drugs_taken",
+  :condition => '$("ever_received_art").value == "YES"',
+  :tt_onLoad => "addCustomRegimenButton(); lastOtherDrugs = ''; $('otherMedications').value = '';",
+  :tt_onUnLoad => 'updateLastARVDrugs(); removeCustomRegimenButton();',
+  :helpText => "Last ARV drugs taken <span style='font-size:0.7em;font-style:italic'>(Ntundu wa ma ARV amene munamwa komaliza)</span>"  } %>
+
+    <% @regimen_formulations.each do |regimen_index, formulations| %>
+
+      <% formulations.split('+').each do |formulation| %>
+        <%
+        formulation = 'Darunavir' if formulation.squish.upcase == 'DRV'
+        formulation = 'Ritonavir' if formulation.squish.upcase == 'R'
+      %>
+
+      <%#= touch_numeric_tag "#{formulation.squish}", @patient, nil,
+      {
+      :id => "#{formulation}",
+      :field_type => 'number',
+      :tt_pageStyleClass => "NumbersOnly",
+      :tt_onLoad => "jQuery('#Unknown').show();",
+      :condition => "parseInt($('last_art_drugs_taken').value.trim().match(/\\d+/)) == parseInt(#{regimen_index})",
+      :helpText  => "Total tabs of #{formulation.squish} brought to clinic"} %>
+
+      <% end %>
+    <% end %>
+
+  <%#= touch_select_tag "LAST ART DRUGS TAKEN", @patient, options_for_select(@other_medications),
+  {
+  :id => "otherMedications",
+  :field_type => 'number',
+  :tt_onLoad => "jQuery('#Unknown').show();",
+  :tt_onUnLoad => 'updateLastOtherMedications();',
+  :condition => "otherRegimen == true",
+  :multiple => true,
+  :helpText  => "Last ARV drugs taken <span style='font-size:0.7em;font-style:italic'>(Ntundu wa ma ARV amene munamwa komaliza)</span>"} %>
+
+  <%#= touch_select_tag "LAST ART DRUGS TAKEN", @patient, options_for_select(@other_medications),
+  {
+  :id => "otherMedications",
+  :field_type => 'number',
+  :tt_onLoad => "jQuery('#Unknown').show();",
+  :tt_onUnLoad => 'updateLastOtherMedications();',
+  :condition => "$('last_art_drugs_taken').value.trim().toUpperCase() == 'OTHER'",
+  :multiple => true,
+  :helpText  => "Last ARV drugs taken <span style='font-size:0.7em;font-style:italic'>(Ntundu wa ma ARV amene munamwa komaliza)</span>"} %>
+
+    <% @other_medications.each do |key, value|  %>
+    <%#= touch_numeric_tag "#{value}", @patient, nil,
+    {
+    :id => "#{key}",
+    :field_type => 'number',
+    :tt_pageStyleClass => "NumbersOnly",
+    :tt_onLoad => "jQuery('#Unknown').show();",
+    :condition => "lastOtherDrugs.split(';').indexOf('#{key}') != -1",
+    :helpText  => "Total tabs of #{key.squish} brought to clinic"} %>
+    <% end %>
+
+    <%= touch_yes_no_tag "Ever registered at ART clinic", @patient, nil,
+      {	:id => "ever_registered_at_ART_clinic",
+      :condition => "$('ever_received_art').value == 'YES'",
+      :helpText => "Ever registered at an ART clinic?" } %>
+
+    <!-- NEW ADDITIONS-->
+  <%#= raise @patient.person.observations.to_s %>
+    <% if ! @patient.person.observations.to_s.include?('On ART:  Yes') %>
+
+      <%= touch_location_tag "LOCATION OF ART INITIATION", @patient, nil,
+        {	:id => "location_of_art_initialization",
+        :condition => '$("ever_registered_at_ART_clinic").value == "YES" && $("ever_received_art").value == "YES"',
+        :tt_onLoad => "showCategory2('when starting ART')" ,
+        :tt_onUnLoad => "hideCategory()",
+        :helpText => "Location of ART initiation" } %>
+
+
+      <%= text_field_tag "year_started_art", nil,
+        {	:helpText => 'Year started ART',
+        :field_type => 'number',
+        :absoluteMin => "1890", :min => "1940",
+        :tt_pageStyleClass => "Numeric NumbersOnly",
+        :tt_onLoad => "showCategory2('when starting ART'); setAbsoluteMaxYearStartedART();" ,
+        :tt_onUnLoad => "hideCategory()",
+        :condition => '$("ever_received_art").value == "YES" && $("ever_registered_at_ART_clinic").value == "YES"',
+        :id => "year_started_art" }  %>
+
+      <%estimates = ["", "6 months","12 months","18 months","24 months","Over 2 years"]%>
+      <%= select_tag(:art_start_date_estimation, options_for_select(estimates ,[]),
+        :helpText =>"Estimated time since ART initiation",
+        :id => "art_start_date_estimation",
+        :allowFreeText => false,
+        :tt_onUnLoad => "hideCategory();setUnkownStage();",
+        :tt_onLoad => "showCategory2('when starting ART');setReasonForStarting();",
+        :condition => '$("year_started_art").value.toUpperCase() == "UNKNOWN"',
+        :ttMatchFromBeginning => "true")%>
+
+      <%= touch_hidden_tag "Drug start date", @patient, "", :id => "drug_start_date", :value_datetime => true %>
+
+      <%= select_tag "month_started_art", month_name_options,
+        {	:helpText => 'Month started ART',
+        :condition => 'everReceivedARTMonth() == "true";',
+        :tt_onLoad => "showCategory2('when starting ART'); __$('keyboard').style.display = 'none'; validateMonthStartedART();",
+        :tt_onUnLoad => "hideCategory(); setUnkownStage();",
+        :id => "month_started_art" ,
+        :validationMessage => 'Please enter a valid date'}%>
+
+      <%= text_field_tag "day_started_art",  nil,
+        :field_type => 'number', :helpText => 'Day started ART',
+        :condition => 'everReceivedARTDay() == "true";',
+        :tt_onLoad => "showCategory2('when starting ART');getDayOfMonthPicker($('year_started_art').value, $('month_started_art').value);$('nextButton').style.display = 'block';validateDayStartedART();",
+        :validationCode => "checkStartDate();",
+        :id => "day_started_art" ,
+        :tt_onUnLoad => "hideCategory();updateStartDate();setUnkownStage();",
+        :validationMessage => "Date ART started out of range #{@hiv_test_date.to_date rescue nil} and #{@todayDate.to_date rescue nil}"%>
+
+      <%= touch_hidden_tag "Date antiretrovirals started", @patient, "", :id => "date_started_art", :value_datetime => true %>
+    <% end %>
+    <!-- END OF NEW ADDITIONS-->
+
+    <%= touch_text_field_tag "ART NUMBER AT PREVIOUS LOCATION", @patient, nil,
+      {	:id => "previous_art_number",
+      :condition => '$("ever_registered_at_ART_clinic").value == "YES" && $("ever_received_art").value == "YES"',
+      :tt_onLoad => "showCategory2('when starting ART')" ,
+      :tt_onUnLoad => "hideCategory()",
+      :helpText => "ART number at previous location" } %>
+
+    <%= touch_yes_no_tag "HAS TRANSFER LETTER", @patient, nil,
+      {	:id => "has_transfer_letter",
+      :tt_onUnload=>  "$('programs__states__state').value = 'Patient transferred in'",
+      :condition => "$('ever_registered_at_ART_clinic').value == 'YES' && $('ever_received_art').value == 'YES'",
+      :tt_onLoad => "showCategory2('when starting ART')" ,
+      :tt_onUnLoad => "hideCategory()",
+      :helpText => "Has staging information?" } %>
+
+    <%= text_field_tag "observations[][value_numeric]", nil,
+      {	:id => "height",
+      :field_type => 'number',
+      :condition => 'showConditions()',
+      :min => number_with_precision(0, :precision => 1),
+      :max => number_with_precision(183, :precision => 1),
+      :absoluteMin => 10,
+      :absoluteMax => 228,
+      :helpText => "Height (CM)",
+      :tt_onLoad => "showCategory2('when starting ART')" ,
+      :tt_onUnLoad => "hideCategory()",
+      :units => 'cm',
+      :validationRule => "^([0-9]+)|Unknown$",
+      :validationMessage => "You must enter numbers only (for example 157)",
+      :tt_pageStyleClass => "Numeric NumbersOnly" } %>
+    <%= hidden_field_tag("observations[][concept_name]", "HEIGHT (CM)") %>
+    <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+
+    <%= text_field_tag "observations[][value_numeric]", nil,
+      {	:id => "weight",
+      :field_type => 'number',
+      :min => number_with_precision(0, :precision => 1),
+      :max => number_with_precision(80, :precision => 1),
+      :condition => 'showConditions()',
+      :helpText => "Weight (Kg)",
+      :absoluteMin => 0,
+      :absoluteMax => 250,
+      :units => 'kg',
+      :validationRule => "([0-9]+\\.[0-9])|Unknown$",
+      :validationMessage => "You must enter a decimal between 0 and 9 (for example: 54<b>.6</b>)",
+      :tt_onUnLoad => "hideCategory();calculateBMI();",
+      :tt_onLoad => "showCategory2('when starting ART')",
+      :tt_pageStyleClass => "Numeric NumbersOnlyWithDecimal"} %>
+    <%= hidden_field_tag("observations[][concept_name]", "WEIGHT (KG)") %>
+    <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+
+    <% if @patient_bean.age > 14 %>
+
+      <%= hidden_field_tag("observations[][value_numeric]", nil, {:id => 'bmi'}) %>
+      <%= hidden_field_tag("observations[][concept_name]", "BODY MASS INDEX, MEASURED") %>
+      <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+
+    <% end %>
+
+    <% if @patient_bean.age > 9 %>
+
+      <%= touch_yes_no_unknown_tag "IS PATIENT PREGNANT?", @patient, nil,
+        {:id => "pregnant" ,
+        :condition => "patientGender != 'MALE' && showConditions() == true",
+        :tt_onUnLoad => 'hideCategory();',
+        :tt_onLoad => "showCategory2('when starting ART');",
+        :helpText => "Pregnant at initiation?" } %>
+
+      <%= touch_yes_no_unknown_tag "IS PATIENT BREAST FEEDING?", @patient, nil,
+        {	:id => "breast_feeding" ,
+        :condition => "patientGender != 'MALE' && showConditions() == true",
+        :tt_onUnLoad => 'hideCategory();',
+        :tt_onLoad => "showCategory2('when starting ART');",
+        :helpText => "Breastfeeding at initiation?" } %>
+
+    <% end %>
+
+
+    <%= touch_select_tag "WHO STAGES CRITERIA PRESENT", @patient,  options_for_select(@who_stage_iv),
+      {:id => "stage_4_conditions",
+      :multiple => true,
+      :optional => true,
+      :tt_onUnLoad => 'hideCategory();setSelectedStageConditions(4);',
+      :tt_onLoad => "showCategory2('when starting ART'); hideTextInput(); displayCountOfSelectedConditions();",
+      :condition => 'showConditions() == true && age >= 15',
+      :helpText => "Stage 4 Conditions",
+      :tt_pageStyleClass => "NoKeyboard NoInput small"  } %>
+
+    <%= touch_select_tag "WHO STAGES CRITERIA PRESENT", @patient,  options_for_select(@who_stage_iv_paeds),
+      {:id => "stage_4_conditions",
+      :class => "stage_4_conditions",
+      :multiple => true,
+      :optional => true,
+      :tt_onUnLoad => 'hideCategory();setSelectedStageConditions(4);',
+      :tt_onLoad => "showCategory2('when starting ART'); preselectSevereWeightLossPaeds(); hideTextInput(); displayCountOfSelectedConditions();",
+      :condition => 'showConditions() == true && age <= 14',
+      :helpText => "Stage 4 Conditions",
+      :tt_pageStyleClass => "NoKeyboard NoInput small"  } %>
+
+    <%= touch_select_tag "WHO STAGES CRITERIA PRESENT", @patient,  options_for_select(@who_stage_iii),
+      {:id => "stage_3_conditions",
+      :multiple => true,
+      :optional => true,
+      :tt_onUnLoad => 'hideCategory();setSelectedStageConditions(3);',
+      :tt_onLoad => "showCategory2('when starting ART'); preselectSevereWeightLoss(); disableSevereWeightLossInputForNormalBMI(); hideTextInput(); displayCountOfSelectedConditions();" ,
+      :condition => 'showConditions() == true && age >= 15',
+      :helpText => "Stage 3 Conditions",
+      :tt_pageStyleClass => "NoKeyboard NoInput small"  } %>
+
+    <%= touch_select_tag "WHO STAGES CRITERIA PRESENT", @patient,  options_for_select(@who_stage_iii_paeds),
+      {:id => "stage_3_conditions",
+      :class => "stage_3_conditions",
+      :multiple => true,
+      :optional => true,
+      :tt_onUnLoad => 'hideCategory();setSelectedStageConditions(3);',
+      :tt_onLoad => "showCategory2('when starting ART'); preselectModerateWeightLossPaeds(); hideTextInput(); displayCountOfSelectedConditions();" ,
+      :condition => 'showConditions() == true && age <= 14',
+      :helpText => "Stage 3 Conditions",
+      :tt_pageStyleClass => "NoKeyboard NoInput small"  } %>
+
+    <%= touch_select_tag "WHO STAGES CRITERIA PRESENT", @patient,  options_for_select(@who_stage_ii),
+      {:id => "stage_2_conditions",
+      :multiple => true,
+      :optional => true,
+      :tt_onUnLoad => 'hideCategory();setSelectedStageConditions(2);',
+      :tt_onLoad => "showCategory2('when starting ART'); preselectModerateWeightLoss(); disableModerateWeightLossOptionForNormalBMI(); hideTextInput(); displayCountOfSelectedConditions();" ,
+      :condition => 'showConditions() == true && age >= 15',
+      :helpText => "Stage 2 Conditions",
+      :tt_pageStyleClass => "NoKeyboard NoInput small"  } %>
+
+    <%= touch_select_tag "WHO STAGES CRITERIA PRESENT", @patient,  options_for_select(@who_stage_ii_paeds),
+      {:id => "stage_2_conditions",
+      :class => "stage_2_conditions",
+      :multiple => true,
+      :optional => true,
+      :tt_onUnLoad => 'hideCategory();setSelectedStageConditions(2);',
+      :tt_onLoad => "showCategory2('when starting ART'); hideTextInput(); displayCountOfSelectedConditions();" ,
+      :condition => 'showConditions() == true && age <= 14',
+      :helpText => "Stage 2 Conditions",
+      :tt_pageStyleClass => "NoKeyboard NoInput small"  } %>
+
+    <%= touch_select_tag "WHO STAGES CRITERIA PRESENT", @patient, options_for_select(@who_stage_i),
+      {:id => "stage_1_conditions",
+      :multiple => true,
+      :optional => true,
+      :tt_onLoad => "hideCategory();setOptionsForContraindicationsPopup(); forceStageOneAvailabe(); hideTextInput(); displayCountOfSelectedConditions();",
+      :tt_onUnLoad => "showCategory2('when starting ART');setSelectedStageConditions(1); resetStageDefiningConditions();",
+      :condition => 'showConditions() == true && age >= 15',
+      :helpText => "Stage 1 Conditions",
+      :tt_pageStyleClass => "NoKeyboard NoInput small" } %>
+
+    <%= touch_select_tag "WHO STAGES CRITERIA PRESENT", @patient, options_for_select(@who_stage_i_paeds),
+      {:id => "stage_1_conditions",
+      :class => "stage_1_conditions",
+      :multiple => true,
+      :optional => true,
+      :tt_onLoad => "hideCategory();setOptionsForContraindicationsPopup(); forceStageOneAvailabePaeds(); hideTextInput(); displayCountOfSelectedConditions();",
+      :tt_onUnLoad => "showCategory2('when starting ART');setSelectedStageConditions(1); resetStageDefiningConditions();",
+      :condition => 'showConditions() == true && age <= 14',
+      :helpText => "Stage 1 Conditions",
+      :tt_pageStyleClass => "NoKeyboard NoInput small" } %>
+
+    <%
+    @reasons = ["WHO stage I","WHO stage II","WHO stage III","WHO stage IV",
+      "PRESUMED SEVERE HIV","HIV DNA POLYMERASE CHAIN REACTION",
+      "HIV infected","CD4 COUNT LESS THAN OR EQUAL TO 750",
+      "CD4 COUNT LESS THAN OR EQUAL TO 350","CD4 COUNT LESS THAN OR EQUAL TO 250",
+      "LYMPHOCYTE COUNT BELOW THRESHOLD WITH WHO STAGE 2","Unknown"]
+    if @patient.person.gender == "F"
+      @reasons << "PATIENT PREGNANT"
+      @reasons << "BREASTFEEDING"
+    end
+    @reasons << "CD4 count less than or equal to 500"
+    @reasons = @reasons.sort
+    art_reasons = []
+    @reasons.map do |reason|
+
+      if reason.match(/WHO stage/i)
+        if @patient_bean.age < 15
+          reason = reason + " peds"
+        else
+          reason = reason + " adult"
+        end
+      end
+
+      unless reason[0..9].upcase.match(/who stage/i)
+        reason = reason.humanize.gsub("Cd4","CD4").gsub("Hiv","HIV").gsub("hiv","HIV")
+      end
+
+      art_reasons << [reason, reason]
+
+    end
+  %>
+
+  <%#= touch_select_tag "REASON FOR ART ELIGIBILITY", @patient, options_for_select(art_reasons,[]),
+  {	:id => "reason_for_art_eligibility",
+  :condition => 'showConditions()',
+  :helpText => "Reason for ART eligibility",
+  :tt_onLoad => "__$('keyboard').style.display = 'none';calculateWHOstage();",
+  :tt_pageStyleClass => 'NoKeyboard' } %>
+
+    <%= touch_hidden_tag "WHO STAGE", @patient, "", :id => "who_stage" %>
+
+    <%= touch_hidden_tag "CD4 COUNT LESS THAN OR EQUAL TO 250", @patient, "", :id => "cd4_count_less_than_250" %>
+    <%= touch_hidden_tag "CD4 COUNT LESS THAN OR EQUAL TO 350", @patient, "", :id => "cd4_count_less_than_350" %>
+    <%= touch_hidden_tag "CD4 COUNT LESS THAN OR EQUAL TO 500", @patient, "", :id => "cd4_count_less_than_500" %>
+    <%= touch_hidden_tag "CD4 PERCENT LESS THAN 25", @patient, "", :id => "cd4_percent_less_than_25" %>
+    <%= touch_hidden_tag "REASON FOR ART ELIGIBILITY", @patient, "", :id => "reason_for_art_eligibility" %>
+
+    <%= select_tag "new_cd4_count_available", options_for_select([['Yes','YES'],['No','NO']]),
+      :id => 'new_cd4_count_available',
+      :condition => 'showConditions()',
+      :helpText => "CD4 Count available",
+      :tt_pageStyleClass => 'NoKeyboard' %>
+
+    <%= touch_location_tag "CD4 COUNT LOCATION", @patient, nil,
+      {	:id => "cd4_count_location",
+      :condition => '$("new_cd4_count_available").value == "YES" && showConditions()',
+      :tt_onLoad => "showCategory2('when starting ART')" ,
+      :tt_onUnLoad => "hideCategory();" ,
+      :helpText => "CD4 Count Location"} %>
+
+
+    <%= text_field_tag "year_of_cd4", nil,
+      { :helpText => 'Year of CD4 count',
+      :field_type => 'number',
+      :absoluteMin => "1890", :min => "1940",
+      :tt_pageStyleClass => "Numeric NumbersOnly",
+      :tt_onLoad => "showCategory2('when starting ART'); setAbsoluteMaxCD4Year();" ,
+      :tt_onUnLoad => "hideCategory();" ,
+      :condition => '$("new_cd4_count_available").value == "YES" && showConditions()',
+      :id => "year_of_cd4" }  %>
+
+    <%= select_tag "month_of_cd4", month_name_options,
+      { :tt_onLoad => "__$('keyboard').style.display = 'none'",
+      :helpText => 'Month of CD4 count',
+      :condition => '$("year_of_cd4").value.toLowerCase() != "unknown" && $("new_cd4_count_available").value == "YES" && showConditions()',
+      :tt_onLoad => "showCategory2('when starting ART'); validateCD4Month();" ,
+      :tt_onUnLoad => "hideCategory();" ,
+      :id => "month_of_cd4" ,
+      :validationMessage => 'Please enter a valid date'}%>
+
+    <%= text_field_tag "day_art_last_taken",  nil,
+      :field_type => 'number',
+      :helpText => 'Day of CD4 count',
+      :condition => '($("year_of_cd4").value !="Unknown") && ($("month_of_cd4").value != "Unknown") && ($("new_cd4_count_available").value == "YES") && showConditions()',
+      :tt_onLoad => "showCategory2('when starting ART');getDayOfMonthPicker($('year_of_cd4').value, $('month_of_cd4').value);$('nextButton').style.display = 'block'; validateCD4Day();",
+      :tt_onUnLoad => 'hideCategory();checkCd4Date();',
+      :id => "day_of_cd4" %>
+
+    <%= touch_hidden_tag "CD4 COUNT DATETIME", @patient, nil, {:id => "cd4_count_date", :value_datetime => true}%>
+
+
+  <%#= touch_date_tag "CD4 COUNT DATETIME", @patient, nil,
+  {	:id => "cd4_count_date",
+  :field_type => 'date',
+  :condition => '$("new_cd4_count_available").value == "YES" && showConditions()',
+  :helpText => "CD4 Count Date",
+  :max => "#{session[:datetime].to_date rescue Date.today}"} %>
+
+    <%= touch_cd4_count_numeric_tag "CD4 COUNT", @patient, nil,
+      {	:id => "cd4_count",
+      :condition => '$("new_cd4_count_available").value == "YES" && showConditions()',
+      :helpText => "CD4 Count",
+      :max => 1000 ,
+      :min => 1 ,
+      :tt_onLoad => "showCategory2('when starting ART');updateCD4CountKeyPad();",
+      :tt_onUnLoad => "hideCategory();updateCD4Count();"} %>
+
+    <%= touch_hidden_tag "CD4 COUNT LESS THAN OR EQUAL TO 250", @patient, "", :id => "cd4_count_less_than_250" %>
+    <%= touch_hidden_tag "CD4 COUNT LESS THAN OR EQUAL TO 350", @patient, "", :id => "cd4_count_less_than_350" %>
+
+    <%= select_tag "new_cd4_percent_available", options_for_select([['Yes','YES'],['No','NO']]),
+      :id => 'new_cd4_percent_available',
+      :condition => 'showConditions() == true',
+      :helpText => "CD4 percent available",
+      :tt_onLoad => "showCategory2('when starting ART')" ,
+      :tt_onUnLoad => "hideCategory();" ,
+      :tt_pageStyleClass => 'NoKeyboard' %>
+
+    <%= touch_cd4_count_numeric_tag "CD4 PERCENT", @patient, nil,
+      {	:id => "cd4_percent",
+      :condition => '$("new_cd4_percent_available").value == "YES" && showConditions()',
+      :helpText => "CD4 Percent",
+      :tt_onLoad => "showCategory2('when starting ART');updateCD4CountKeyPad();",
+      :tt_onUnLoad => 'hideCategory();updateCD4Percent()'} %>
+
+    <%= touch_hidden_tag "CD4 PERCENT LESS THAN 25", @patient, "", :id => "cd4_percent_less_than_25" %>
+
+    <%= touch_hidden_tag "WHO STAGE", @patient, "", :id => "who_stage" %>
+
+
+    <%  if @cell_number.to_i != 0 %>
+      <%= touch_yes_no_unknown_tag "SEND SMS", @patient, nil,
+        {	:id => "send_sms",
+        :helpText => 'Can we send you an SMS for HIV care follow-up?'} %>
+    <% end %>
+
+    <label for='summary'>Summary</label>
+    <%= text_field_tag :summary, nil, {
+      :tt_onLoad => "summary();__$('keyboard').style.display = 'none';",
+      :condition => "$('has_transfer_letter').value == 'YES'",
+      :optional => "true",
+      :tt_pageStyleClass => "NoControls"
+    } %>
+
+    <%= touch_select_tag "CONFIRMATORY HIV TEST TYPE", @patient, options_for_select([['Rapid antibody test','HIV RAPID TEST'],['DNA PCR','HIV DNA polymerase chain reaction'],['Not done','NOT DONE']]),
+      {	:id => "type_of_confirmatory_hiv_test",
+      :tt_onLoad => "setUnknownConfirmatoryTestForPopup();",
+      :helpText => "Confirmatory HIV test" } %>
+
+    <%= touch_location_tag "CONFIRMATORY HIV TEST LOCATION", @patient, nil,
+      {	:id => "confirmatory_hiv_test_location",
+      :condition => '$("type_of_confirmatory_hiv_test").value != "NOT DONE"',
+      :helpText => "Location of confirmatory HIV test"} %>
+
+  <%#= touch_date_tag "CONFIRMATORY HIV TEST DATE", @patient, nil,
+  {	:id => "confirmatory_hiv_test_date",
+  :max => "#{session[:datetime].to_date rescue Date.today}",
+  :condition => '$("ever_registered_at_ART_clinic").value == "NO"',
+  :validationCode => "checkBirthDate() == 'true'",
+  :validationMessage => "Confirmatory HIV test date is greater than patient's date of birth #{@patient.person.birthdate}",
+  :helpText => "Date of confirmatory HIV test"} %>
+
+    <%= text_field_tag "year_confirmatory_hiv_test", nil,
+      {	:helpText => 'Confirmatory HIV test year',
+      :field_type => 'number',
+      :condition => '$("type_of_confirmatory_hiv_test").value != "NOT DONE"',
+      :tt_onLoad => "changeNextButtonForConfirmatoryYear(); changeAbsoluteMinForConfirmatoryYear();",
+      :absoluteMax => Date.today.year,
+      :tt_pageStyleClass => "Numeric NumbersOnly",
+      :id => "confirmatory_hiv_test_year"}  %>
+
+    <%= select_tag "month_confirmatory_hiv_test", month_name_options,
+      {	:helpText => 'Confirmatory HIV test month',
+      :condition => '$("type_of_confirmatory_hiv_test").value != "NOT DONE" && $("confirmatory_hiv_test_year").value.toLowerCase() != "unknown"',
+      :tt_onLoad => "__$('keyboard').style.display = 'none'; validateConfirmatoryMonth();",
+      :validationMessage => 'Please enter a valid date',
+      :id => "confirmatory_hiv_test_month"} %>
+
+    <%= text_field_tag "day_confirmatory_hiv_test",  nil,
+      :field_type => 'number', :helpText => 'Confirmatory HIV test day',
+      :tt_onUnLoad => "updateConfirmDate();",
+      :condition => '$("type_of_confirmatory_hiv_test").value != "NOT DONE" && ($("confirmatory_hiv_test_year").value !="Unknown") && ($("confirmatory_hiv_test_month").value != "Unknown");',
+      :tt_onLoad => "getDayOfMonthPicker($('confirmatory_hiv_test_year').value, $('confirmatory_hiv_test_month').value);$('nextButton').style.display = 'block'; validateConfirmatoryDay();",
+      :validationCode => "checkConfirmDate()",
+      :id => "confirmatory_hiv_test_day" ,
+      :validationMessage => "Confirmatory Test Date out of range #{@hiv_test_date.to_date rescue nil} and #{@todayDate.to_date rescue nil}"%>
+
+    <%= touch_hidden_tag "confirmatory hiv test date", @patient, "", :id => "confirmatory_hiv_test_date", :value_datetime => true %>
+    <% if @retrospective %>
+      <p><label for="filter_provider">Staff who provided the information (Provider)</label></br>
+        <%= text_field "filter" , 'provider', :helpText => 'Staff who provided the information (Provider)', :ajaxURL => '/user/username?username=' %></p>
+    <% else %>
+      <%= hidden_field_tag "filter[provider]", nil %>
+    <%end%>
+
+    <%= submit_tag "Finish" %>
+
+  </form>
+
+<% end %>
+
+
+
+
+
+
+<div id="confirmatory-test-popup-div">
+  <div id="confirmatory-test-popup-header">
+    <center>Reminder </center>
+  </div><br />
+  <div>
+
+    <span style="font-size: 16pt;">
+      <center>
+        <i><b id="confirmatory-test-header">UKNOWN HIV CONFIRMATORY TEST</b></i><br />
+        Arrange for a confirmatory test
+      </center>
+    </span>
+    <div style="padding-top: 65px;">
+      <span id="confirmatory-test-yes" onclick="hideConfirmatoryTestPopup();" class="confirmatory-test-my_button" style="position: relative;">Ok</span>
+    </div>
+  </div>
+</div>
+
+
+<div id="confirmatory-test-cover"></div>
+
+<div id="popup-div">
+  <div id="popup-header">
+    <center>CONTRADICTING STAGE DEFINING CONDITIONS</center>
+  </div><br />
+  <div>
+
+    <!--span style="font-size: 16pt;">
+      <center>
+        <br />
+        Selecting <b>Yes</b> will clear previous selected conditions. Are you sure?
+      </center>
+    </span-->
+    <div style="padding-top: 65px;">
+      <span id="yes" onclick="continueProcess();" class="my_button" style="position: relative;">Keep &quot;Asymptomatic&quot;</span>
+      <span id="no" onclick="hidePopup();" class="my_button" style=" position: relative; right: 20px;">Keep other conditions</span>
+    </div>
+  </div>
+</div>
+<div id="cover"></div>
+
+<style type="text/css">
+
+  .my_button {
+    -moz-user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 16px;
+    font-weight: bolder;
+    line-height: 2.29;
+    margin-bottom: 0;
+    padding: 6px 56px;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    background-color: #337ab7;
+    border-color: #2e6da4;
+    color: #fff;
+    float: right;
+    margin-top: -5px;
+  }
+
+
+  #popup-div {
+    display: none;
+    background-color: #F4F4F4;
+    border: 2px solid #E0E0E0;
+    border-radius: 15px;
+    height: 185px;
+    padding: 5px;
+    position: absolute;
+    margin-top: 100px;
+    width: 630px;
+    /*margin-left: 430px;*/
+    left: 40%;
+    z-index: 991;
+  }
+
+  #popup-header{
+    border-bottom: 2px solid #7D9EC0;
+    margin-left: -5px;
+    width: 101.5%;
+    background-color: #FFFFFF;
+    margin-top: -5px;
+    padding-top: 5px;
+    border-radius: 15px 15px 0 0;
+    font-size: 14pt;
+    font-weight: bolder;
+  }
+
+  #cover{
+    display: none;
+    position: absolute;
+    background-color: black;
+    width: 100%;
+    height: 102%;
+    left: 0%;
+    top: 0%;
+    z-index: 990;
+    opacity: 0.65;
+  }
+
+  #yes, #no {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    bottom: 0px;
+  }
+
+  #yes {
+    margin-right: 13px;
+  }
+
+</style>
+
+<style type="text/css">
+
+  .confirmatory-test-my_button {
+    -moz-user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 16px;
+    font-weight: bolder;
+    line-height: 2.29;
+    margin-bottom: 0;
+    padding: 6px 56px;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    background-color: #337ab7;
+    border-color: #2e6da4;
+    color: #fff;
+    float: right;
+    margin-top: -5px;
+  }
+
+
+  #confirmatory-test-popup-div {
+    display: none;
+    background-color: #F4F4F4;
+    border: 2px solid #E0E0E0;
+    border-radius: 15px;
+    height: 240px;
+    padding: 5px;
+    position: absolute;
+    top: 40%;
+    /*margin-top: 100px;*/
+    width: 560px;
+    /*margin-left: 430px;*/
+    left: 40%;
+    z-index: 991;
+  }
+
+  #confirmatory-test-popup-header{
+    border-bottom: 2px solid #7D9EC0;
+    margin-left: -5px;
+    width: 101.5%;
+    background-color: #FFFFFF;
+    margin-top: -5px;
+    padding-top: 5px;
+    border-radius: 15px 15px 0 0;
+    font-size: 14pt;
+    font-weight: bolder;
+  }
+
+  #confirmatory-test-cover{
+    display: none;
+    position: absolute;
+    background-color: black;
+    width: 100%;
+    height: 102%;
+    left: 0%;
+    top: 0%;
+    z-index: 990;
+    opacity: 0.65;
+  }
+
+  #confirmatory-test-yes{
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    bottom: 0px;
+  }
+</style>
+<script type="text/javascript">
+  function hideConfirmatoryTestPopup(){
+    document.getElementById("confirmatory-test-popup-div").style.display = 'none';
+    document.getElementById("confirmatory-test-cover").style.display = 'none';
+  }
+
+  function showConfirmatoryTestPopup(){
+    document.getElementById("confirmatory-test-popup-div").style.display = 'inline';
+    document.getElementById("confirmatory-test-cover").style.display = 'inline';
+
+    jQuery('#confirmatory-test-popup-div').center();
+  }
+
+  function setUnknownConfirmatoryTestForPopup(){
+    unknown_confirmatory_option_input = jQuery("li[tstvalue='NOT DONE']")[0];
+    if (unknown_confirmatory_option_input){
+      unknown_confirmatory_option_input.onmouseup = function(){
+        if (!unknown_confirmatory_option_input.style.backgroundColor.match(/lightBlue/i)){
+          showConfirmatoryTestPopup();
+        }
+      }
+    }
+  }
+
+  function setSelectedStageConditions(stage) {
+    selected_stage_conditions[stage] = $("touchscreenInput" + tstCurrentPage).value;
+    selected_stage_conditions_copy[stage] = $("touchscreenInput" + tstCurrentPage).value;
+  }
+
+  function resetStageDefiningConditions(){
+    selected_stage_conditions = JSON.parse(JSON.stringify(selected_stage_conditions_copy))
+    stage_defining_conditions = __$('touchscreenInput' + tstCurrentPage).value;
+
+    if (stage_defining_conditions.length > 0){
+      if (stage_defining_conditions.match(/Asymptomatic HIV infection/i)){
+        if (selected_stage_conditions[4]) delete selected_stage_conditions[4]; //Delete Stage 4 conditions
+        if (selected_stage_conditions[3]) delete selected_stage_conditions[3]; //Delete Stage 3 conditions
+        if (selected_stage_conditions[2]) delete selected_stage_conditions[2]; //Delete Stage 2 conditions
+      }
+    }
+  }
+
+  function showContraindicatingConditionsConfirmationPopup(){
+    document.getElementById("popup-div").style.display = 'inline';
+    document.getElementById("cover").style.display = 'inline';
+  }
+
+  function setOptionsForContraindicationsPopup(){
+    if (age >= 15){
+      stageFourConditions = __$('stage_4_conditions').value;
+      stageThreeConditions = __$('stage_3_conditions').value;
+      stageTwoConditions = __$('stage_2_conditions').value;
+    }else{
+      stageFourConditions = jQuery('.stage_4_conditions')[0].value;
+      stageThreeConditions = jQuery('.stage_3_conditions')[0].value;
+      stageTwoConditions = jQuery('.stage_2_conditions')[0].value;
+    }
+
+    asymptomatic_option_input = jQuery("li[tstvalue='Asymptomatic HIV infection']")[0];
+
+    if (stageFourConditions.length > 0 || stageThreeConditions.length > 0 || stageTwoConditions.length > 0){
+      asymptomatic_option_input.onmouseup = function(){
+        showContraindicatingConditionsConfirmationPopup();
+      }
+    }
+  }
+
+  function showContraindicatingConditionsConfirmationPopup(){
+    stageFourConditions = __$('stage_4_conditions').value;
+    stageThreeConditions = __$('stage_3_conditions').value;
+    stageTwoConditions = __$('stage_2_conditions').value;
+    
+    asymptomatic_option_input = jQuery("li[tstvalue='Asymptomatic HIV infection']")[0];
+    if (stageFourConditions.length > 0 || stageThreeConditions.length > 0 || stageTwoConditions.length > 0){
+      if (!asymptomatic_option_input.style.backgroundColor.match(/lightBlue/i)){
+        document.getElementById("popup-div").style.display = 'inline';
+        document.getElementById("cover").style.display = 'inline';
+      }
+    }
+    
+  }
+
+  function hidePopup(){
+    clearInput();
+    document.getElementById("popup-div").style.display = 'none';
+    document.getElementById("cover").style.display = 'none';
+  }
+
+  function continueProcess(){
+    $('stage_4_conditions').value = '';
+    $('stage_3_conditions').value = '';
+    $('stage_2_conditions').value = '';
+    jQuery("#popup-div").hide();
+    jQuery("#cover").hide();
+    forceStageOneAvailabe();
+  }
+
+  function changeNextButtonForConfirmatoryYear(){
+  
+  }
+
+  function changeAbsoluteMinForConfirmatoryYear(){
+    year_started_art = jQuery('#year_started_art')[0].value;
+    if (parseInt(year_started_art)){
+      jQuery('#touchscreenInput'+ tstCurrentPage).attr("absoluteMin", year_started_art);
+      jQuery('#touchscreenInput'+ tstCurrentPage).attr("min", year_started_art);
+    }else{
+      jQuery('#touchscreenInput'+ tstCurrentPage).attr("absoluteMin", '1840');
+      jQuery('#touchscreenInput'+ tstCurrentPage).attr("min", '1940');
+    }
+  }
+
+  function validateConfirmatoryMonth() {
+    confirmatoryYear = parseInt(jQuery('#confirmatory_hiv_test_year')[0].value);
+    date = sessionDate;
+    currYear = date.getFullYear();
+    currDay = date.getDate();
+    availableMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    year_started_art = parseInt(jQuery('#year_started_art')[0].value);
+    month_started_art = parseInt(jQuery('#month_started_art')[0].value);
+
+    if (confirmatoryYear == currYear){
+      currentMonth = [];
+      numOfloops = (date.getMonth() + 1);
+
+      for(var i = 0; i < numOfloops; i++){
+        currentMonth.push(availableMonths[i]);
+      }
+      rule = currentMonth.join("|");
+      rule = rule + "|Unknown";
+      return $('touchscreenInput'+tstCurrentPage).setAttribute('validationRule',rule);
+    }
+
+    if (confirmatoryYear != currYear) {
+      rule = availableMonths.join("|");
+      rule = rule + "|Unknown";
+      return $('touchscreenInput'+tstCurrentPage).setAttribute('validationRule',rule);
+    }
+    
+  }
+
+  /*function validateMonthStartedART(){
+    date = new Date;
+    currYear = date.getFullYear();
+    currDay = date.getDate();
+    availableMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    year_started_art = parseInt(jQuery('#year_started_art')[0].value);
+    if (year_started_art == currYear){
+      currentMonth = [];
+      numOfloops = ((new Date).getMonth() + 1);
+
+      for(var i = 0; i < numOfloops; i++){
+        currentMonth.push(availableMonths[i]);
+      }
+
+      rule = currentMonth.join("|");
+      rule = rule + "|Unknown";
+      return $('touchscreenInput'+tstCurrentPage).setAttribute('validationRule',rule);
+    }
+
+  }*/
+
+  function validateMonthStartedART() {
+    year_art_last_taken = parseInt(jQuery('#year_art_last_taken')[0].value);
+    month_art_last_taken = parseInt(jQuery('#month_art_last_taken')[0].value);
+    date = sessionDate;
+    currYear = date.getFullYear();
+    currDay = date.getDate();
+    availableMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    year_started_art = parseInt(jQuery('#year_started_art')[0].value);
+
+    if (year_started_art < year_art_last_taken){
+      rule = availableMonths.join("|");
+      rule = rule + "|Unknown";
+      return $('touchscreenInput'+tstCurrentPage).setAttribute('validationRule',rule);
+    } else{
+      if (year_started_art == currYear){
+        currentMonth = [];
+        numOfloops = (sessionDate.getMonth() + 1);
+
+        for(var i = 0; i < numOfloops; i++){
+          currentMonth.push(availableMonths[i]);
+        }
+        rule = currentMonth.join("|");
+        rule = rule + "|Unknown";
+        return $('touchscreenInput'+tstCurrentPage).setAttribute('validationRule',rule);
+      }else{
+        rule = availableMonths.join("|");
+        rule = rule + "|Unknown";
+        return $('touchscreenInput'+tstCurrentPage).setAttribute('validationRule',rule);
+      }
+    }
+
+  }
+
+  function setAbsoluteMaxYearStartedART(){
+    year_taken_art = parseInt(jQuery('#year_art_last_taken')[0].value);
+    date = sessionDate;
+    currYear = date.getFullYear();
+
+    if (parseInt(year_taken_art)){
+      jQuery('#touchscreenInput'+ tstCurrentPage).attr("absoluteMax", year_taken_art);
+    }else{
+      jQuery('#touchscreenInput'+ tstCurrentPage).attr("absoluteMax", currYear);
+    }
+  }
+
+  function validateMonthARTTaken(){
+    date = sessionDate;
+    currYear = sessionDate.getFullYear();
+    currDay = date.getDate();
+    availableMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    year_taken_art = parseInt(jQuery('#year_art_last_taken')[0].value);
+    if (year_taken_art == currYear){
+      currentMonth = [];
+      numOfloops = (sessionDate.getMonth() + 1);
+
+      for(var i = 0; i < numOfloops; i++){
+        currentMonth.push(availableMonths[i]);
+      }
+
+      rule = currentMonth.join("|");
+      rule = rule + "|Unknown";
+      return $('touchscreenInput'+tstCurrentPage).setAttribute('validationRule',rule);
+    }
+    if (year_taken_art == birthYear){
+      currentMonth = [];
+
+      for(var i = birthMonth - 1; i < availableMonths.length; i++){
+        currentMonth.push(availableMonths[i]);
+      }
+
+      rule = currentMonth.join("|");
+      rule = rule + "|Unknown";
+      return $('touchscreenInput'+tstCurrentPage).setAttribute('validationRule',rule);
+    }
+  }
+
+  function validateDayARTTaken(){
+    date = sessionDate;
+    currYear = date.getFullYear();
+    currDay = date.getDate();
+    currMonth = date.getMonth() + 1;
+    availableMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    year_taken_art = parseInt(jQuery('#year_art_last_taken')[0].value);
+    month_taken_art = parseInt(jQuery('#month_art_last_taken')[0].value);
+
+    if (year_taken_art == currYear) {
+      if (month_taken_art == currMonth){
+        return $('touchscreenInput'+tstCurrentPage).setAttribute('absoluteMax',currDay);
+      }
+    }
+
+    if (year_taken_art == birthYear) {
+      if (month_taken_art == birthMonth){
+        return $('touchscreenInput'+tstCurrentPage).setAttribute('absoluteMin',birthDay);
+      }
+    }
+  }
+
+  function validateDayStartedART(){
+    date = sessionDate;
+    currYear = date.getFullYear();
+    currDay = date.getDate();
+    currMonth = date.getMonth() + 1;
+    availableMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    year_started_art = parseInt(jQuery('#year_started_art')[0].value);
+    month_started_art = parseInt(jQuery('#month_started_art')[0].value);
+
+    year_taken_art = parseInt(jQuery('#year_art_last_taken')[0].value);
+    month_taken_art = parseInt(jQuery('#month_art_last_taken')[0].value);
+    day_taken_art = parseInt(jQuery('#day_art_last_taken')[0].value);
+
+    if ((year_taken_art != currYear) && (year_started_art == year_taken_art)){
+      if (month_taken_art == month_started_art){
+        return $('touchscreenInput'+tstCurrentPage).setAttribute('absoluteMax',day_taken_art);
+      }
+    }
+
+    if (year_started_art == currYear) {
+      if (month_started_art == currMonth){
+        return $('touchscreenInput'+tstCurrentPage).setAttribute('absoluteMax',currDay);
+      }
+    }
+  }
+
+  function validateConfirmatoryDay(){
+    date = sessionDate;
+    currYear = date.getFullYear();
+    currDay = date.getDate();
+    currMonth = date.getMonth() + 1;
+    
+    confirmatoryMonth = parseInt(jQuery('#confirmatory_hiv_test_month')[0].value);
+    confirmatoryYear = parseInt(jQuery('#confirmatory_hiv_test_year')[0].value);
+
+    year_started_art = parseInt(jQuery('#year_started_art')[0].value);
+    month_started_art = parseInt(jQuery('#month_started_art')[0].value);
+    day_started_art = parseInt(jQuery('#day_started_art')[0].value);
+
+    if (confirmatoryYear == currYear) {
+      if (confirmatoryMonth == currMonth){
+        return $('touchscreenInput'+tstCurrentPage).setAttribute('absoluteMax',currDay);
+      }
+    }
+
+  }
+
+  function setAbsoluteMaxCD4Year(){
+    year_started_art = parseInt(jQuery('#year_started_art')[0].value);
+    date = sessionDate;
+    currYear = date.getFullYear();
+
+    if (parseInt(year_started_art)){
+      jQuery('#touchscreenInput'+ tstCurrentPage).attr("absoluteMax", year_started_art);
+    }else{
+      jQuery('#touchscreenInput'+ tstCurrentPage).attr("absoluteMax", currYear);
+    }
+  }
+
+  function validateCD4Month(){
+    date = sessionDate;
+    currYear = date.getFullYear();
+    currDay = date.getDate();
+    availableMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    year_of_cd4 = parseInt(jQuery('#year_of_cd4')[0].value);
+    year_started_art = parseInt(jQuery('#year_started_art')[0].value);
+    month_started_art = parseInt(jQuery('#month_started_art')[0].value);
+
+    if (year_of_cd4 < year_started_art){
+      rule = availableMonths.join("|");
+      rule = rule + "|Unknown";
+      return $('touchscreenInput'+tstCurrentPage).setAttribute('validationRule',rule);
+    }
+    else{
+      if (year_of_cd4 == year_started_art){
+        if (year_of_cd4 < currYear){
+          rule = availableMonths.join("|");
+          rule = rule + "|Unknown";
+          return $('touchscreenInput'+tstCurrentPage).setAttribute('validationRule',rule);
+        }else{
+          currentMonth = [];
+          numOfloops = (date.getMonth() + 1);
+
+          for(var i = 0; i < numOfloops; i++){
+            currentMonth.push(availableMonths[i]);
+          }
+          rule = currentMonth.join("|");
+          rule = rule + "|Unknown";
+          return $('touchscreenInput'+tstCurrentPage).setAttribute('validationRule',rule);
+        }
+      }else{
+        rule = availableMonths.join("|");
+        rule = rule + "|Unknown";
+        return $('touchscreenInput'+tstCurrentPage).setAttribute('validationRule',rule);
+      }
+    }
+
+  }
+
+  function validateCD4Day(){
+    date = sessionDate;
+    currYear = date.getFullYear();
+    currDay = date.getDate();
+    currMonth = date.getMonth() + 1;
+
+    cd4Month = parseInt(jQuery('#month_of_cd4')[0].value);
+    cd4Year = parseInt(jQuery('#year_of_cd4')[0].value);
+
+    year_started_art = parseInt(jQuery('#year_started_art')[0].value);
+    month_started_art = parseInt(jQuery('#month_started_art')[0].value);
+    day_started_art = parseInt(jQuery('#day_started_art')[0].value);
+
+    if (cd4Year == currYear) {
+      if (cd4Month == currMonth){
+        return $('touchscreenInput'+tstCurrentPage).setAttribute('absoluteMax',currDay);
+      }
+    }
+
+    if ((year_of_cd4 == year_started_art) && (year_of_cd4 != currYear)){
+      if (cd4Month == month_started_art){
+        return $('touchscreenInput'+tstCurrentPage).setAttribute('absoluteMax',day_started_art);
+      }
+    }
+
+  }
+
+  function preselectSevereWeightLoss(){
+    if (parseFloat(currentBmi) < 16){
+      console.log("It's a bit funny now")
+      severe_weight_loss_text = 'Severe weight loss >10% and/or BMI <18.5kg/m^2, unexplained';
+      severe_weight_loss_option_input = jQuery("li[tstvalue='Severe weight loss >10% and/or BMI <18.5kg/m^2, unexplained']")[0];
+      severe_weight_loss_option_id = severe_weight_loss_option_input.id;
+      weight_loss_input = document.getElementById('optionValue' + severe_weight_loss_option_id);
+      current_input_values = $('touchscreenInput'+tstCurrentPage).value.split(';');
+      if (current_input_values.indexOf(severe_weight_loss_text) == -1){
+        updateTouchscreenInputForSelect(weight_loss_input); //Run this only when the option is not selected;
+      }
+        
+    }
+  }
+
+  function preselectSevereWeightLossPaeds(){
+    currentWeight = parseFloat($("weight").value);
+    current_weight_percentile = (currentWeight/(median_weight_height[0])*100)
+    severe_weight_loss_text = "Severe unexplained wasting or malnutrition not responding to treatment (weight-for-height/ -age <70% or MUAC less than 11cm or oedema)"
+    if (current_weight_percentile < 70){
+      console.log("It's a bit funny now")
+      severe_weight_loss_option_input = jQuery("li[tstvalue='Severe unexplained wasting or malnutrition not responding to treatment (weight-for-height/ -age <70% or MUAC less than 11cm or oedema)']")[0];
+      severe_weight_loss_option_id = severe_weight_loss_option_input.id;
+      weight_loss_input = document.getElementById('optionValue' + severe_weight_loss_option_id);
+      current_input_values = $('touchscreenInput'+tstCurrentPage).value.split(';');
+      if (current_input_values.indexOf(severe_weight_loss_text) == -1){
+        updateTouchscreenInputForSelect(weight_loss_input); //Run this only when the option is not selected;
+      }
+    }
+  }
+
+  function preselectModerateWeightLoss(){
+    if (parseFloat(currentBmi) >= 16.0 && parseFloat(currentBmi) <= 18.5){
+      moderate_weight_loss_option_input = jQuery("[tstvalue='Moderate weight loss less than or equal to 10 percent, unexplained']")[0];
+      moderate_weight_loss_option_id = moderate_weight_loss_option_input.id;
+      weight_loss_input = document.getElementById('optionValue' + moderate_weight_loss_option_id);
+      moderate_weight_loss_text = 'Moderate weight loss less than or equal to 10 percent, unexplained'
+      
+      severe_weight_loss_text = "Severe weight loss >10% and/or BMI <18.5kg/m^2, unexplained";
+      current_input_values = $('touchscreenInput'+tstCurrentPage).value.split(';');
+      if (selected_stage_conditions[3]){
+        selected_stage_three_conditions = selected_stage_conditions[3].split(';');
+        if (selected_stage_three_conditions.indexOf(severe_weight_loss) == -1){
+          if (current_input_values.indexOf(moderate_weight_loss_text) == -1){
+            updateTouchscreenInputForSelect(weight_loss_input); //Preselect moderate if severe weight loss not selected
+          }
+        }
+      }
+    }
+    
+    disableModerateWeightLossOption();
+  }
+
+  function preselectModerateWeightLossPaeds(){
+    currentWeight = parseFloat($("weight").value);
+    current_weight_percentile = (currentWeight/(median_weight_height[0])*100)
+
+    if (current_weight_percentile >= 70 && current_weight_percentile <= 79){
+      moderate_weight_loss_option_input = jQuery("[tstvalue='Moderate unexplained wasting/malnutrition not responding to treatment (weight-for-height/ -age 70-79% or muac 11-12 cm)'")[0];
+      moderate_weight_loss_option_id = moderate_weight_loss_option_input.id;
+      weight_loss_input = document.getElementById('optionValue' + moderate_weight_loss_option_id);
+      moderate_weight_loss_text = 'Moderate unexplained wasting/malnutrition not responding to treatment (weight-for-height/ -age 70-79% or muac 11-12 cm'
+      severe_weight_loss_text = "Severe unexplained wasting or malnutrition not responding to treatment (weight-for-height/ -age <70% or MUAC less than 11cm or oedema)";
+      current_input_values = $('touchscreenInput'+tstCurrentPage).value.split(';');
+      if (selected_stage_conditions[4]){
+        selected_stage_four_conditions = selected_stage_conditions[4].split(';');
+        if (selected_stage_four_conditions.indexOf(severe_weight_loss) == -1){
+          if (current_input_values.indexOf(moderate_weight_loss_text) == -1){
+            updateTouchscreenInputForSelect(weight_loss_input); //Preselect moderate if severe weight loss not selected
+          }
+        }
+      }
+    }
+
+    disableModerateWeightLossOptionPaeds();
+  }
+
+  function disableModerateWeightLossOption(){
+    moderate_weight_loss_option_input = jQuery("[tstvalue='Moderate weight loss less than or equal to 10 percent, unexplained']")[0];
+    moderate_weight_loss_option_id = moderate_weight_loss_option_input.id;
+
+    weight_loss_input = document.getElementById('optionValue' + moderate_weight_loss_option_id);
+    severe_weight_loss = "Severe weight loss >10% and/or BMI <18.5kg/m^2, unexplained";
+    
+    if (selected_stage_conditions[3]){
+      selected_stage_three_conditions = selected_stage_conditions[3].split(';');
+      if (selected_stage_three_conditions.indexOf(severe_weight_loss) != -1){
+        //weight_loss_input.style.backgroundColor = '#CDBA96';
+        //moderate_wight_loss_option_input.style.backgroundColor = '#CDBA96';
+        moderate_weight_loss_text = weight_loss_input.innerHTML;
+        weight_loss_input.innerHTML = "<span class='disabled_check'>" + moderate_weight_loss_text + " ( Severe weight loss already selected )</span>"
+        moderate_weight_loss_option_input.onclick = null;
+        moderate_weight_loss_option_input.onmousedown = null;
+        moderate_weight_loss_option_input.onmouseup = null;
+
+        img_input = moderate_weight_loss_option_input.getElementsByTagName("img")[0];
+        img_input.src = '';
+        img_input.alt = '';
+
+        
+        if(weight_loss_input.getAttribute('style').match(/lightblue/i)) {
+          updateTouchscreenInputForSelect(__$('optionValue' + "0"), weight_loss_input);
+          displayCountOfSelectedConditions();
+        }else{
+          displayCountOfSelectedConditions();
+        }
+
+      }else{
+        disableModerateWeightLossOptionForNormalBMI();
+      }
+
+    }
+
+  }
+
+  function disableModerateWeightLossOptionPaeds(){
+    moderate_wight_loss_option_input = jQuery("[tstvalue='Moderate unexplained wasting/malnutrition not responding to treatment (weight-for-height/ -age 70-79% or muac 11-12 cm)']")[0];
+    moderate_wight_loss_option_id = moderate_wight_loss_option_input.id;
+
+    weight_loss_input = document.getElementById('optionValue' + moderate_wight_loss_option_id);
+    severe_weight_loss = "Severe unexplained wasting or malnutrition not responding to treatment (weight-for-height/ -age <70% or MUAC less than 11cm or oedema)";
+
+    if (selected_stage_conditions[4]){
+      selected_stage_four_conditions = selected_stage_conditions[4].split(';');
+      if (selected_stage_four_conditions.indexOf(severe_weight_loss) != -1){
+        moderate_weight_loss_text = weight_loss_input.innerHTML;
+        weight_loss_input.innerHTML = "<span class='disabled_check'>" + moderate_weight_loss_text + " ( Severe weight loss already selected )</span>"
+        moderate_wight_loss_option_input.onclick = null;
+        moderate_wight_loss_option_input.onmousedown = null;
+        moderate_wight_loss_option_input.onmouseup = null;
+
+        img_input = moderate_wight_loss_option_input.getElementsByTagName("img")[0];
+        img_input.src = '';
+        img_input.alt = '';
+
+        
+        if(weight_loss_input.getAttribute('style').match(/lightblue/i)) {
+          updateTouchscreenInputForSelect(__$('optionValue' + "0"), weight_loss_input);
+          displayCountOfSelectedConditions();
+        }else{
+          displayCountOfSelectedConditions();
+        }
+
+      }else{
+        disableModerateWeightLossOptionForNormalBMI();
+      }
+    }
+
+  }
+
+  function disableSevereWeightLossInputForNormalBMI(){
+    severe_weight_loss_option_input = jQuery("[tstvalue='Severe weight loss >10% and/or BMI <18.5kg/m^2, unexplained']")[0];
+    severe_weight_loss_option_id = severe_weight_loss_option_input.id;
+
+
+    weight_loss_input = document.getElementById('optionValue' + severe_weight_loss_option_id);
+    severe_weight_loss = "Severe weight loss >10% and/or BMI <18.5kg/m^2, unexplained";
+
+    if (parseFloat(currentBmi) > 18.5){
+      //weight_loss_input.style.backgroundColor = '#CDBA96';
+      //severe_weight_loss_option_input.style.backgroundColor = '#CDBA96';
+      //moderate_weight_loss_text = weight_loss_input.innerHTML;
+      //weight_loss_input.innerHTML = moderate_weight_loss_text + " <i>( BMI is " + currentBmi + "  )</i>"
+      //severe_weight_loss_option_input.onclick = null;
+      //severe_weight_loss_option_input.onmousedown = null;
+      //severe_weight_loss_option_input.onmouseup = null;
+
+      //img_input = severe_weight_loss_option_input.getElementsByTagName("img")[0];
+      //img_input.src = '';
+      //img_input.alt = '';
+      document.getElementById('currentBMI').innerHTML = currentBmi;
+      weight_loss_input.setAttribute('onmousedown','alertOnNormalBMI()');
+    }
+  }
+
+  function disableModerateWeightLossOptionForNormalBMI(){
+    moderate_weight_loss_option_input = jQuery("[tstvalue='Moderate weight loss less than or equal to 10 percent, unexplained']")[0];
+    moderate_wight_loss_option_id = moderate_weight_loss_option_input.id;
+
+    weight_loss_input = document.getElementById('optionValue' + moderate_weight_loss_option_input.id);
+
+    if (parseFloat(currentBmi) > 18.5){
+      //moderate_weight_loss_option_input.style.backgroundColor = '#CDBA96';
+      moderate_weight_loss_text = weight_loss_input.innerHTML;
+      //weight_loss_input.innerHTML = moderate_weight_loss_text + " <i>( BMI is " + currentBmi + "  )</i>";
+      //moderate_weight_loss_option_input.onclick = null;
+      //moderate_weight_loss_option_input.onmousedown = null;
+      //moderate_weight_loss_option_input.onmouseup = null;
+
+      img_input = moderate_weight_loss_option_input.getElementsByTagName("img")[0];
+      //img_input.src = '';
+      //img_input.alt = '';
+    }
+
+  }
+
+  function hideTextInput(){
+    jQuery('#touchscreenInput' + tstCurrentPage).hide();
+  }
+
+  function displayCountOfSelectedConditions(){
+    jQuery('#helpText' + tstCurrentPage + ' > #count-selected').remove();
+    jQuery('#helpText' + tstCurrentPage).append("<span id='count-selected'>&nbsp;</span>")
+
+    if ($("touchscreenInput" + tstCurrentPage).value.length > 0){
+      selectedValuesCount = $("touchscreenInput" + tstCurrentPage).value.split(";").length;
+    }else{
+      selectedValuesCount = 0;
+    }
+
+    jQuery('#helpText' + tstCurrentPage + ' > #count-selected').html('&nbsp;(' + selectedValuesCount + ' selected)');
+    liOptions = document.getElementsByTagName("li");
+    for (var i=0; i<=liOptions.length - 1; i++){
+      addEvent(liOptions[i], "click", function() {
+        if ($("touchscreenInput" + tstCurrentPage).value.length > 0){
+          selectedValuesCount = $("touchscreenInput" + tstCurrentPage).value.split(";").length;
+        }else{
+          selectedValuesCount = 0
+        }
+        jQuery('#helpText' + tstCurrentPage + ' > #count-selected').html('&nbsp;(' + selectedValuesCount + ' selected)');
+
+      });
+
+    }
+  }
+
+  function addEvent(obj, evType, fn) {
+    if (obj.addEventListener) {
+      obj.addEventListener(evType, fn, false);
+      return true;
+    } else if (obj.attachEvent) {
+      var r = obj.attachEvent("on" + evType, fn);
+      return r;
+    } else {
+      alert("Handler could not be attached");
+    }
+  }
+ 
+
+  function alertOnNormalBMI(){
+    try {
+      severe_weight_loss_option_id = severe_weight_loss_option_input.id;
+    }catch(e){
+      severe_weight_loss_option_input = jQuery("[tstvalue='Moderate weight loss less than or equal to 10 percent, unexplained']")[0];
+      severe_weight_loss_option_id = severe_weight_loss_option_input.id;
+    }
+
+    weight_loss_input = document.getElementById('optionValue' + severe_weight_loss_option_id);
+
+    if(weight_loss_input.getAttribute('style').match(/lightblue/i)) {
+      //selectCondition();
+      displayCountOfSelectedConditions();
+      return;
+    }
+
+    document.getElementById("regimen-change-popup-div").style.display = 'inline';
+    document.getElementById("regimen-change-cover").style.display = 'inline';
+  }
+
+  function closeAlertOnNormalBMI(){
+    document.getElementById("regimen-change-popup-div").style.display = 'none';
+    document.getElementById("regimen-change-cover").style.display = 'none';
+  }
+
+  function selectCondition() {
+    severe_weight_loss_option_input = jQuery("[tstvalue='Severe weight loss >10% and/or BMI <18.5kg/m^2, unexplained']")[0];
+
+    try {
+      severe_weight_loss_option_id = severe_weight_loss_option_input.id;
+    }catch(e){
+      severe_weight_loss_option_input = jQuery("[tstvalue='Moderate weight loss less than or equal to 10 percent, unexplained']")[0];
+      severe_weight_loss_option_id = severe_weight_loss_option_input.id;
+    }
+
+    weight_loss_input = document.getElementById('optionValue' + severe_weight_loss_option_id);
+    updateTouchscreenInputForSelect(__$('optionValue' + "0"), weight_loss_input);
+    displayCountOfSelectedConditions();
+    closeAlertOnNormalBMI();
+  }
+
+  jQuery.fn.center = function() {
+    parent = this.parent();
+    this.css({
+      "position": "absolute",
+      "top": (((jQuery(parent).height() - this.outerHeight()) / 2) + jQuery(parent).scrollTop() - 100 + "px"),
+      "left": (((jQuery(parent).width() - this.outerWidth()) / 2) + jQuery(parent).scrollLeft() + "px")
+    });
+    return this;
+  }
+</script>
+<script language="javascript" type="text/javascript" src="/javascripts/show_category_hack.js" defer="true"></script>
+
+<style>
+  #regimen-change-popup-div {
+    display: none;
+    background-color: #F4F4F4;
+    border: 2px solid #E0E0E0;
+    border-radius: 15px;
+    height: 270px;
+    padding: 5px;
+    position: absolute;
+    margin-top: 100px;
+    width: 600px;
+    margin-left: 430px;
+    z-index: 991;
+  }
+
+  #regimen-change-cover{
+    display: none;
+    position: absolute;
+    background-color: black;
+    width: 100%;
+    height: 102%;
+    left: 0%;
+    top: 0%;
+    z-index: 990;
+    opacity: 0.65;
+  }
+
+  #btnContainer {
+    width: 99.9%;
+  }
+  .btns {
+    -moz-user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 16px;
+    font-weight: bolder;
+    line-height: 2.29;
+    margin-bottom: 0;
+    padding: 6px 56px;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    background-color: #337ab7;
+    border-color: #2e6da4;
+    color: #fff;
+    float: right;
+    margin-top: -5px;
+  }
+
+  #yesBtn{
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    bottom: 0px;
+  }
+
+  #noBtn{
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    bottom: 0px;
+    margin-right: 27px;
+  }
+
+  .disabled_check {
+    padding-left: 52px;
+  }
+
+</style>
+
+<div id="regimen-change-cover"></div>
+<div id="regimen-change-popup-div">
+
+  <table style="width: 99.9%; margin-bottom: 95px;">
+    <tr>
+      <td style="text-align: center; font-weight: bold; color: green;
+          border-style: solid; border-width: 0px 0px 2px 0px;">
+        Notice
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: center; font-weight: bold; color: black;">
+        Patient has a BMI of:&nbsp;<span id="currentBMI"></span><p>
+          Are you sure with your selection?</p>
+      </td>
+    </tr>
+    <table>
+
+      <div id="btnContainer">
+        <input type="button" class="btns" id="yesBtn" onmousedown="selectCondition();" value="Yes, select condition" />
+        <input type="button" class="btns" id="noBtn" onmousedown="closeAlertOnNormalBMI();" value="No" />
+      </div>
+      </div>
+
+

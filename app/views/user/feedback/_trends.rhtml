@@ -1,0 +1,107 @@
+
+<%#=javascript_include_tag "Highcharts/jquery.1.8.2.min"%>
+
+<style type="text/css">
+  ${demo.css}
+</style>
+
+
+<script>
+
+function renderTrends() {
+
+$(function () {
+    $('#container-trends').highcharts({
+				chart: {
+            type: 'column'
+        },
+        title: {
+            text: '<span style="font-size: 12px;">Weekly trends (Complete/Incomplete visits)</span>',
+            x: -20 //center
+        },
+        subtitle: {
+            text: '',
+            x: -20
+        },
+        xAxis: {
+            categories: dates_data
+        },
+        yAxis: {
+            min: 0, 
+            title: {
+                text: 'Number of patients visits'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+				exporting: {
+					enabled: false
+				},
+				credits: {
+					enabled: false
+				},
+        tooltip: {
+            valueSuffix: ''
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle',
+            borderWidth: 0
+        },
+        series: [{
+            name: 'Total seen',
+            data: total_seen_data
+        },{
+            name: 'Incomplete visits',
+            data: incomplete_data
+        }, {
+            name: 'Complete visits',
+            data: complete_data
+        }]
+    });
+});
+
+  getCalculations();
+  getTableCalculations();
+}
+
+</script>
+
+<%#=javascript_include_tag "Highcharts/js/highcharts"%>
+<%#=javascript_include_tag "Highcharts/js/highcharts-3d"%>
+<%#=javascript_include_tag "Highcharts/js/modules/exporting"%>
+
+<div id="container-trends" style="height: 500px; margin-top: 5px;"></div>
+
+<script>
+var dates_data      = [];
+var incomplete_data = [];
+var complete_data   = [];
+var total_seen_data = [];
+
+function getTrendCalculations() {
+ jQuery.ajax({
+    type: "GET",
+    url: "/notification_tracker/visit_status_trends",
+    data: "visit_date=" + startDate,
+    success: function(result){
+			var data              = JSON.parse(result);
+      for(var i = 0; i < data.length; i++){
+        trend_data = data[i];
+			  dates_data.push(trend_data['visit_date']);
+			  incomplete_data.push(trend_data['incomplete']);
+			  complete_data.push(trend_data['complete']);
+			  total_seen_data.push(trend_data['total_seen']);
+      }
+			renderTrends();
+		}        
+	});
+}
+	
+getTrendCalculations();
+
+</script>

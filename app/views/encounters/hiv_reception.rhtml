@@ -1,0 +1,453 @@
+<style>
+  #tt_page_art_number .touchscreenTextInput, #tt_page_hcc_number .touchscreenTextInput {
+    width: 98% !important;
+  }
+
+  #tt_page_confirmatory_hiv_test_month .inputFrameClass{
+    height: 100%;
+  }
+  #tt_page_confirmatory_hiv_test_month #viewport{
+    height: 80%;
+  }
+</style>
+
+<script>
+  var tt_cancel_destination = "/patients/show/<%= @patient.patient_id %>"
+  var art_period_in_months = parseInt('<%= @art_duration_in_months %>');
+  var fastTrackPatient = '<%= @fast_track_patient %>'.toUpperCase();
+  
+  function new_relationship() {
+    var current = '/encounters/new/hiv_reception?patient_id=<%= @patient.patient_id %>';
+    window.location = "/relationships/search?patient_id=<%= @patient.patient_id %>&return_to=" + escape(current) + "&guardian_added=true"
+  }
+  
+  function show_new_relationship_button() {
+    var button = "<button onmousedown='new_relationship();' class='button navButton'><span>New Guardian</span></button>";
+    $('tt_extraButtons').innerHTML = button
+  }
+  
+  function hide_new_relationship_button() {
+    $('tt_extraButtons').innerHTML = "";    
+  }
+
+  // Don't save Guardian: None. We might later want to start saving this answer
+  function cleanup_guardian_options() {
+    var options = $('guardian_present').options;
+    for (var i=0; i<options.length; i++) {
+      if (options[i].selected && options[i].value == 'Yes') {
+        return new_relationship();
+      }
+    }
+    return null;
+  }
+
+  // Disable option No on Patient Present if Guardian is not present (or Unknown)
+  function forcePatientPresentYes() {
+    if ($('guardian_present').value == 'No') {
+      $('patient_present').value == 'Yes';
+    }
+  }
+
+  function checkConfirmDate(){
+    var testDate = createDates($('confirmatory_hiv_test_year').value, $('confirmatory_hiv_test_month').value , $('confirmatory_hiv_test_day').value);
+    var years = testDate.getFullYear();
+    var month = testDate.getMonth() + 1;
+
+    years = currentYear - years;
+    month = currentMonth - month;
+    var total = (years * 12) + month;
+
+
+    if($('date_started_art') != null){
+      if ((testDate > $('date_started_art').value) || (total > ageInMonths) || (testDate <= originaltestDate) || ( testDate > todayDate)){
+        return false
+      }
+      else{ return true}
+    }
+    else if ((total > ageInMonths) || (testDate <= originaltestDate) || ( testDate > todayDate)){
+      return false
+    }
+    else {
+      return true
+    }
+
+  }
+
+  function createDates(year,month,day) {
+    date_str = year
+
+    if(month.length == 1)
+      month = '0' + month
+
+    date_str+='-' + month
+
+    if(day.length == 1)
+      day = '0' + day
+
+    date_str+='-' + day
+
+    intyear = 0 ; intmonth = 0 ; intday = 0;
+    intyear = parseInt(date_str.substring(0,4))
+    intmonth = (parseInt(date_str.substring(5,7)) - 1)
+    intday = (parseInt(date_str.substring(8,10)))
+
+    if (intmonth == -1)
+      intmonth = (parseInt(date_str.substring(5,7).substring(1,2)) - 1)
+
+    if (intday == 0)
+      intday = parseInt(date_str.substring(8,10).substring(1,2))
+
+    return new Date(intyear,intmonth,intday);
+  }
+
+  function updateConfirmDate(){
+    var testDate = createDates($('confirmatory_hiv_test_year').value, $('confirmatory_hiv_test_month').value , $('confirmatory_hiv_test_day').value);
+    $('confirmatory_hiv_test_date').value = testDate;
+  }
+
+</script>  
+<form id='appointment' action="/encounters/create" method='post'>
+  <%= hidden_field_tag "encounter[encounter_type_name]", "HIV RECEPTION" %>
+  <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+  <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+  <%= hidden_field_tag "encounter[provider_id]", current_user.user_id %>
+  <%  session_date = session[:datetime].to_date rescue nil
+
+%>
+  <% if session[:guardian_added] == nil  %>
+    <%
+    if Person.find(@patient.patient_id).relationships.first.blank? %>
+      <label for='guardian_present'>Guardian Present</label>
+      <%  if session_date %>
+        <%= select_tag "observations[][value_text]", relationship_options(@patient),
+          {:id => "guardian_present",
+          :multiple => false,
+          :tt_onUnLoad => "forcePatientPresentYes(),setTimeout(cleanup_guardian_options() , 500)" } %>
+      <% else %>
+        <%= select_tag "observations[][value_text]", options_for_select([['Yes','Yes'],['No','No']]),
+          {:id => "guardian_present",
+          :multiple => false,
+          :tt_onUnLoad => "forcePatientPresentYes(),setTimeout(cleanup_guardian_options() , 500)" } %>
+      <% end %>
+
+      <%= hidden_field_tag("observations[][value_coded_or_text]", nil) %>
+      <%= hidden_field_tag("observations[][concept_name]", "GUARDIAN PRESENT") %>
+      <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+      <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+    <% else %>
+      <label for='guardian_present'>Guardian Present (<%=@patient_bean.guardian rescue ''%>)</label>
+    <%#= raise session_date.to_yaml %>
+      <%  if session_date %>
+        <%= select_tag "observations[][value_text]", relationship_options(@patient),
+          {:id => "guardian_present",
+          :multiple => false,
+          :tt_onUnLoad => "forcePatientPresentYes()" } %>
+      <% else %>
+        <%= select_tag "observations[][value_text]", options_for_select([['Yes','Yes'],['No','No']]),
+          {:id => "guardian_present",
+          :multiple => false,
+          :tt_onUnLoad => "forcePatientPresentYes()" } %>
+      <% end %>
+      <%= hidden_field_tag("observations[][value_coded_or_text]", nil) %>
+      <%= hidden_field_tag("observations[][concept_name]", "GUARDIAN PRESENT") %>
+      <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+      <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+    <% end %>
+  <% else %>
+    <%= touch_hidden_tag("GUARDIAN PRESENT", @patient, "Yes", {:id=>"guardian_present"}) %>
+  <% end %>
+
+  <% unless @hiv_clinic_registration_date.blank? %>
+    <% if @hiv_clinic_registration_date != @session_date %>
+      <% if @confirmatory_hiv_test_type  == 'NOT DONE'%>
+
+        <%= touch_select_tag "CONFIRMATORY HIV TEST TYPE", @patient, options_for_select([['HIV Rapid Test','HIV RAPID TEST'],['DNA PCR','HIV DNA polymerase chain reaction'],['NOT Done','NOT DONE']]),
+          {	:id => "type_of_confirmatory_hiv_test",
+          :helpText => "Type of confirmatory HIV test" } %>
+
+        <%= touch_location_tag "CONFIRMATORY HIV TEST LOCATION", @patient, nil,
+          {	:id => "confirmatory_hiv_test_location",
+          :condition => '$("type_of_confirmatory_hiv_test").value != "NOT DONE"',
+          :helpText => "Location of confirmatory HIV test"} %>
+
+
+        <%= text_field_tag "year_confirmatory_hiv_test", nil,
+          {	:helpText => 'Confirmatory HIV test year',
+          :field_type => 'number',
+          :absoluteMin => "1890", :min => "1940", :absoluteMax => Date.today.year,
+          :tt_pageStyleClass => "Numeric NumbersOnly",
+          :condition => '$("type_of_confirmatory_hiv_test").value.toLowerCase() != "not done"',
+          :id => "confirmatory_hiv_test_year"}  %>
+
+        <%= select_tag "month_confirmatory_hiv_test", month_name_options,
+          {	:helpText => 'Confirmatory HIV test month',
+          :condition => '$("confirmatory_hiv_test_year").value.toLowerCase() != "unknown" && $("confirmatory_hiv_test_year").value > 0',
+          :tt_onLoad => "__$('keyboard').style.display = 'none'",
+          :id => "confirmatory_hiv_test_month"} %>
+
+        <%= text_field_tag "day_confirmatory_hiv_test",  nil,
+          :field_type => 'number', :helpText => 'Confirmatory HIV test day',
+          :tt_onUnLoad => "updateConfirmDate();",
+          :condition => '($("confirmatory_hiv_test_year").value !="Unknown") && ($("confirmatory_hiv_test_month").value != "Unknown") && ($("confirmatory_hiv_test_month").value > 0)',
+          :tt_onLoad => "getDayOfMonthPicker($('confirmatory_hiv_test_year').value, $('confirmatory_hiv_test_month').value);$('nextButton').style.display = 'block';",
+          :id => "confirmatory_hiv_test_day" ,
+          :validationMessage => "Confirmatory Test Date out of range #{@hiv_test_date.to_date rescue nil} and #{@todayDate.to_date rescue nil}"%>
+
+        <%= touch_hidden_tag "confirmatory hiv test date", @patient, "", :id => "confirmatory_hiv_test_date"%>
+
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <% session[:guardian_added] = nil %>
+  <label for='patient_present'>Patient Present (<%=@patient_bean.name%>)</label>
+  <%= select_tag "observations[][value_coded_or_text]", options_for_select([['Yes','Yes'],['No','No']]),
+    {:id => 'patient_present',
+    :condition => "$('guardian_present').value.toUpperCase() == 'YES'",
+    :tt_onLoad => 'hide_new_relationship_button()'} %>
+  <%= hidden_field_tag("observations[][value_text]", nil) %>
+  <%= hidden_field_tag("observations[][concept_name]", "PATIENT PRESENT") %>
+  <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+  <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+
+  <% reason_for_eligibility = PatientService.reason_for_art_eligibility(@patient)
+  unless reason_for_eligibility.blank?
+    reason_for_eligibility = nil if reason_for_eligibility.upcase == 'NONE'
+  end
+%> 
+  <% if @patient_hcc_number.blank? && @patient_has_hiv_staging_enc%>
+    <% if reason_for_eligibility.blank? %>
+      <% unless @given_arvs_before %>
+        <%= render :partial => "/patients/hcc_number" %>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <%if @given_arvs_before and @patient_bean.arv_number.blank?
+    show_arv_number = get_global_property_value('show_arv_number') rescue 'true'
+    unless show_arv_number == 'false'
+    %>
+      <%= render :partial => "/patients/arv_number" %>
+    <% end %>
+  <% end %>
+
+  <input type="hidden" value="YES" id="ever_registered_at_ART_clinic"/>
+
+  <!---------------------- FAST TRACK -->
+  <%= touch_hidden_tag("FAST", @patient, "", {:id => 'fast-track-input'}) %>
+
+  <%= text_field_tag "fast_track_pop_up_input", nil, {
+    :id => "fast_track_pop_up_input",
+    :helpText => "Fast Track",
+    :tt_onLoad => "showFastTrackReminder();",
+    :condition => "fastTrackPatient == 'TRUE'",
+    :optional => "true",
+    :tt_pageStyleClass => "NoControls"
+  } %>
+
+  <%= touch_select_tag "STOP REASON", @patient, options_for_select(@fast_track_stop_reasons),{
+    :id => 'fast_track_stop_reason',
+    :condition => "__$('fast-track-input').value == 'No'",
+    :helpText => 'Select Reason for stopping Fast Track',
+    :tt_onLoad => "",
+    :tt_onUnLoad => ""
+  } %>
+
+  <% if @fast_track_patient_but_missed_appointment %>
+    <%= text_field_tag "fast_track_pop_up_missed_input", nil, {
+      :id => "fast_track_pop_up_missed_input",
+      :helpText => "Fast Track",
+      :tt_onLoad => "showFastTrackMissedNotification();",
+      :optional => "true",
+      :tt_pageStyleClass => "NoControls"
+    } %>
+  <% end %>
+  <!------------------- FAST TRACK END--->
+
+
+  <%
+  if session_date %>
+
+    <p><label for="filter_provider">Staff who provided the information (Provider)</label></br>
+      <%= text_field "filter" , 'provider', :helpText => 'Staff who provided the information (Provider)', :ajaxURL => '/user/username?username=' %></p>
+  <% else %>
+    <%= hidden_field_tag "filter[provider]", nil %>
+  <%end%>
+  <%= submit_tag "Finish" %>
+</form>
+
+
+<div id="fast_track_reminder" style="display:none;">
+  <div id="fast_track_reminder_header">
+    <span style="font-size: 16pt; font-weight: bold;">Fast Track Notification</span>
+  </div>
+  <% if @fast_track_patient %>
+    <div id="fast_track_reminder_content">
+      <div style="position: relative; overflow:auto; height: 80%; font-size: 14pt; font-weight: bold; color: white;">
+        <br />
+        <center>
+          <% unless @latest_vl_result[:latest_result].blank? %>
+            Latest Viral Load result: <span>(<i style="color: black;  text-decoration: underline;"><%= @latest_vl_result[:modifier].to_s + ' ' + @latest_vl_result[:latest_result].to_s + ' on ' + @latest_vl_result[:latest_date].to_s %></i> )</span> <br />
+          <% end %>
+          Fast Track Appointment on <u><%= @last_appointment_date.strftime("%d-%b-%Y") rescue @last_appointment_date %></u><br />
+          <%= @fast_track_message %>
+        </center>
+      </div>
+    </div>
+
+    <div id="fast_track_reminder_footer">
+      <span id="fastTrackNotNow" onclick="fastTrackNotNow();" style="padding: 12px 7%;">Revert to regular clinic visit</span>
+      <span id="fastTrackNow" style="padding: 12px 13%;" onclick="continueNormalFlow();">Proceed With Fast Track</span>
+    </div>
+  <% end %>
+</div>
+
+<div id="fast_track_reminder_cover" style="display:none;">
+
+</div>
+
+<div id="fast_track_reminder_cover_missed" style="display:none;">
+
+</div>
+
+
+<div id="fast_track_reminder_missed" style="display:none; background-color: #FF4040;">
+  <div id="fast_track_reminder_header_missed">
+    <span style="font-size: 16pt; font-weight: bold;">Missed Fast Track Notification</span>
+  </div>
+
+  <div id="fast_track_reminder_content_missed">
+    <div style="position: relative; overflow:auto; height: 80%; font-size: 14pt; font-weight: bold; color: white;">
+      <br />
+      <center>
+        Fast Track Appointment on <u><%= @last_appointment_date.strftime("%d-%b-%Y") rescue @last_appointment_date %></u><br />
+        <%= @fast_track_message %>
+      </center>
+    </div>
+  </div>
+
+  <div id="fast_track_reminder_footer_missed">
+    <span id="fastTrackMissed" onclick="continueNormalFlow();" style="padding: 12px 7%;">Proceed With Regular Clinic Visit</span>
+  </div>
+</div>
+
+
+<script type="text/javascript">
+
+  function showFastTrackReminder(){
+    jQuery('#keyboard').hide();
+    jQuery('#clearButton').hide();
+    jQuery("#fast_track_reminder").show();
+    jQuery("#fast_track_reminder_cover").show();
+  }
+
+  function fastTrackNotNow(){
+    //jQuery('#fast-track-input').value = 'No';
+    jQuery('#fast-track-input').attr('value', 'No');
+    jQuery("#fast_track_reminder").hide();
+    jQuery("#fast_track_reminder_cover").hide();
+    gotoNextPage();
+  }
+
+  function fastTrackNow(){
+    //jQuery('#fast-track-input').value = 'Yes';
+    jQuery('#fast-track-input').attr('value', 'Yes');
+    jQuery("#fast_track_reminder").hide();
+    jQuery("#fast_track_reminder_cover").hide();
+    gotoNextPage();
+  }
+
+  function continueNormalFlow(){
+    jQuery("#fast_track_reminder").hide();
+    jQuery("#fast_track_reminder_cover").hide();
+    jQuery("#fast_track_reminder_missed").hide(); 
+    jQuery("#fast_track_reminder_cover_missed").hide();
+    gotoNextPage();
+  }
+
+  function showFastTrackMissedNotification(){
+    jQuery('#keyboard').hide();
+    jQuery('#clearButton').hide();
+    jQuery("#fast_track_reminder_missed").show();
+    jQuery("#fast_track_reminder_cover_missed").show();
+  }
+</script>
+
+<style type="text/css">
+  #fast_track_reminder_cover, #fast_track_reminder_cover_missed{
+    position: absolute;
+    background-color: black;
+    width: 100%;
+    height: 102%;
+    left: 0%;
+    top: 0%;
+    z-index: 990;
+    opacity: 0.87;
+  }
+
+  #fast_track_reminder, #fast_track_reminder_missed{
+    position: absolute;
+    width: 75%;
+    height: 40%;
+    top: 10%;
+    z-index: 991;
+    left: 12%;
+    border: 1px solid black;
+    background-color: #228B22;
+    border-radius: 15px;
+  }
+
+  #fast_track_reminder_header, #fast_track_reminder_header_missed{
+    padding: 10px;
+    background-color: white;
+    color: black;
+    border-radius: 15px 15px 0px 0px;
+  }
+
+  #fast_track_reminder_footer, #fast_track_reminder_footer_missed{
+    background-color: #FFD39B;
+    height: 60px;
+    width: 100%;
+    position: absolute;
+    width: 100%;
+    position: absolute;
+    bottom: 0px;
+    border-radius: 0px 0px 15px 15px;
+  }
+
+  #fast_track_reminder_footer #fastTrackNotNow{
+    position: absolute;
+    padding: 12px 20%;
+    /*right: 8px;*/
+    left: 8px;
+    bottom: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: arial;
+    font-size: 18px;
+    padding: 13px 34px;
+    border-radius: 8px;
+    border: 2px solid #228b22;
+    background: goldenrod;
+  }
+
+  #fast_track_reminder_footer #fastTrackNow, #fast_track_reminder_footer_missed #fastTrackMissed{
+    position: absolute;
+    padding: 12px 20%;
+    right: 8px;
+    bottom: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: arial;
+    font-size: 18px;
+    padding: 13px 34px;
+    border-radius: 8px;
+    border: 2px solid #228b22;
+    background: goldenrod;
+  }
+
+  #tt_page_fast_track .inputFrameClass{
+    padding :0px;
+  }
+
+</style>

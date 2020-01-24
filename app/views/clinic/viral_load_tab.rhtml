@@ -1,0 +1,504 @@
+<%= stylesheet_link_tag fancy_or_high_contrast_touch %>
+<!-- %= stylesheet_link_tag "dashboard" % -->
+<%= javascript_include_tag "barcode" %>
+<!-- %= javascript_include_tag "prototype" % -->
+<%= javascript_include_tag 'jquery' %>
+<%= stylesheet_link_tag 'extra_buttons' %>
+<%= javascript_include_tag 'jquery_data_table.js' %>
+<%= stylesheet_link_tag 'jquery.dataTables' %>
+<%=javascript_include_tag "jquery.table2CSV.min" %>
+<script type="text/javascript" charset="utf8" src="/javascripts/jquery.dataTables.min.js"></script>
+<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>-->
+
+<!--<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.16/css/jquery.dataTables.css">-->
+
+<!--<script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.js"></script>-->
+
+<style type="text/css">
+  body {
+    -moz-user-select:none;
+	font-family: Arial,sans-serif;
+  }
+
+  #stats {
+    width:98%;
+    border:1px solid #eee;
+    margin:10px;
+    background:white;
+    font-size: 1.1em;
+  }
+  #stats td, #stats th {
+    text-align:center;
+  }
+  .odd {
+    background-color: #eee;
+  }
+
+  #table_div {
+    overflow:auto;
+    height: 320px;
+    background-color: white;
+    border: solid 1px #eee;
+    border-width: 1px;
+    overflow: hidden;
+  }
+
+  #tab {
+    -moz-user-select:none;
+  }
+
+  .stat{
+      font-size: 1.5em;
+      font-weight: bold;
+      float: right;
+      padding: 14px;
+  }
+
+    #search_popup{
+        position: absolute;
+        top: 0%;
+        left: 10%;
+        z-index: 1005;
+        background: ghostwhite;
+        width: 85%;
+        height: 99%;
+        border: 1px solid darkolivegreen;
+        border-radius: 2px;
+        overflow-Y: auto;
+        display: none;
+    }
+    #cancel{
+        position: fixed;
+        z-index: 1010;
+        top: 0px;
+        right: 10px;
+        width: 60px;height: 50px;
+        text-align: center; vertical-align: middle;;
+        font-size: 2.6em;
+        padding-top: 5px;
+        font-weight: bold;
+        background:#f8f8ff;
+        border-radius: 50%;
+        color: red;
+        border: 1px solid darkred;
+        cursor: pointer;
+    }
+    .p-header{
+        background: darkslategray;
+        color: white;
+        padding: 5px;
+        width: 25%;
+        text-align: left;
+        font-size: 1.2em;
+    }
+    #caption{
+        font-size: 1.2em;
+        padding: 3.5px;
+    }
+    #p-table td{
+        font-size: 1.05em;
+        padding: 4px;
+        background: white;
+        width: 25%;
+    }
+  #keypad{
+    background-color: #FFFFFF;
+    border: 2px solid #9999FF;
+    border-radius: 15px 15px 15px 15px;
+    display: none;
+    height: 304px;
+    padding: 5px;
+    position: absolute;
+    right: 13px;
+    top: 90px;
+    width: 660px;
+    z-index: 1;
+  }
+  #backspace{
+    position:absolute;
+    left:100px;
+    bottom:-5px;
+  }
+
+  #whitespace{
+    position:absolute;
+    left:220px;
+    bottom:-5px;
+    width:200px;
+  }
+
+  #clear{
+    position:absolute;
+    left:470px;
+    bottom:-5px;
+  }
+
+    #list_panel{
+      width: 40%;
+      float: left;
+      padding: 8px;
+    }
+    #view_panel{
+      height: 100px;
+      padding: 8px;
+      position: relative;
+      float: left;
+    }
+    #view_panel table {
+      width: 700px;
+    }
+    #view_panel table tr td {
+      padding: 10px;
+      font-size: 18px;
+    }
+    #view_panel table tr:nth-child(even){
+      background: #eee;
+    }
+    #view_panel table tr:nth-child(odd){
+      background-color: rgb(204, 204, 255);
+    }
+    #list_panel li {
+      padding: 10px;
+      list-style: none;
+      font-size: 18px;
+      cursor: hand;
+    }
+    #list_panel li:nth-child(odd){
+      background-color: rgb(238, 238, 238);
+      border-bottom: 1px solid #fff;
+    }
+    #list_panel li:nth-child(even) {
+      background-color: rgb(221, 221, 221);
+    }
+    #no_results {
+      color: #0000cc;
+      font-size: 22px;
+      font-style: italic;
+      text-align: center;
+    }
+    #footer {
+      padding: 4px 4px 10px 1px;
+      height: 70px;
+      bottom: 5px;
+      position: fixed;
+      width: 700px;
+      background-color: rgb(51, 51, 51);
+      z-index: 1000;
+    }
+</style>
+
+<div id="tab" style="">
+    <div id="table_div" style="height: 50px">
+    <span class="stat" style="color: darkslategray; cursor: pointer;text-decoration: underline;">
+     <%= @total_count %> 
+
+      <span style="font-size: 1em" >
+        <% settings = YAML.load_file("#{Rails.root}/config/lims.yml")[Rails.env]
+          url = settings['new_order_ip'] + "/user/ext?intent=dispatch&username=#{User.current.username}&return_path=#{request.referrer}&name=#{User.current.name}&location=#{Location.current_location.name}&tk=#{User.current.authentication_token}".gsub(/\s+/, '%20') %>
+        <a style="color: darkslategray;" href ="<%= url %>" target="_parent"> Undispatched Samples </a>
+      </span>
+    </span>
+
+
+      <span class="stat" onclick="view('pending')" style="color: darkslategray; cursor: pointer;text-decoration: underline;"> <%= @data["pending"].length %> <span style="font-size: 1em">Pending Results</span></span>
+
+      <span class="stat" onclick="view('available')" style="color: darkslategray; cursor: pointer"> <%= @data["available"].length %> <span style="font-size: 1em;text-decoration: underline;">Available Results &nbsp;&nbsp;| </span></span>
+
+     <span class="stat" onclick="view('rejected')" style="color: red; cursor: pointer;text-decoration: underline;"> <%= @data["rejected"].length %> <span style="font-size: 1em">Rejected Samples&nbsp;&nbsp;|</span></span>
+  </div>
+</div>
+
+<div id="keypad">
+  <span class="keypad">
+  </span>
+</div>
+<div id="search_popup">
+  <div id="cancel" onmousedown="cancelPopup()">X</div>
+  <div id="list_panel"></div>
+  <div id="view_panel"></div>
+</div>
+
+<div id="popup">
+</div>
+
+<script>
+  
+    all_data = <%= @data.to_json%>;
+
+    function cancelPopup(){
+        document.getElementById('view_panel').innerHTML = "";
+        document.getElementById("search_popup").style.display = "none";
+    }
+
+    function direct_to_dispatching()
+    {
+      document.location("http://192.168.5.89:3001/");
+    }
+
+
+    function view(category){
+
+        var div = document.getElementById('popup');
+
+        var table = document.createElement("table");
+        div.innerHTML = "";
+
+        var thead = document.createElement('thead');
+        var tr = document.createElement('tr');
+
+        var td1 = document.createElement('th');
+        var td2 = document.createElement('th');
+        var td3 = document.createElement('th');
+        var td4 = document.createElement('th');
+        var td5 = document.createElement('th');
+
+        td1.setAttribute('class', 'p-header');
+        td2.setAttribute('class', 'p-header');
+        td3.setAttribute('class', 'p-header');
+        td4.setAttribute('class', 'p-header');
+        td5.setAttribute('class', 'p-header');
+
+        td1.appendChild(document.createTextNode('Tracking Number'));
+        td2.appendChild(national_id = document.createTextNode('National ID'));
+        td3.appendChild(national_id = document.createTextNode('Date Ordered'));
+        td4.appendChild(national_id = document.createTextNode('Who Ordered'));
+
+        tr.appendChild(td1);
+        tr.appendChild(td2);
+        tr.appendChild(td3);
+        tr.appendChild(td4);
+        tr.appendChild(td5);
+
+        thead.appendChild(tr);
+
+        table.appendChild(thead);
+
+        var data = all_data[category];
+
+        // document.getElementById("popup").style.display = "block";
+
+        tbody = document.createElement("tbody");
+
+        for(var i = 0; i < data.length; i ++){
+            var row = document.createElement("tr");
+
+            var o = data[i];
+            hash = {identifier:eval("data[i]['patient']['national_patient_id']"),
+              family_name:eval("data[i]['patient']['first_name']"),
+              given_name:eval("data[i]['patient']['last_name']"),
+              gender:eval("data[i]['patient']['gender']"),
+              birthdate:eval("data[i]['patient']['date_of_birth']"),
+              tracking_number: eval("data[i]['_id']")};
+
+            var sources = [
+                "o['_id']",
+                "o['patient']['national_patient_id']",
+                "o['date_time']",
+                "o['who_order_test']['first_name'] + ' ' + o['who_order_test']['last_name']",
+                hash
+            ];
+
+            for(var k = 0; k < sources.length; k++){
+                var td = document.createElement("td");
+
+                if (k == sources.length -1){
+                  var button = document.createElement('button');
+                  var span = document.createElement('span');
+                  span.innerHTML = "Search";
+                  id = JSON.stringify(hash);
+                  button.setAttribute('id', id);
+                  button.onmousedown = (function () {
+                    params = this.id;
+                    searchPatient(params);
+                  });
+                  button.appendChild(span);
+                  td.appendChild(button);
+
+                }else {
+                  td.innerHTML = eval(sources[k]);
+                }
+                td.className = "p-data";
+                row.appendChild(td);
+            }
+          tbody.appendChild(row)
+
+        }
+      table.appendChild(tbody);
+      table.setAttribute("id", "ph-table");
+      div.appendChild(table);
+
+          $(document).ready(function(){
+            datatable = $('#ph-table').dataTable({
+              "pageLength" : "5",
+              "bAutoWidth": false,
+              "bPaginate": true,
+              "bProcessing": true,
+              "sScrollY": "250px",
+              "bInfo": true
+            });
+
+
+            var filter = document.getElementById('ph-table_filter');
+            search = filter.getElementsByTagName('input')[0];
+            search.setAttribute('id', 'search_box');
+            document.getElementById('search_box').onclick = function showKeyboard(){
+              key = document.getElementById("keypad")
+              if(key.style.display == 'none' || key.style.display == ""){
+                key.style.display = "inline";
+                return
+              }
+
+              key.style.display = "none";
+            };
+
+            keyboard = document.getElementsByClassName("keypad")[0]
+
+            showAlphaKeypad();
+
+
+          });
+
+    }
+
+</script>
+<script type="text/javascript">
+
+  function getCharButtonSetID(character,id){
+    return '<button onMouseDown="press(\''+character+'\');" class="keyboardButton" id="'+id+'">' +"<span style='width:32px'>"+character+"</span>"+ "</button>";
+  }
+  function getButtonString(id,string){
+    if (id == "Space"){
+      id = "Whitespace";
+    }
+    return "<button onMouseDown='press(this.id);' class='keyboardButton' id='"+id+"'>"+string+"</button>";
+  }
+
+  function getButtons(chars){
+    var buttonLine = "";
+    for(var i=0; i<chars.length; i++){
+      character = chars.substring(i,i+1);
+      buttonLine += getCharButtonSetID(character,character)
+    }
+    return buttonLine;
+  }
+
+  function press(pressedChar){
+    switch (pressedChar) {
+      case 'backspace':
+        search.value = search.value.substring(0,search.value.length-1);
+        datatable.fnFilter(search.value);
+        return;
+      case 'Whitespace':
+        search.value+= " ";
+        datatable.fnFilter(search.value);
+        return;
+      case 'clear':
+        search.value = "";
+        datatable.fnFilter(search.value);
+        return;
+      case 'num':
+        showNumericKeypad();
+        return;
+      case 'slash':
+        search.value+= "/";
+        datatable.fnFilter(search.value);
+        return;
+      case 'dash':
+        search.value+= "-";
+        datatable.fnFilter(search.value);
+        return;
+      case 'abc':
+        showAlphaKeypad();
+        return
+    }
+    search.value+= pressedChar;
+    datatable.fnFilter(search.value)
+  }
+  function showNumericKeypad(){
+    document.getElementById("keypad").style.height = "145";
+    keyboard.innerHTML = getButtons("123");
+    keyboard.innerHTML+= getButtons("456");
+    keyboard.innerHTML+= getButtons("7890");
+    keyboard.innerHTML+= getButtonString('space','<span>Space</span>');
+    keyboard.innerHTML+= getButtonString('clear','<span>Clear</span>');
+    keyboard.innerHTML+= getButtonString('backspace','<span>Bksp</span>');
+    keyboard.innerHTML+= getButtonString('abc','<span>abc</span>');
+    keyboard.innerHTML+= getButtonString('dash','<span>-</span>');
+    keyboard.innerHTML+= getButtonString('slash','<span>/</span>');
+  }
+  function showAlphaKeypad(){
+    document.getElementById("keypad").style.height = "290 !important";
+    keyboard.innerHTML= getButtons("0123456789") + "</br>";
+    keyboard.innerHTML+= getButtons("QWERTYUIOP") + "</br>";
+    keyboard.innerHTML+= getButtons("ASDFGHJKL:") + "</br>";
+    keyboard.innerHTML+= getButtons("ZXCVBNM,.?");
+    keyboard.innerHTML+= getButtonString('backspace','<span>Bksp</span>');
+    keyboard.innerHTML+= getButtonString('Space','<span>Space</span>');
+    keyboard.innerHTML+= getButtonString('clear','<span>Clear</span>');
+  }
+
+    function searchPatient(data){
+      jQuery.ajax({
+        url: "/people/search_person",
+        data: JSON.parse(data),
+        success: function(res){
+          document.getElementById("search_popup").style.display = 'block';
+          document.getElementById("list_panel").innerHTML = res;
+        },
+        error: function(e){
+          console.log(e)
+        }
+      });
+    }
+
+    function viewPatient(data) {
+      console.log(data);
+      view_panel = document.getElementById("view_panel");
+      view_panel.innerHTML = '';
+      gender = ((data.gender == "M") ? "Male" : "Female");
+
+      table = "<table> \
+      \ <tr> <td>Name</td> \
+      \ <td>"+data.name+ "</td> \
+      \ </tr> <tr><td>Gender</td> \
+      \ <td>"+gender+"</td> \
+      \ </tr><tr><td>Birthdate</td> \
+      \ <td>"+data.birthdate+"</td> \
+      \ </tr><tr><td>Age</td> \
+      \ <td>"+data.age+"</td> \
+      \ </tr><tr><td>Home District</td> \
+      \ <td>"+data.home_district+"</td> \
+      \ </tr><tr><td>Acenstral Traditional Authority (T/A)</td> \
+      \ <td>"+data.home_address+"</td> \
+      \ </tr><tr><td>Current Residence</td> \
+      \ <td>"+data.residence+"</td> \
+      \ </tr><tr><td>Patient National ID</td> \
+      \ <td>"+data.national_id+"</td> \
+      \ </tr></table>";
+
+      view_panel.innerHTML = table;
+      if (data.national_id !== data.lims_npid){
+        footer = document.createElement('div');
+        footer.setAttribute('id','footer');
+        select_button = "<button id='nextButton' class='button green navButton'\ " +
+            "onmousedown='updateNationalId(\""+data.tracking_number+"\",\""+data.national_id+"\")'>\<" +
+            "span>UPDATE NATIONAL ID</span></button>";
+        footer.innerHTML = select_button;
+        view_panel.appendChild(footer);
+      }
+    }
+
+    function updateNationalId(track_num, national_id){
+      data = {track_num:track_num, national_id:national_id}
+      jQuery.ajax({
+        url: "/lab/update_national_id",
+        data: data,
+        success: function(res){
+          console.log(res);
+        },
+        error: function(e){
+          console.log(e)
+        }
+      });
+    }
+</script>

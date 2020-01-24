@@ -1,0 +1,64 @@
+
+<script type="text/javascript">
+  var drugsHash = JSON.parse('<%= @drugs_hash.to_json %>')
+  function updateDependentInputs(page){
+    drugName = $("touchscreenInput" + tstCurrentPage).value;
+    if (drugsHash[drugName]){
+      $('cms_name').value = drugsHash[drugName]["full_name"];
+      $('cms_short_name').value = drugsHash[drugName]["short_name"];
+      $('cms_short_name').value = drugsHash[drugName]["short_name"];
+      $('drug_code').value = drugsHash[drugName]["drug_code"];
+      $('pack_size').value = drugsHash[drugName]["pack_size"];
+    }
+    
+  }
+
+</script>
+<style type="text/css">
+
+</style>
+<%= javascript_include_tag 'jquery' %>
+
+<% options = "<option>" "" "</option>"
+@drugs.each do |drug|
+  options += "<option value = '#{drug}'>#{drug}</option>"
+end
+%>
+<form id="create_stoke" action="/drug/create_cms_drug_packs" method="POST">
+  <%= select_tag "drug_name", options,
+    {
+    :id => "select_drugs",
+    :field_type => 'alpha',
+    :optional => true,
+    :helpText => "Select Drug to create pack size",
+    :tt_onUnLoad => 'updateDependentInputs(tstCurrentPage);',
+    :tt_pageStyleClass => "NoKeyboard NoInput small"}
+%>
+
+  <%= text_field_tag "cms_name", "",
+    {
+    :id => 'cms_name',
+    :field_type => 'alpha',
+    :helpText => 'CMS Full Name'
+  } %>
+  <%= text_field_tag "cms_short_name", "",
+    {
+    :id => 'cms_short_name',
+    :field_type => 'alpha',
+    :helpText => 'CMS Short Name'
+  } %>
+  <%= text_field_tag "drug_code", "",
+    {
+    :id => 'drug_code',
+    :field_type => 'alpha',
+    :helpText => 'Drug Code'
+  } %>
+
+  <%= text_field_tag "pack_size", nil,
+    {
+    :id => 'pack_size',
+    :helpText => 'Pack Size',
+    :field_type => 'number',
+    :tt_pageStyleClass => "Numeric NumbersOnly"}
+%>
+</form>

@@ -1,0 +1,424 @@
+<style>
+#active_files_table {
+  width: 100%;
+  height: 99%;
+}
+
+.table-div {
+  display: table;
+  width: 100%;
+  margin-top: 10px;
+  cursor:pointer;
+  box-shadow: 10px 10px 5px #888888;
+  height: 150px;
+
+  border-style: solid;
+  border-width: 1px;
+  background-color: white;
+}
+
+.table-row {
+  display: table-row;
+}
+
+.table-row span {
+  padding-left: 10px;
+  font-weight: normal;
+}
+
+.title-headers {
+  font-weight: bold;
+  color: blue;
+}
+
+#clearButton { display: none; }
+</style>
+
+<script>
+
+var tt_cancel_destination = "/patients/show/<%=params[:patient_id]%>";
+
+
+function archivePatient(e) {
+  document.getElementById("regimen-change-popup-div").style.display = 'inline';
+  document.getElementById("regimen-change-cover").style.display = 'inline';
+  document.getElementById('regimen-change-yes').setAttribute('patient_id', e.getAttribute('patient_id'));
+}
+
+function showActiveFiles() {
+  var active_files_window = document.getElementById('inputFrame' + tstCurrentPage);
+
+  var t = document.createElement('table');
+  t.setAttribute('id', 'active_files_table');
+  
+  boxes = 15 ; attrs = 0; tr = document.createElement('tr'); t.appendChild(tr);
+
+  for(var i = 0; i < boxes; i++) {
+    var td = document.createElement('td');
+    td.setAttribute('class','table-data');
+
+    var divT = document.createElement('div');
+    divT.setAttribute('class', 'table-div');
+    divT.setAttribute('id', "onmousedown_" + i);
+
+
+
+
+    divR = document.createElement('div');
+    divR.setAttribute('class', 'table-row');
+    divT.appendChild(divR);
+    /*......................................................................... */
+    spanR = document.createElement('span');
+    spanR.innerHTML = "ID:";
+    spanR.setAttribute('class','title-headers');
+    divR.appendChild(spanR);
+    /*....................................... */
+    spanR = document.createElement('span');
+    spanR.setAttribute('id','national_id_' + i);
+    divR.appendChild(spanR);
+    /*......................................................................... */
+
+
+
+
+
+
+    
+    var divR = document.createElement('div');
+    divR.setAttribute('class', 'table-row');
+    divT.appendChild(divR);
+    /*....................................... */
+    var spanR = document.createElement('span');
+    spanR.innerHTML = "Last visit:";
+    spanR.setAttribute('class','title-headers');
+    divR.appendChild(spanR);
+    /*....................................... */
+    spanR = document.createElement('span');
+    spanR.setAttribute('id','last_visit_' + i);
+    divR.appendChild(spanR);
+
+
+    divR = document.createElement('div');
+    divR.setAttribute('class', 'table-row');
+    divT.appendChild(divR);
+    /*....................................... */
+    spanR = document.createElement('span');
+    spanR.innerHTML = "Next app:";
+    spanR.setAttribute('class','title-headers');
+    divR.appendChild(spanR);
+    /*....................................... */
+    spanR = document.createElement('span');
+    spanR.setAttribute('id','next_app_' + i);
+    divR.appendChild(spanR);
+
+
+
+    divR = document.createElement('div');
+    divR.setAttribute('class', 'table-row');
+    divT.appendChild(divR);
+    /*....................................... */
+    spanR = document.createElement('span');
+    spanR.innerHTML = "Fng num:";
+    spanR.setAttribute('class','title-headers');
+    divR.appendChild(spanR);
+    /*....................................... */
+    spanR = document.createElement('span');
+    spanR.setAttribute('id','filing_number_' + i);
+    divR.appendChild(spanR);
+
+
+    divR = document.createElement('div');
+    divR.setAttribute('class', 'table-row');
+    divT.appendChild(divR);
+    /*....................................... */
+    spanR = document.createElement('span');
+    spanR.innerHTML = "Outcome:";
+    spanR.setAttribute('class','title-headers');
+    divR.appendChild(spanR);
+    /*....................................... */
+    spanR = document.createElement('span');
+    spanR.setAttribute('id','outcome_' + i);
+    divR.appendChild(spanR);
+
+
+
+
+
+
+    td.appendChild(divT);
+    tr.appendChild(td);
+
+    if(attrs == 4) {
+      attrs = 0;
+      tr = document.createElement('tr');
+      t.appendChild(tr);
+    }else{
+      attrs++;
+    }
+
+  }
+
+  active_files_window.appendChild(t);
+
+  loadData();
+}
+
+
+var search_limit = 15;
+               
+function loadData() {
+                                                                              
+  if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari  
+      xmlhttp=new XMLHttpRequest();                                             
+    }else{// code for IE6, IE5                                                  
+      xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");                           
+    }                                                                           
+    xmlhttp.onreadystatechange=function() {                                     
+      if (xmlhttp.readyState==4 && xmlhttp.status==200) {                       
+        var results = xmlhttp.responseText;                                     
+        if(results == 'undefined' || results == '' || results == '"not validate"') {                           
+          return;                                                               
+        }else{                                                                  
+          search_limit += 15;
+          updateTable(results);                                                           
+        }                                                                       
+      }                                                                         
+    }                                                                           
+    xmlhttp.open("GET","/people/load_patients_to_be_archived?limit=" + search_limit,true);           
+    xmlhttp.send();                                                             
+
+}
+
+function updateTable(results) {
+  data = JSON.parse(results);
+  document.getElementById("regimen-change-popup-div2").style.display = 'none';
+  document.getElementById("regimen-change-cover").style.display = 'none';
+  
+  for(var i = 0; i < data.length; i++) {
+    try {
+      app = document.getElementById('next_app_' + i);
+      lv = document.getElementById('last_visit_' + i);
+      outcome = document.getElementById('outcome_' + i);
+      filing_number = document.getElementById('filing_number_' + i);
+      nationa_id = document.getElementById('national_id_' + i);
+
+
+      app.innerHTML = data[i]['next_app'];
+      lv.innerHTML = data[i]['last_visit'];
+      outcome.innerHTML = data[i]['outcome'].replace('transferred out','TO');
+      filing_number.innerHTML = data[i]['filing_number'];
+      nationa_id.innerHTML = data[i]['national_id'];
+
+      btnArchive = document.getElementById('onmousedown_' + i);
+      btnArchive.setAttribute('patient_id', data[i]['patient_id']);
+      btnArchive.setAttribute('onmousedown',"archivePatient(this);"); 
+    }catch(e) {
+      continue;
+    }
+  }
+   
+}
+
+function cancelArchive() {
+  document.getElementById("regimen-change-popup-div").style.display = 'none';
+  document.getElementById("regimen-change-cover").style.display = 'none';
+}
+
+function Archive() {
+  document.getElementById("regimen-change-popup-div").style.display = 'none';
+  //document.getElementById("regimen-change-cover").style.display = 'none';
+  
+  details = document.getElementById('regimen-change-yes');
+  second_id = details.getAttribute('patient_id');
+
+  document.location = '/people/archive_patient?primary_id=' + "<%= params[:patient_id]%>&" + "secondary_id=" + second_id; 
+}
+
+
+function showWaitMsg() {
+  document.getElementById("regimen-change-popup-div2").style.display = 'inline';
+  document.getElementById("regimen-change-cover").style.display = 'inline';
+}
+
+function addefreshBtn() {
+  btn = document.getElementById('nextButton');
+  btn.innerHTML = "<span>Refresh list</span>";
+  btn.setAttribute('onmousedown','reFreshList();')
+}
+
+function reFreshList() {
+  showWaitMsg();             
+  loadData();
+}
+
+</script>
+
+<form>
+    
+    <%= text_field_tag :summary, nil, { 
+      :tt_onLoad => "showWaitMsg();addefreshBtn();showActiveFiles();
+      __$('keyboard').style.display = 'none';", 
+      :id => 'active_files_window',
+      :helpText => 'Select filing number to archive',
+      :tt_pageStyleClass => "NoControls" 
+    } %>
+
+</form>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="regimen-change-cover"></div>
+
+<div id="regimen-change-popup-div">
+  <div id="regimen-change-popup-header">
+    Are you sure you want to Archive selected record?
+  </div>
+
+  <div class="btn-div">
+    <div style="padding-top: 65px;">
+      <span id="regimen-change-yes" onclick="Archive();" class="my_button">Yes</span>
+      <span id="regimen-change-no" onmousedown="cancelArchive();" class="my_button">No</span>
+    </div>
+  </div>
+
+</div>
+
+
+
+<div id="regimen-change-popup-div2">
+  <div id="regimen-change-popup-header2">
+    Fetching files to archive ....
+  </div>
+
+  <div class="btn-div">
+    <div style="padding-top: 35px; text-align: center;">
+      <span style="font-weight: bold; font-size: 35px;">Please wait </span><blink>....</blink>
+    </div>
+  </div>
+
+</div>
+
+
+
+
+
+
+
+<style>
+
+.my_button {
+  -moz-user-select: none;
+  background-image: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 16px;
+  font-weight: bolder;
+  line-height: 2.29;
+  margin-bottom: 0;
+  padding: 6px 56px;
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+  background-color: #337ab7;
+  border-color: #2e6da4;
+  color: #fff;
+  float: right;
+  margin-top: -5px;
+}
+
+
+#regimen-change-popup-div {
+  display: none;
+  background-color: #F4F4F4;
+  border: 2px solid #E0E0E0;
+  border-radius: 15px;
+  height: 170px;
+  padding: 5px;
+  position: absolute;
+  margin-top: 100px;
+  width: 600px;
+  margin-left: 18%;
+  z-index: 991;
+}
+
+#regimen-change-popup-header{
+  border-bottom: 2px solid #7D9EC0;
+  margin-left: -5px;
+  width: 101.5%;
+  background-color: #FFFFFF;
+  margin-top: -5px;
+  padding-top: 5px;
+  border-radius: 15px 15px 0 0;
+  font-size: 14pt;
+  font-weight: bolder;
+  text-align: center;
+}
+
+#regimen-change-cover{
+  display: none;
+  position: absolute;
+  background-color: black;
+  width: 100%;
+  height: 102%;
+  left: 0%;
+  top: 0%;
+  z-index: 990;
+  opacity: 0.65;
+}
+
+#regimen-change-yes{
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  bottom: 0px;
+}
+
+#regimen-change-no{
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  bottom: 0px;
+  margin-right: 27px;
+}
+
+#regimen-change-popup-div2 {
+  display: none;
+  background-color: #F4F4F4;
+  border: 2px solid #E0E0E0;
+  border-radius: 15px;
+  height: 170px;
+  padding: 5px;
+  position: absolute;
+  margin-top: 100px;
+  width: 600px;
+  margin-left: 18%;
+  z-index: 991;
+}
+
+#regimen-change-popup-header2{
+  border-bottom: 2px solid #7D9EC0;
+  margin-left: -5px;
+  width: 101.5%;
+  background-color: #FFFFFF;
+  margin-top: -5px;
+  padding-top: 5px;
+  border-radius: 15px 15px 0 0;
+  font-size: 14pt;
+  font-weight: bolder;
+  text-align: center;
+}
+
+</style>
+

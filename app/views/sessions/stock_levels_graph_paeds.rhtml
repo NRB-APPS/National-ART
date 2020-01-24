@@ -1,0 +1,182 @@
+<%=javascript_include_tag "Highcharts/js/jquery.min"%>
+<%=javascript_include_tag "Highcharts/js/stock.highcharts"%>
+
+<style type="text/css">
+
+</style>
+<script type="text/javascript">
+
+  var drugs = []
+  var data_list = {}
+<%# raise @list.inspect%>
+<% (@list || []).each do |drug, values| %>
+    drugs.push('<%= drug %>')
+    data_list['<%= drug %>'] = { month_of_stock: <%= values['month_of_stock'] %>,
+      stock_level:<%= values['stock_level'] %> ,
+      consumption_rate: <%= values['consumption_rate'] %>,
+      stocked_out: <%= values['stocked_out'] %>,
+      expiry_stock: <%= values['expiry_stock'] %>,
+      active: <%= values['active'] %>
+    };
+
+<% end %>
+
+  $(function () {
+    $('#graph').highcharts({
+      chart: {
+        type: 'bar',
+        borderWidth: 1,
+        plotBorderWidth: 1,
+        // Edit chart spacing
+        spacingBottom: 15,
+        spacingTop: 10,
+        spacingLeft: 10,
+        spacingRight: 10,
+        // Explicitly tell the width and height of a chart
+        height: 620
+
+      },
+      title: {
+        style: {
+          fontFamily: "'Trebuchet MS', 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Tahoma, sans-serif",
+          fontSize: '14px'
+        },
+        text: '<b>Stock Levels for paeds</b>'
+      },
+      xAxis: {
+        categories: drugs,
+        title: {
+          text: null,
+          style: {
+            font: "12px 'Trebuchet MS', 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Tahoma, sans-serif"
+          }
+
+        },
+        labels: {
+          style: {
+            color: '#000000',
+            font: "12px Arial, 'Helvetica Neue', Helvetica, sans-serif;"
+          },
+
+          formatter: function () {
+            if (!data_list[this.value]["active"])
+            {
+              return '<span style="fill: grey;">' + this.value + '</span>';
+            }
+            else if (data_list[this.value]["stocked_out"]) {
+
+              return '<span style="fill: red;">' + this.value + '</span>';
+
+            }
+            else {
+              return this.value;
+            }
+          }
+
+        }
+      },
+      yAxis: {
+        min: 0,
+        max: 9,
+        tickInterval: 1,
+        title: {
+          text: 'Months of Stock',
+          align: 'high',
+          style: {
+            font: "13px 'Trebuchet MS', 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Tahoma, sans-serif"
+          }
+        },
+        labels: {
+          overflow: 'justify',
+          style: {
+            color: '#000000',
+            font: "13px 'Trebuchet MS', 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Tahoma, sans-serif"
+          }
+        },
+        plotBands: [{ // mark the weekend
+            color: '#66CDAA',
+            from: 2,
+            to: 4
+          },
+          {
+            color: 'rgb(225, 225, 225)',
+            from: 0,
+            to: 2
+          },
+          {
+            color: 'rgb(225, 225, 225)',
+            from: 4,
+            to: 9
+          }]
+      },
+      tooltip: {
+        shared: true,
+        useHTML: true,
+        valueSuffix: ' ',
+        formatter: function() {
+
+          var stock_level_string = (this.y == 0) ? ' 0' : ' ' +
+            ((parseInt(this.y) == 0) ? '' :  parseInt(this.y) + (parseInt(this.y) == 1 ? ' month ': ' months ')) +
+            parseInt((this.y*30 % 30)) + ( parseInt((this.y*30 % 30)) == 1 ? " day" :  " days");
+
+          return '<span  style= "font-weight: bold; font-size : 10px;">' +
+            'Drug Name:  &nbsp&nbsp&nbsp&nbsp<span style="color: #097054; " >' + this.x + '</span> <br />' +
+            'Months of stock:  &nbsp&nbsp&nbsp<span style="color: #097054; " >' + stock_level_string + '</span> <br />' +
+            'Stock level:  &nbsp&nbsp&nbsp<span style="color: #097054; ">' + data_list[this.x]['stock_level'] + ' tins</span><br />' +
+            'Consumption rate:  &nbsp&nbsp&nbsp<span style="color: #097054; ">' + data_list[this.x]['consumption_rate'] + ' tins/month</span> </span>';
+        }
+      },
+      plotOptions: {
+        bar: {
+          dataLabels: {
+            enabled: false
+          }
+        },
+        series: {
+          showInLegend: false,
+          pointWidth: 20,
+           stacking: 'normal'
+        }
+      },
+      credits: {
+        enabled: false
+      },
+      series: dataG(),
+      exporting: { enabled: false }
+
+
+    });
+  });
+
+  stock_level = {}
+  expiry_stocks = {}
+  function dataG() {
+    var correctedWeights = [];
+    var correctedWeights_two = []
+
+
+<% (@list || []).each do |drug, values| %>
+      var val = parseFloat(<%= values["month_of_stock"] %>);
+      var col = (val <= 2) ? 'red' : (val > 4 ? 'yellow' : 'green');
+      correctedWeights.push({y: val, color: col});
+<% end %>
+
+<% (@list || []).each do |drug, values| %>
+      var val = parseFloat(<%= values["expiry_stock"] %>);
+      var col = (val <= 2) ? 'red' : (val > 4 ? 'yellow' : 'green');
+      correctedWeights_two.push({y: val, color: '#8B8989'});
+<% end %>
+
+    stock_level.data = correctedWeights
+    expiry_stocks.data = correctedWeights_two
+
+    data = [{data: expiry_stocks.data}, {data: stock_level.data}];
+    return data;
+    //return [{name: 'Month(s) of stock', showInLegend: false, data: correctedWeights, pointWidth: 20}];
+  }
+
+</script>
+
+<div id="graph" style="">
+
+</div>

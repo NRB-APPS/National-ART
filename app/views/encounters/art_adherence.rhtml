@@ -1,0 +1,1326 @@
+<%= javascript_include_tag "dateformat" %>
+
+<script src="/javascripts/jquery-1.3.2.min.js" type="text/javascript"></script>
+<link rel="stylesheet" href="/stylesheets/adherence_report_table.css" type="text/css">
+
+<style>
+
+  #reason_for_adherence{
+    height:379px;
+    width:100%;
+    background:none repeat scroll 0 0 light-grey;
+    border-color: -moz-use-text-color -moz-use-text-color silver;
+    border-style: none none solid;
+    border-width: medium medium 1px;
+    font-family: "Nimbus Sans L","Arial Narrow",sans-serif;
+    font-size: 2.2em;
+    padding-left: 5px;
+
+  }
+
+  #newText{
+    top: 40%;
+    left: 40%;
+    margin-top: -200px;
+    margin-left: -250px;
+    position: absolute;
+    margin-right:auto;
+    width: 800px;
+    height: 38px;
+    padding-bottom: 10px;
+    font-size: 2em;
+    text-align: left;
+    background-color: white;
+    padding: 10px;
+    z-index: 999;
+    border: 5px outset tomato;
+    border-radius: 15px;
+    z-index: 900;
+  }
+
+  #ok {
+    float:right ! important;
+    width: 150px;
+  }
+
+  #main_head{
+    float: left;
+    width: 100%;
+    font-size: 23px;
+    font-weight:bold;
+  }
+
+  #cancel {
+    float:left ! important;
+    width: 150px;
+  }
+
+  #cover {
+    position: absolute;
+    background-color: black;
+    width: 100%;
+    height: 102%;
+    left: 0%;
+    top: 0%;
+    z-index: 500;
+    opacity: 0.5;
+    align: center;
+    display:none;
+  }
+
+  #alertPage{
+    top: 50%;
+    left: 40%;
+    margin-top: -200px;
+    margin-left: -250px;
+    position: absolute;
+    margin-right:auto;
+    width: 800px;
+    height: 400px;
+    padding-bottom: 10px;
+    font-size: 1em;
+    text-align: center;
+    background-color: white;
+    padding: 10px;
+    z-index: 999;
+    border: 5px outset tomato;
+    border-radius: 15px;
+    z-index: 900;
+    display:none;
+  }
+
+  .summary div {
+    padding-left:25px;
+    font-size:22px;
+  }
+
+  .title {
+    margin-right:10px;
+    font-weight:bold;
+    font-size:30px;
+  }
+
+  .recommendation {
+    font-style:italic;
+  }
+
+  .values {
+    font-size:25px;
+  }
+
+  #tt_page_summary .inputFrameClass {                                                            
+    top: 60px;
+  }  
+
+  #tt_page_reason_for_lower_adherence{
+    display:none;
+  }
+
+  #qwerty {
+    display: none;
+  }
+
+  .unknownButton .numericKeyboard #char, #decimal, #slash, #star, #plus, #date, #minus, #comma, #percent {
+    display: none;
+  }
+
+  #popup {
+    top: 50px;
+    height:80% ! important;
+  }
+
+</style>
+
+<%ask_pills_remaining_at_home =  CoreService.get_global_property_value("ask.pills.remaining.at.home").to_s == "true" rescue false 
+session_date = session[:datetime] || Time.now() 
+%>
+<script>
+  var tt_cancel_destination = "/patients/show/<%= @patient.patient_id %>"
+  /* 
+  var adherence_ids = new Array
+  var drug_names = new Array
+  var drug_orders = new Array 
+  var equivalent_daily_dose = new Array
+  var order_start_date = new Array
+  var drug_order_quantity = new Array
+  var order_auto_expire_date = new Array
+  var amount_brought_ids = new Array
+  var amount_other_ids = new Array
+  var auto_expire_date = new Array
+   */
+  var drug_names = {}
+  var daily_consumption = {}
+  var order_start_date = {}
+  var amount_given_last_time = {}
+  var order_auto_expire_date = {}
+  var amount_brought_ids = {}
+  var amount_other_ids = {}
+  var auto_expire_date = {}
+  var dose = {}
+  var firstOption;
+  var formatted;
+  var theForm;
+  var outcomes;
+  var selected = [];
+  var realTime = '<%=  @retrospective  %>';
+  var fastTrackPatient = '<%= @fast_track_patient %>';
+  
+  var art_period_in_months = parseInt('<%= @art_duration_in_months %>');
+  var hivReceptionOnlyAvailable = '<%= @hiv_reception_only_available %>';
+  var fastTrackAssesmentConcepts = JSON.parse('<%= @fast_track_assesment_concept_names.to_json %>');
+  var patient_id = <%= @patient.id %>;
+  var patientOnTBTreatment = '<%= @patient_on_tb_treatment %>';
+  var patientTBSuspected = '<%= @patient_tb_suspected %>';
+  var patientTBConfirmed = '<%= @patient_tb_confirmed %>';
+  var gender = '<%= @gender %>';
+  var allergicToSuphur = '<%= @allergic_to_sulphur %>';
+
+  function dateCreate(date_str){
+    intyear = 0 ; intmonth = 0 ; intday = 0;
+    intyear = parseInt(date_str.substring(0,4))
+    intmonth = (parseInt(date_str.substring(5,7)) - 1)
+    intday = (parseInt(date_str.substring(8,10)))
+
+    if (intmonth == -1)
+      intmonth = (parseInt(date_str.substring(5,7).substring(1,2)) - 1)
+
+    if (intday == 0)
+      intday = parseInt(date_str.substring(8,10).substring(1,2))
+
+    return new Date(intyear,intmonth,intday)
+  }
+
+  function setAttributes() {
+    page = $("page"+tstCurrentPage);
+    page.style.cssText = "height: 95% !important;";
+    divSummary = document.getElementsByClassName("summary")[0];
+    divSummary.style.cssText = "height: 95%;"
+    flame = document.getElementsByClassName("inputFrameClass")[0];
+    flame.style.cssText = "height: 90%;overflow: auto !important;"
+    /* flame.style.cssText = "overflow: auto !important;"
+        flame2 = document.getElementById("inputFrame2");
+        flame2.style.cssText = "height: 90%;overflow: auto !important;"*/
+  }
+
+  function toggleBP()
+  {
+    var button = document.getElementById("captureBPBtn")
+
+    jQuery.ajax({
+      type: "POST",
+      url: "/sessions/set_session_var",
+      data: {'key':'captureBP', 'value':(button.innerHTML == "<span>Screen For BP</span>")}
+
+    });
+
+    button.innerHTML = (button.innerHTML == "<span>Screen For BP</span>" ? "<span>Don't Screen For BP</span>" : "<span>Screen For BP</span>");
+  }
+
+  function addButton() {
+    if (<%= htn_activated && !htn_client?(@patient) && patient_present(@patient.id, (session[:datetime] || Time.now()))%>) {
+      var bp = document.createElement("button");
+      bp.innerHTML = "<span>Screen For BP</span>";
+      bp.setAttribute("onMouseDown", "toggleBP()");
+      bp.setAttribute("id", "captureBPBtn")
+      document.getElementById("buttons").appendChild(bp);
+    }
+  }
+  setTimeout('addButton()',1000)
+
+  function processFastTrack(){
+    fast_track_answer = __$("touchscreenInput" + tstCurrentPage).value.toUpperCase();
+    if (fast_track_answer == 'NO'){
+      window.location = '/';
+    }
+  }
+
+  var patientID = '<%= @patient.patient_id %>';
+  
+  function setFastTrackOptions(){
+    available_options = document.getElementsByTagName('li');
+    for(i=0; i<available_options.length; i++){
+      inputValue = available_options[i].getAttribute("tstvalue");
+      if (inputValue.match(/NO/i)){
+        available_options[i].onmouseup = function(){
+          __$('nextButton').innerHTML = '<span>Finish</span>';
+          __$('nextButton').onmousedown = function(){
+            window.location = '/patients/stop_fast_track?patient_id=' + patientID;
+          }
+        }
+      } else{
+        available_options[i].onmouseup = function(){
+          jQuery('#fast-track-input').attr('value', 'Yes');
+          __$('nextButton').innerHTML = '<span>Next</span>';
+          __$('nextButton').onmousedown = function(){
+            gotoNextPage();
+          }
+        }
+      }
+    }
+  }
+
+  function setFastTrackYesNoValue(){
+    selectedValue = $("touchscreenInput" + tstCurrentPage).value.trim().toUpperCase();
+    if (selectedValue == 'YES'){
+      jQuery('#fast-track-input').attr('value', 'Yes');
+    }
+    if (selectedValue == 'NO'){
+      jQuery('#fast-track-input').attr('value', 'No');
+    }
+  }
+
+  function showFastTrackWarning(){
+    jQuery("#fast_track_reminder").show();
+    jQuery("#fast_track_reminder_cover").show();
+  }
+
+  function cancelPopup(){
+    clearInput();
+    jQuery("#fast_track_reminder").hide();
+    jQuery("#fast_track_reminder_cover").hide();
+  }
+
+  /*function stopFastTrack(){
+    window.location = '/patients/stop_fast_track?patient_id=' + <%= @patient.patient_id %>;
+  }*/
+
+  function setNextCaption(){
+    available_options = document.getElementsByTagName('li');
+    for(i=0; i<available_options.length; i++){
+      inputValue = available_options[i].getAttribute("tstvalue");
+      available_options[i].onmouseup = function(){
+        fastTrackStopReason = this.getAttribute("tstvalue");
+        //__$('nextButton').innerHTML = '<span>Finish</span>';
+        /*__$('nextButton').onmousedown = function(){
+          window.location = '/patients/stop_fast_track?patient_id=' + patientID + '&fast_track_stop_reason=' + fastTrackStopReason;
+        }*/
+      }
+    }
+  }
+
+  function resetNextCaption(){
+    __$('nextButton').innerHTML = '<span>Next</span>';
+    __$('nextButton').onmousedown = function(){
+      gotoNextPage();
+    }
+  }
+
+  function controlNoneSelection(){
+    liOptions = document.getElementsByTagName("li");
+    for (var i=0; i<=liOptions.length - 1; i++){
+      tstValue = liOptions[i].getAttribute("tstvalue");
+
+      if (tstValue.match(/NONE/i)){
+        liOptions[i].onclick = function(){
+          selectedValues = $("touchscreenInput" + tstCurrentPage).value.split(";")
+          currentLiItem = this;
+
+          if (currentLiItem.style.backgroundColor.match(/lightblue/i)){
+
+            for (var j=0; j<=selectedValues.length - 1; j++){
+              liElement = jQuery("[tstvalue=" + selectedValues[j] + "]")[0];
+              if (liElement){
+                id = liElement.getAttribute("id");
+                updateTouchscreenInputForSelect(__$('optionValue' + id), liElement)
+              }
+            }
+          }else{
+            for (var j=0; j<=selectedValues.length - 1; j++){
+              liElement = jQuery("[tstvalue=" + selectedValues[j] + "]")[0];
+              if (liElement){
+                id = liElement.getAttribute("id");
+                updateTouchscreenInputForSelect(__$('optionValue' + id), liElement)
+              }
+            }
+
+            noneElement = jQuery("[tstvalue=NONE OF THE ABOVE]")[0];
+            noneElementID = noneElement.getAttribute("id");
+            updateTouchscreenInputForSelect(__$('optionValue' + noneElementID), noneElement)
+          }
+
+        }
+      }
+      else{
+        liOptions[i].onmouseup = function(){
+          noneElement = jQuery("[tstvalue=NONE OF THE ABOVE]")[0];
+          noneElementID = noneElement.getAttribute("id");
+          if (noneElement.style.backgroundColor.match(/lightblue/i)){
+            updateTouchscreenInputForSelect(__$('optionValue' + noneElementID), noneElement);
+          }
+        }
+      }
+    }
+
+  }
+
+  function hideCategory() {
+    document.getElementById('category').style = 'display: none;'
+  }
+</script>
+
+<body>
+  <div id="cover" align="center">
+  </div>
+  <form id='art_adherence' action="/encounters/create" method='post' name="art_adherence">
+    <%= hidden_field_tag "encounter[encounter_type_name]", "ART ADHERENCE" %>
+    <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+    <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+    <%= hidden_field_tag "encounter[provider_id]", current_user.user_id %>
+
+    <% art_drugs_given_before = MedicationService.art_drug_given_before(@patient, session_date.to_date).uniq
+       (art_drugs_given_before || []).each do |order|
+        if @retrospective %>
+        <%= touch_numeric_tag "AMOUNT OF DRUG BROUGHT TO CLINIC", @patient, nil,
+          {	:id        => "amount_brought_#{order.order_id}",
+          :units     => "#{order.drug_order.units}",
+          :order_id  => "#{order.order_id}",
+          :tt_pageStyleClass => "unknownButton",
+          :helpText  => "Total #{order.drug_order.units} of #{order.drug_order.drug.name} brought to clinic"} %>
+
+        <%if  ask_pills_remaining_at_home %>
+          <%= touch_numeric_tag "AMOUNT OF DRUG REMAINING AT HOME", @patient, nil,
+            {	:id        => "amount_other_#{order.order_id}",
+            :units     => "#{order.drug_order.units}",
+            :field_type=> "number",
+            :order_id  => "#{order.order_id}",
+            :tt_pageStyleClass => "unknownButton",
+            :helpText  => "Total #{order.drug_order.units} of #{order.drug_order.drug.name} <span style='color:red;'>left at home</span>" } %>
+        <% else %>
+          <%= touch_hidden_tag "AMOUNT OF DRUG REMAINING AT HOME", @patient, nil,
+            {	:id        => "amount_other_#{order.order_id}",
+            :units     => "#{order.drug_order.units}",
+            :order_id  => "#{order.order_id}",
+            :tt_pageStyleClass => "NoControls"} %>
+        <%end%>
+      <% else %>
+        <%= touch_numeric_tag "AMOUNT OF DRUG BROUGHT TO CLINIC", @patient, nil,
+          {	:id        => "amount_brought_#{order.order_id}",
+          :units     => "#{order.drug_order.units}",
+          :order_id  => "#{order.order_id}",
+          :helpText  => "Total #{order.drug_order.units} of #{order.drug_order.drug.name} brought to clinic"} %>
+
+        <%if  ask_pills_remaining_at_home %>
+          <%= touch_numeric_tag "AMOUNT OF DRUG REMAINING AT HOME", @patient, nil,
+            {	:id        => "amount_other_#{order.order_id}",
+            :field_type=> "number",
+            :units     => "#{order.drug_order.units}",
+            :order_id  => "#{order.order_id}",
+            :tt_pageStyleClass => "unknownButton",
+            :helpText  => "Total #{order.drug_order.units} of #{order.drug_order.drug.name} <span style='color:red;'>left at home</span>" } %>
+        <% else %>
+          <%= touch_hidden_tag "AMOUNT OF DRUG REMAINING AT HOME", @patient, nil,
+            {	:id        => "amount_other_#{order.order_id}",
+            :units     => "#{order.drug_order.units}",
+            :order_id  => "#{order.order_id}",
+            :tt_pageStyleClass => "NoControls"} %>
+        <%end%>
+      <% end %>
+
+      <%= touch_hidden_tag "WHAT WAS THE PATIENTS ADHERENCE FOR THIS DRUG ORDER", @patient, nil,
+        {	:id          => "adherence_#{order.order_id}",
+        :helpText    => "Adherence summary for #{order.drug_order.drug.name}",
+        :optional    => "true",
+        :order_id    => "#{order.order_id}",
+        :tt_pageStyleClass => "NoControls"} %>
+
+      <%= touch_hidden_tag "MISSED HIV DRUG CONSTRUCT", @patient, nil,
+        {	:id          => "doses_missed_#{order.order_id}",
+        :helpText    => "Amount of Doses Missed #{order.drug_order.drug.name}",
+        :optional    => "true",
+        :order_id    => "#{order.order_id}",
+        :tt_pageStyleClass => "NoControls"} %>
+
+      <script>
+        drug_names['<%=order.order_id%>'] = "<%=order.drug_order.drug.name %>";
+        daily_consumption['<%=order.order_id%>'] = "<%=order.drug_order.equivalent_daily_dose %>";
+        order_start_date['<%=order.order_id%>'] = "<%=order.start_date.strftime('%Y-%m-%d') %>";
+        <%
+          if(order.auto_expire_date.to_date == order.start_date.to_date) and not order.discontinued_date.blank?
+            auto_expire_date = order.discontinued_date.strftime('%Y-%m-%d')
+          else
+            auto_expire_date = order.auto_expire_date.strftime('%Y-%m-%d')
+          end
+      
+          if order.drug_order.quantity.blank?
+            if order.start_date.to_date == order.auto_expire_date.to_date
+              hanging_pills = MedicationService.amounts_brought_to_clinic(@patient, order.start_date.to_date)
+              quantity_given_last_time = hanging_pills[order.drug_order.drug_inventory_id]
+            else
+              quantity_given_last_time = 0
+            end
+          else
+            quantity_given_last_time = order.drug_order.quantity
+          end
+        %>
+        order_auto_expire_date['<%=order.order_id%>'] = "<%= auto_expire_date %>";
+        amount_given_last_time['<%=order.order_id%>'] = <%= (quantity_given_last_time.to_f rescue 0) %>;
+        dose['<%=order.order_id%>'] = "<%= MedicationService.get_medication_dose(order) %>";
+      </script>
+
+    <% end rescue [] %>
+    <%= touch_hidden_tag "Reason for poor adherence to antiretroviral therapy", @patient, nil, {
+      :id => 'Reason_for_poor_adherence_to_antiretroviral_therapy'} %>
+
+    <label for='summary'>Adherence Report</label>
+    <%= text_field_tag :summary, nil,
+      { :tt_onLoad => "adherenceReport();setAttributes();__$('keyboard').style.display = 'none';changeButton();",
+      :optional => "true",
+      :tt_pageStyleClass => "NoControls",
+      :tt_onUnload => 'removeButton();'} %>
+
+<%#=  select_tag "Reason for poor adherence to antiretroviral therapy", options_for_select(reason_for_lower_adherence),{
+:id => "reason_for_lower_adherence",
+:condition => "abnormalAdherence = 'YES'",
+:tt_onLoad => "checkAdherence()",
+:helpText  => "Reason for lower adherence" } %>
+
+    <%= select_tag "continue_fast_track", options_for_select(['', 'Yes', 'No']),{
+      :id => 'fast_track',
+      :condition => "fastTrackPatient == 'true' && hivReceptionOnlyAvailable == 'true'",
+      :tt_onUnLoad => "setFastTrackYesNoValue()",
+      :helpText => 'Booked for Fast Track. Continue?'
+    } %>
+
+    <%= touch_select_tag "STOP REASON", @patient, options_for_select(@fast_track_stop_reasons),{
+      :id => 'fast_track_stop_reason',
+      :condition => "__$('fast_track').value == 'No'",
+      :helpText => 'Select Reason for stopping Fast Track',
+      :tt_onLoad => "setNextCaption();",
+      :tt_onUnLoad => "resetNextCaption();"
+    } %>
+
+    <script>
+      var abnormalAdherence;
+
+      function changeButton(){
+        if (realTime == "false"){
+          try {
+            document.getElementById("reason_for_adherence").value = "";
+          }
+          catch (e){
+			
+          }
+          element = document.getElementById('nextButton')
+          element.setAttribute("onmousedown", "checkAdherence()")
+        }
+      }
+
+      function removeButton(){
+        element = document.getElementById('nextButton')
+        element.setAttribute("onmousedown", "gotoNextPage()")
+      }
+
+      function removeObs(td){
+        /*var reasons  = document.getElementsByClassName('reasons');
+            for(var i = 0; i < reasons.length; i++) {
+                    if(td != reasons[i]) {
+                            reasons[i].style.background = '';
+                    }else{
+                             reasons[i].setAttribute('style', 'background-color:lightblue !important');
+                    }
+            }*/
+        document.getElementById("reason_for_adherence").value = td.value
+      }
+
+      function updateForm(td){
+        if (document.getElementById("reason_for_adherence").value != ""){
+          document.getElementById('Reason_for_poor_adherence_to_antiretroviral_therapy').value = document.getElementById("reason_for_adherence").value;
+          document.getElementById('cover').style.display='none';
+          td.parentNode.style.display='none';
+          gotoNextPage();
+        }
+	   
+      }
+
+      function buildAdherenceTab(adherence_report_table, drug_names) {
+        available_order_ids = [];
+        
+        tr = document.createElement('tr'); 
+        th = document.createElement('th');
+        th.setAttribute('id', 'last_visit_date');
+        th.setAttribute('style', 'text-align: left; padding-left: 5px;');
+        tr.appendChild(th); 
+        for(order_id in drug_names) {
+          th = document.createElement('th');
+          th.innerHTML = drug_names[order_id];
+          th.setAttribute('style', 'text-align: right; padding-right: 5px;');
+          tr.appendChild(th); 
+          available_order_ids.push(order_id);
+        }
+        adherence_report_table.appendChild(tr);
+      
+        tr_names = [
+          'Prescription','Tabs given','Tabs per day','Doses per day',
+          'blank','Tabs remaining','Expected','Actual (counted)',
+          'blank','Adherence','Doses missed / unaccounted for','Doses consumed',
+          'ART adherence'
+        ]
+
+        for(var i = 0; i < tr_names.length; i++){
+          tr = document.createElement('tr'); 
+          td = document.createElement('td');
+          if(tr_names[i] != 'blank') {
+            if(tr_names[i].match(/Tabs remaining|Prescription|Adherence/)){
+              td.setAttribute('class','row-headers');
+              tr.setAttribute('class','tr-headers');
+            }else{
+              td.setAttribute('class','row-data');
+            }
+
+            td.innerHTML = tr_names[i];
+          }else{
+            tr.setAttribute('class','line-separator');
+          }
+
+          tr.appendChild(td);
+          for(var x = 0; x < available_order_ids.length; x++){
+            td = document.createElement('td');
+            if(!tr_names[i].match(/Tabs remaining|Prescription|Adherence/))
+              td.setAttribute('class', 'set-data order_' + available_order_ids[x]);
+
+            tr.appendChild(td);
+          }
+              
+          adherence_report_table.appendChild(tr);
+        }
+      }
+
+      function adherenceReport(){
+        var i = 0;
+        var amount_remaining = 0;
+        var summary = new Array;
+        //var summary = "<div id='summaryDiv' class='summary' style='hei><div>";
+        summaryDiv = document.createElement('div');
+        summaryDiv.setAttribute('id', 'summaryDiv');
+        summaryDiv.setAttribute('class', 'summary');
+        summaryDiv.setAttribute('style', 'height: 670px');
+
+        adherence_report_table = document.createElement('table');
+        adherence_report_table.setAttribute('id', 'adherence_report_table');
+        buildAdherenceTab(adherence_report_table, drug_names);
+        summaryDiv.appendChild(adherence_report_table);
+        $('inputFrame'+tstCurrentPage).appendChild(summaryDiv);
+
+        var amount_brought = 0;
+        var amount_others = 0;
+        abnormalAdherence = 0;
+        //for (var i=0; i <  drug_names.length; i++){
+	 
+        for(i in drug_names){
+          if ($("amount_brought_" + i).value == "Unknown"){
+            amount_brought = 0;
+            continue;
+          } else {
+            amount_brought = $("amount_brought_" + i).value;
+          }
+
+          if ($("amount_other_" + i).value == "Unknown" || $("amount_other_" + i).value == ""){
+            amount_others = 0;
+          } else {
+            amount_others = $("amount_other_" + i).value;
+          }
+
+<% if ask_pills_remaining_at_home %>
+        amount_remaining = parseFloat(amount_brought);
+        amount_remaining += parseFloat(amount_others);
+<%else%>
+        amount_remaining = parseFloat(amount_brought);
+<%end%>
+
+      var days_overdue_for_visit = since(auto_expire_date[i]);
+      var doses_missed = 0;
+      var last_visit_date = dateCreate(order_start_date[i]);
+      var num_days = since(last_visit_date);
+      var expected_amount_remaining = parseFloat(amount_given_last_time[i] - (num_days * daily_consumption[i]));
+
+      /* The assumption is: the patient will come to the clinic after taking 1 dose */
+      expected_amount_remaining -= dose[i];
+
+      m = daily_consumption[i].split('.')[1]
+      if (m == 0){
+        expected_amount_remaining = parseInt(expected_amount_remaining);
+      }
+      else{
+        expected_amount_remaining = expected_amount_remaining.toFixed(2);
+      }
+	  	
+
+      if(expected_amount_remaining == amount_remaining) {
+        doses_missed = 0;
+      }else{
+        doses_missed = parseFloat((expected_amount_remaining - amount_remaining) / daily_consumption[i]);
+        doses_missed = Math.round(doses_missed);
+      }
+
+      var adherence = Math.round(100*(amount_given_last_time[i] - amount_remaining) / (amount_given_last_time[i] - expected_amount_remaining))
+
+
+      $('adherence_'+ i ).value = adherence;
+
+      var drug_name = drug_names[i];
+      var warning = (adherence < 95 || adherence > 105) ? 'warning' : '';
+
+      data_tds = document.getElementsByClassName('order_' + i);
+      for(var x = 0; x < data_tds.length; x++){
+        if(x == 0) {
+          data_tds[x].innerHTML = amount_given_last_time[i];
+        }else if(x == 1){
+          data_tds[x].innerHTML = (Math.round(daily_consumption[i] * 100) / 100);
+        }else if(x == 2){
+          data_tds[x].innerHTML = (Math.round(dose[i] * 100) / 100);
+        }else if(x == 4){
+          if(expected_amount_remaining < 0)
+            expected_amount_remaining = 0;
+
+          data_tds[x].innerHTML = expected_amount_remaining;
+        }else if(x == 5){
+          data_tds[x].innerHTML = amount_remaining;
+        }else if(x == 7){
+          doses_missed_unaccounted = ((amount_remaining - expected_amount_remaining)/dose[i]);
+          if(doses_missed_unaccounted < 0) {
+            doses_missed_unaccounted = (doses_missed_unaccounted * -1);
+            data_tds[x].innerHTML = doses_missed_unaccounted + " unacc.";
+          }else{
+            data_tds[x].innerHTML = doses_missed_unaccounted + " missed";
+          }
+        }else if(x == 8){
+          data_tds[x].innerHTML = adherence + '%';
+        }else if(x == 9){
+          last_visit = document.getElementById('last_visit_date');
+
+          months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+          curr_date = last_visit_date.getDate();
+          var curr_month = last_visit_date.getMonth(); //Months are zero based
+          var curr_year = last_visit_date.getFullYear();
+          last_visit_date = (curr_date + "/" + months[curr_month] + "/" + curr_year);
+
+          //last_visit.innerHTML = "Last visit: " + last_visit_date + "  Days elapsed: " + num_days;
+          if(last_visit.innerHTML.length < 1) {
+            header_table = document.createElement('table');
+            header_table.setAttribute('id','header-table');
+            tr = document.createElement('tr');
+            td = document.createElement('td');
+            td.innerHTML =  "Last visit: " + last_visit_date;
+            tr.appendChild(td);
+            tr = document.createElement('tr');
+            tr.appendChild(td)
+            td = document.createElement('td');
+            td.innerHTML =  "Days elapsed: " + num_days;
+            td.setAttribute('style','text-align: right; padding-right: 5px;');
+            tr.appendChild(td)
+            header_table.appendChild(tr);
+            last_visit.appendChild(header_table);
+          }
+              
+          if(warning == 'warning'){
+            try {
+              data_tds[x].setAttribute('class','warning set-data order_' + i);
+              e = document.createElement('span');
+              e.setAttribute('style','color:red;');
+              e.innerHTML = 'Explore problems';
+              e.setAttribute('class','recommendation');
+              data_tds[x].appendChild(e);
+            }catch(s) {};
+          }else{
+            data_tds[x].setAttribute('class','all-clear set-data order_' + i);
+            e = document.createElement('span');
+            e.setAttribute('style','color:green');
+            e.innerHTML = 'Good adherence';
+            e.setAttribute('class','recommendation');
+            data_tds[x].appendChild(e);
+          }
+        }
+      }
+          
+
+    }
+
+    $("clearButton").style.display = 'none';
+  }
+
+  function checkAdherence(){
+    if (abnormalAdherence != 0){
+      var reasonForLowerAdherence = ['Run out of drugs','Sharing of drugs','Overdose','Pills misplaced','Other']
+      var ele = document.getElementById('cover')
+      ele.style.display = "inline";
+      document.body.appendChild(ele);
+
+      var newDiv = document.createElement('div');
+      newDiv.id = "alertPage";
+      newDiv.style.display = "inline";
+      newDiv.style.left = "32%";
+      newDiv.style.top = "30%";
+      newDiv.style.width = "840px";
+      newDiv.style.height = "500px";
+
+      var display = "<div id='main_head'><span>Reason for patient not adherent</span></div>";
+      display += "<div height='800'><select id='reason_for_adherence' size='6'>";
+      display += "<option value=''></option>"
+      for (x=0; x < reasonForLowerAdherence.length; x++){
+        display += "<option class='reasons' value='" + reasonForLowerAdherence[x] + "' onmousedown='removeObs(this)'>" + reasonForLowerAdherence[x] + "</option>";
+      }
+      display += "</select></div>";
+      newDiv.innerHTML = '<div id="popup">' + display + '</div>' ;
+      document.body.appendChild(newDiv);
+
+      var newBtn = document.createElement('button');
+      newBtn.className = "navButton red";
+      newBtn.id = "cancel";
+      newBtn.innerHTML = "<span>Cancel</span>";
+      newDiv.appendChild(newBtn);
+      newBtn.setAttribute('onclick', "document.getElementById('cover').style.display='none'; this.parentNode.style.display='none';")
+
+      var newBtn = document.createElement('button');
+      newBtn.className = "green navButton";
+      newBtn.id = "ok";
+      newBtn.innerHTML = "<span>Next</span>";
+      newDiv.appendChild(newBtn);
+      newBtn.setAttribute('onclick', "updateForm(this);")
+
+    }
+    else {
+      removeButton();
+      gotoNextPage();
+    }
+  }
+
+  function since(date) {
+    var today = dateCreate('<%=session_date.to_date%>');
+    return (today - date) / (1000 * 60 * 60 * 24);
+  }
+
+  function strdate(date) {
+    var months = new Array("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
+    return ""+date.getDate()+"-"+months[date.getMonth()]+"-"+date.getFullYear();
+  }
+
+  function addFastTrackAssesmentButton(){
+    return
+    if (fastTrackPatient == 'false'){
+      html = '<button style="float: left;" onmousedown="fastTrackAssesmentPopup();" id="fastTrackAssesmentButton" class="button navButton green"><span>Fast Track Assesment</span></button>';
+      jQuery("#fastTrackAssesmentButton").remove();
+      buttonsDiv = jQuery(".buttonsDiv")[0];
+      buttonsDiv.innerHTML += html;
+    }
+  }
+
+  function removeFastTrackAssesmentButton(){
+    return
+    jQuery("#fastTrackAssesmentButton").remove();
+  }
+
+  function setFastTrackVisit(){
+    jQuery.ajax({
+      type: "POST",
+      url: "/encounters/create_fast_track_assesment_observations",
+      data: "concept_ids=" + selectedFastTrackConcepts + "&patient_id=" + patient_id + "&fast_track_status=Yes",
+      beforeSend: function(){
+        fastTrackVisitButton = document.getElementsByClassName("fastTrackVisitButton")[0];
+        clinicVisitButton = document.getElementsByClassName("clinicVisitButton")[0];
+
+        if (fastTrackVisitButton){
+          fastTrackVisitButton.style.backgroundColor = '#dddddd';
+          fastTrackVisitButton.onclick = function(){
+          }
+        }
+
+        if (clinicVisitButton){
+          clinicVisitButton.style.backgroundColor = '#dddddd';
+          clinicVisitButton.onclick = function(){
+          }
+        }
+      },
+      error: function(xhr) { // if error occured
+        showMessage("There was an error while processing your request");
+      },
+      success: function(){
+        selectedFastTrackConcepts = []
+        hideLibPopup();
+      }
+
+    });
+  }
+
+  function setClinicVisit(){
+    jQuery.ajax({
+      type: "POST",
+      url: "/encounters/create_fast_track_assesment_observations",
+      data: "concept_ids=" + selectedFastTrackConcepts + "&patient_id=" + patient_id + "&fast_track_status=No",
+      success: function(){
+        hideLibPopup()
+      }
+
+    });
+  }
+    </script>
+
+    <%
+
+    date = session[:datetime].to_date rescue Date.today
+    start_date = date.strftime("%Y-%m-%d 00:00:00")
+    end_date = date.strftime("%Y-%m-%d 23:59:59")
+    reception = Encounter.find(:first,:order => "encounter_datetime DESC,date_created DESC",
+      :conditions =>["patient_id = ? AND DATE(encounter_datetime) = ? AND encounter_type = ?
+    AND encounter_datetime >= ? AND encounter_datetime <=?",@patient.id,date,
+        EncounterType.find_by_name('HIV RECEPTION').id,start_date,end_date])
+
+    reception = reception.observations.collect{|r|r.to_s.squish}.join(',') rescue ''
+    patient_present = reception.match(/PATIENT PRESENT FOR CONSULTATION: YES/i)
+
+
+    e = EncounterType.find_by_name('HIV CLINIC CONSULTATION')
+    encounter = Encounter.find(:first,
+      :conditions =>["encounter_type = ? AND patient_id =? AND
+    encounter_datetime >= ? AND encounter_datetime <= ?",
+        e.id,@patient.id,date.strftime("%Y-%m-%d 00:00:00"),
+        date.strftime("%Y-%m-%d 23:59:59")])
+
+    hiv_clinic_consultation = encounter.observations.collect{|r|r.to_s.squish}.join(',') rescue ''
+    refer_to_clinician_already_asked = hiv_clinic_consultation.match(/REFER TO ART CLINICIAN/i)
+
+  %>
+
+    <% if !current_user_roles.include?('Clinician') and patient_present %>
+      <%= touch_yes_no_tag "REFER TO ART CLINICIAN", @patient, nil,
+        {:id => "refer_to_clinician",
+        :helpText => "Refer patient to clinician?" } %>
+    <%else%>
+      <%= touch_hidden_tag "REFER TO ART CLINICIAN", @patient, "NO", :id => "refer_to_clinician" %>
+    <%end unless refer_to_clinician_already_asked %>
+
+    <%if @allergic_to_sulphur.blank? %>
+      <%= touch_yes_no_unknown_tag "Allergic to sulphur", @patient, nil,
+        {	:id => "allergic_to_sulphur",
+        :condition => "$('refer_to_clinician').value == 'NO'" ,
+        :helpText => "Is patient allergic to sulphur" } %>
+    <%end unless refer_to_clinician_already_asked %>
+
+    <%if @obs_ans.match(/Prescribe drugs: Yes/i) %>
+      <%= touch_hidden_tag "Prescribe drugs", @patient, "YES", :id => "prescribe_drugs" %>
+    <%else%>
+      <% if @fast_track_patient %>
+        <%= touch_hidden_tag "Prescribe drugs", @patient, "YES", :id => "prescribe_drugs" %>
+      <% else %>
+        <%if @allergic_to_sulphur.blank?
+          medication_options = ['ARVs','CPT','IPT','NONE OF THE ABOVE']
+        else
+          if @allergic_to_sulphur.to_s.squish.upcase == 'YES'
+            medication_options = ['ARVs','IPT', 'NONE OF THE ABOVE']
+          else
+            medication_options = ['ARVs','CPT','IPT','NONE OF THE ABOVE']
+          end
+
+        end%>
+
+        <%if not @allergic_to_sulphur.blank?
+          if @allergic_to_sulphur.upcase == 'YES'
+            help_text = '<b style="color:red;"> Patient allergic to sulphur</b>'
+          end
+        end%>
+
+        <% medication_options = ['ARVs','CPT','IPT','NONE OF THE ABOVE'] %>
+        <%= touch_select_tag "Medication orders", @patient, options_for_select(medication_options),
+          {:id => "prescribe_drugs",
+          :tt_onLoad => "showCategory2('Prescription');addFastTrackAssesmentButton(); controlNoneSelection(); setIPTOptionForPopup()",
+          :tt_onUnLoad => "hideCategory();removeFastTrackAssesmentButton();",
+          :condition => "$('refer_to_clinician').value == 'NO'" ,
+          :multiple => true,
+          :helpText => "Medication to prescribe during this visit" } %>
+
+        <%= touch_hidden_tag "Prescribe drugs", @patient, "YES", :id => "prescribe_drugs" %>
+
+
+      <% end %>
+    <%end unless refer_to_clinician_already_asked %>
+
+<%#= text_field_tag "fast_track_pop_up_input", nil, {
+:id => "fast_track_pop_up_input",
+:helpText => "Fast Track",
+:tt_onLoad => "showFastTrackReminder(); __$('keyboard').style.display='none';",
+:tt_onUnLoad => "__$('keyboard').style.display='inline';",
+:condition => "parseInt(art_period_in_months) >= 12 && hivReceptionOnlyAvailable == 'false'",
+:optional => "true",
+:tt_pageStyleClass => "NoControls"
+} %>
+
+<%#= text_field_tag "fast_track_pop_up_input", nil, {
+:id => "fast_track_pop_up_input",
+:helpText => "Fast Track",
+:tt_onLoad => "showFastTrackReminder(); __$('keyboard').style.display='none';",
+:tt_onUnLoad => "__$('keyboard').style.display='inline';",
+:condition => "hivReceptionOnlyAvailable == 'false'",
+:optional => "true",
+:tt_pageStyleClass => "NoControls"
+} %>
+
+    <%= touch_hidden_tag("FAST", @patient, "", {:id => 'fast-track-input'}) %>
+
+    <% session_date = session[:datetime].to_date rescue nil
+    if session_date %>
+
+      <p><label for="filter_provider">Staff who provided the information (Provider)</label></br>
+        <%= text_field "filter" , 'provider', :helpText => 'Staff who provided the information (Provider)', :ajaxURL => '/user/username?username=' %></p>
+    <% else %>
+      <%= hidden_field_tag "filter[provider]", nil %>
+    <%end%>
+
+  </form>
+  <script src="/javascripts/fastTrackOptionsPopup.js?version=<%=Time.now.to_i%>" type="text/javascript"></script>
+</body>
+
+<div id="fast_track_reminder" style="display:none;">
+  <div id="fast_track_reminder_header">
+    <span style="font-size: 16pt; font-weight: bold;">Fast Track Notification</span>
+  </div>
+  <% if @latest_fast_track_answer == 'YES' %>
+    <div id="fast_track_reminder_content">
+      <div style="position: relative; overflow:auto; height: 80%; font-size: 14pt; font-weight: bold; color: white;">
+        <br />
+        <center>
+          <% unless @latest_vl_result[:latest_result].blank? %>
+            Latest Viral Load result: <%= @latest_vl_result[:modifier].to_s + ' ' + @latest_vl_result[:latest_result].to_s + ' on ' + @latest_vl_result[:latest_date].to_s %> <br />
+          <% end %>
+          This patient is already enrolled in FAST track program. Assess the patient before proceeding.<br />
+          Do you want to continue fast track program with this patient?
+        </center>
+      </div>
+    </div>
+
+    <div id="fast_track_reminder_footer">
+      <span id="fastTrackNotNow" style="padding: 12px 13%;" onclick="stopFastTrack();">Stop Fast Track</span>
+      <span id="fastTrackNow" style="padding: 12px 13%;" onclick="continueFastTrack();">Continue Fast Track</span>
+    </div>
+
+  <% else %>
+    <div id="fast_track_reminder_content">
+      <div style="position: relative; overflow:auto; height: 80%; font-size: 14pt; font-weight: bold; color: white;">
+        <br />
+        <center>
+          This patient is eligible for Fast Track<br />
+          Do you want to enroll this patient into Fast Track Program?
+        </center>
+      </div>
+    </div>
+
+    <div id="fast_track_reminder_footer">
+      <span id="fastTrackNotNow" onclick="fastTrackNotNow();">Not Now</span>
+      <span id="fastTrackNow" onclick="fastTrackNow();">Enroll</span>
+    </div>
+  <% end %>
+
+</div>
+
+<div id="fast_track_reminder_cover" style="display:none;">
+
+</div>
+
+<script type="text/javascript">
+
+  function showFastTrackReminder(){
+    jQuery("#fast_track_reminder").show();
+    jQuery("#fast_track_reminder_cover").show();
+  }
+
+  function fastTrackNotNow(){
+    //jQuery('#fast-track-input').value = 'No';
+    jQuery('#fast-track-input').attr('value', 'No');
+    jQuery("#fast_track_reminder").hide();
+    jQuery("#fast_track_reminder_cover").hide();
+    gotoNextPage();
+  }
+
+  function fastTrackNow(){
+    //jQuery('#fast-track-input').value = 'Yes';
+    jQuery('#fast-track-input').attr('value', 'Yes');
+    jQuery("#fast_track_reminder").hide();
+    jQuery("#fast_track_reminder_cover").hide();
+    gotoNextPage();
+  }
+
+  function continueFastTrack(){
+    //jQuery('#fast-track-input').value = '';
+    jQuery('#fast-track-input').attr('value', '')
+    jQuery("#fast_track_reminder").hide();
+    jQuery("#fast_track_reminder_cover").hide();
+    gotoNextPage();
+  }
+
+  function stopFastTrack(){
+    //jQuery('#fast-track-input').value = 'No';
+    jQuery('#fast-track-input').attr('value', 'No');
+    jQuery("#fast_track_reminder").hide();
+    jQuery("#fast_track_reminder_cover").hide();
+    gotoNextPage();
+  }
+
+  function hideTBTreatmentPopupAndClearinput(){
+    //clearInput();
+    ipt_option_input = jQuery("[tstvalue='IPT']")[0];
+    if (ipt_option_input){
+      ipt_option_input.click();
+    }
+    document.getElementById("tb-treatment-popup-div").style.display = 'none';
+    document.getElementById("tb-treatment-cover").style.display = 'none';
+  }
+
+  function hideTBTreatmentPopup(){
+    document.getElementById("tb-treatment-popup-div").style.display = 'none';
+    document.getElementById("tb-treatment-cover").style.display = 'none';
+  }
+
+  function showTBTreatmentPopup(){
+    document.getElementById("tb-treatment-popup-div").style.display = 'inline';
+    document.getElementById("tb-treatment-cover").style.display = 'inline';
+  }
+
+  function setIPTOptionForPopup(){
+    ipt_option_input = jQuery("[tstvalue='IPT']")[0];
+    cpt_option_input = jQuery("[tstvalue='CPT']")[0];
+    ipt_id = ipt_option_input.id;
+    cpt_id = cpt_option_input.id;
+    ipt_input = document.getElementById('optionValue' + ipt_id);
+    cpt_input = document.getElementById('optionValue' + cpt_id);
+    ipt_message_header = "PATIENT IS ON TB TREATMENT";
+
+    if (allergicToSuphur.toUpperCase() == 'YES'){
+      //cpt_option_input.style.backgroundColor = '#CDBA96';
+      cpt_input.innerHTML = "<span class='disabled_check'>CPT (Allergic)</span>";
+      cpt_option_input.onclick = null;
+      cpt_option_input.onmousedown = null;
+      cpt_option_input.onmouseup = null;
+
+      img_input = cpt_option_input.getElementsByTagName("img")[0];
+      img_input.src = '';
+      img_input.alt = '';
+    }
+    
+    if (patientTBSuspected == 'true'){
+      //ipt_option_input.style.backgroundColor = '#CDBA96';
+      ipt_input.innerHTML = "<span class='disabled_check'>IPT (TB SUSPECTED)</span>";
+      //input.parentNode.children[0].innerHTML = '<img class="unselectable" src="/images/minus.png">';
+      ipt_option_input.onclick = null;
+      ipt_option_input.onmousedown = null;
+      ipt_option_input.onmouseup = null;
+      
+      img_input = ipt_option_input.getElementsByTagName("img")[0];
+      img_input.src = '';
+      img_input.alt = '';
+    }
+
+    if (patientTBConfirmed == 'true'){
+      //ipt_option_input.style.backgroundColor = '#CDBA96';
+      //ipt_input.innerHTML = 'IPT (TB Confirmed)';
+      ipt_input.innerHTML = "<span class='disabled_check'>IPT (CONFIRMED TB NOT ON TREATMENT)</span>";
+      //input.parentNode.children[0].innerHTML = '<img class="unselectable" src="/images/minus.png">';
+      ipt_option_input.onclick = function(){
+
+      }
+      img_input = ipt_option_input.getElementsByTagName("img")[0];
+      img_input.src = '';
+      img_input.alt = '';
+    }
+
+    if (patientOnTBTreatment == 'true'){
+      //ipt_option_input.style.backgroundColor = '#CDBA96';
+      //ipt_input.innerHTML = 'IPT (TB On Treatment)';
+      ipt_input.innerHTML = "<span class='disabled_check'>IPT (CONFIRMED TB ON TREATMENT)</span>";
+      //input.parentNode.children[0].innerHTML = '<img class="unselectable" src="/images/minus.png">';
+      ipt_option_input.onclick = function(){
+
+      }
+      img_input = ipt_option_input.getElementsByTagName("img")[0];
+      img_input.src = '';
+      img_input.alt = '';
+    }
+    
+    /*if (patientTBSuspected){
+      ipt_message_header = "PATIENT IS A TB SUSPECT";
+    }
+    
+    if (patientTBConfirmed){
+      ipt_message_header = "TB CONFIRMED PATIENT";
+    }
+
+
+    if (patientOnTBTreatment.toUpperCase() == 'TRUE' || patientTBSuspected.toUpperCase() == 'TRUE' || patientTBConfirmed.toUpperCase() == 'TRUE'){
+      if (ipt_option_input){
+        ipt_option_input.onmouseup = function(){
+          if (!ipt_option_input.style.backgroundColor.match(/lightBlue/i)){
+            __$('ipt-message-header').innerHTML = ipt_message_header;
+            showTBTreatmentPopup();
+          }
+        }
+      }
+    }*/
+
+  }
+
+</script>
+
+<style type="text/css">
+  .disabled_check {
+    padding-left: 52px;
+  }
+
+  #fast_track_reminder_cover{
+    position: absolute;
+    background-color: black;
+    width: 100%;
+    height: 102%;
+    left: 0%;
+    top: 0%;
+    z-index: 990;
+    opacity: 0.3;
+  }
+
+  #fast_track_reminder{
+    position: absolute;
+    width: 75%;
+    height: 40%;
+    top: 10%;
+    z-index: 991;
+    left: 12%;
+    border: 1px solid black;
+    background-color: #CD3333;
+    border-radius: 15px;
+  }
+
+  #fast_track_reminder_header{
+    padding: 10px;
+    background-color: white;
+    color: black;
+    border-radius: 15px 15px 0px 0px;
+  }
+
+  #fast_track_reminder_footer{
+    background-color: #FFD39B;
+    height: 60px;
+    width: 100%;
+    position: absolute;
+    width: 100%;
+    position: absolute;
+    bottom: 0px;
+    border-radius: 0px 0px 15px 15px;
+  }
+
+  #fast_track_reminder_footer #fastTrackNotNow{
+    background-color: goldenrod;
+    position: absolute;
+    padding: 12px 20%;
+    /*right: 8px;*/
+    left: 8px;
+    bottom: 8px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  #fast_track_reminder_footer #fastTrackNow{
+    background-color: goldenrod;
+    position: absolute;
+    padding: 12px 20%;
+    right: 8px;
+    bottom: 8px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+</style>
+
+
+<div id="tb-treatment-popup-div">
+  <div id="tb-treatment-popup-header">
+    <center>Confirm</center>
+  </div><br />
+  <div>
+
+    <span style="font-size: 16pt;">
+      <center>
+        <i><b id="ipt-message-header">PATIENT ON TB TREATMENT</b></i><br />
+        Do you want to continue with <b>IPT</b> prescription?
+      </center>
+    </span>
+    <div style="padding-top: 65px;">
+      <span id="tb-treatment-yes" onclick="hideTBTreatmentPopup();" class="tb-treatment-my_button" style="position: relative;">Yes</span>
+      <span id="tb-treatment-no" onclick="hideTBTreatmentPopupAndClearinput();" class="tb-treatment-my_button" style=" position: relative; right: 20px;">No</span>
+    </div>
+  </div>
+</div>
+
+
+<div id="tb-treatment-cover"></div>
+<style type="text/css">
+
+  .tb-treatment-my_button {
+    -moz-user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 16px;
+    font-weight: bolder;
+    line-height: 2.29;
+    margin-bottom: 0;
+    padding: 6px 56px;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    background-color: #337ab7;
+    border-color: #2e6da4;
+    color: #fff;
+    float: right;
+    margin-top: -5px;
+  }
+
+
+  #tb-treatment-popup-div {
+    display: none;
+    background-color: #F4F4F4;
+    border: 2px solid #E0E0E0;
+    border-radius: 15px;
+    height: 249px;
+    padding: 5px;
+    position: absolute;
+    margin-top: 100px;
+    width: 560px;
+    margin-left: 430px;
+    z-index: 991;
+  }
+
+  #tb-treatment-popup-header{
+    border-bottom: 2px solid #7D9EC0;
+    margin-left: -5px;
+    width: 101.5%;
+    background-color: #FFFFFF;
+    margin-top: -5px;
+    padding-top: 5px;
+    border-radius: 15px 15px 0 0;
+    font-size: 14pt;
+    font-weight: bolder;
+  }
+
+  #tb-treatment-cover{
+    display: none;
+    position: absolute;
+    background-color: black;
+    width: 100%;
+    height: 102%;
+    left: 0%;
+    top: 0%;
+    z-index: 990;
+    opacity: 0.65;
+  }
+
+  #tb-treatment-yes, #tb-treatment-no {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    bottom: 0px;
+  }
+
+  .unselectable{
+    height: 50px !important;
+  }
+</style>
+
+<script language="javascript" type="text/javascript" src="/javascripts/show_category_hack.js" defer="true"></script>

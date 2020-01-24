@@ -1,0 +1,193 @@
+
+    <%= javascript_include_tag "Highcharts/js/jquery.min.js" %>
+
+    <style type="text/css">
+      ${demo.css}
+      
+      .main-table {
+        display: table;
+        width: 100%;
+        padding: 0px 1px 0px 1px;
+      }
+
+      .main-table-row {
+        display: table-row;
+      }
+
+      .main-table-cell {
+        display: table-cell;
+      }
+
+    </style>
+
+
+    <script type="text/javascript">
+    
+  $(function () {
+    $('#container').highcharts({
+        chart: {
+          backgroundColor: '#FCFFC5',
+          type: "column"
+        },
+        title: {
+            text: '',
+            x: -20 //center
+        },
+        subtitle: {
+            text: '',
+            x: -20
+        },
+        xAxis: {
+            categories: ['0-24', '25-49', '50-94', '95-100', 'Over 100','Missing/No readings']
+        },
+        yAxis: {
+            title: {
+                text: 'Patients'
+            },
+        labels: {
+            format: '{value:,.0f}'
+        },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+        tooltip: {
+          formatter:function(){
+                    console.log(this);
+                    return 'Adherence: ' + this.key + '%<br /> Patients ' + this.y;
+                }
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle',
+            borderWidth: 0
+        },
+        exporting: {
+            enabled: false
+        },
+        credits: {
+          enabled: false
+        },
+        series: [{
+            name: 'Patients',
+            data: [parseInt(<%=@adherence_summary_hash['0 - 24'].to_i rescue 0%>), 
+              parseInt(<%=@adherence_summary_hash['25 - 49'].to_i rescue 0%>), 
+              parseInt(<%=@adherence_summary_hash['50 - 94'].to_i rescue 0%>), 
+              { y: parseInt(<%=@adherence_summary_hash['95 - 100'].to_i rescue 0%>), color: '#6dc700' }, 
+              parseInt(<%=@adherence_summary_hash['> 100'].to_i rescue 0%>),
+              parseInt(<%=@adherence_summary_hash['missing'].to_i rescue 0%>)]
+        }] 
+    });
+});
+    </script>
+
+<%= javascript_include_tag "Highcharts/js/highcharts" %>
+<%= javascript_include_tag "Highcharts/js/modules/exporting" %>
+
+
+<div class='main-table'>
+
+  <div class='main-table-row'>
+
+    <div class='main-table-cell' style="width:80%; float: left;">
+      <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+    </div>
+
+    <div class='main-table-cell links' style="width:18%; float: right;">
+        <ul>
+          <li><a href="/cohort_tool/list_of_patients_with_adh?quarter=<%=params[:quarter]%>&range_start=0&range_end=94">0 - 94%</a></li>
+          <li><a href="/cohort_tool/list_of_patients_with_adh?quarter=<%=params[:quarter]%>&range_start=95&range_end=100">95 - 100%</a></li>
+          <li><a href="/cohort_tool/list_of_patients_with_adh?quarter=<%=params[:quarter]%>&range_start=>&range_end=100">Over 100%</a></li>
+          <li><a href="/cohort_tool/list_of_patients_with_adh?quarter=<%=params[:quarter]%>&range_start=0&range_end=0">No readings</a></li>
+      </ul>
+    </div>
+
+  </div>
+
+</div>
+
+<div id="footer" class="dark">
+  <div id="buttons" class="buttons" style="top: 0px;">
+    <button style="margin: 5px 0px 0px; min-width: 100px;" onclick="window.location='/'" class="blue"><span>Finish</span></button>
+  </div>
+</div>
+
+<style>
+#footer {
+    background-color: rgb(51, 51, 51);
+    bottom: 0;
+    color: #cadcea;
+    height: 80px;
+    overflow: hidden;
+    padding-right: 20px;
+    position: absolute;
+    width: 96.7%;
+}
+
+#footer button, div.buttonsDiv button {
+  float: right;
+
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #44c767), color-stop(1, #5cbf2a));
+  background:-moz-linear-gradient(top, #44c767 5%, #5cbf2a 100%);
+  background:-webkit-linear-gradient(top, #44c767 5%, #5cbf2a 100%);
+  background:-o-linear-gradient(top, #44c767 5%, #5cbf2a 100%);
+  background:-ms-linear-gradient(top, #44c767 5%, #5cbf2a 100%);
+  background:linear-gradient(to bottom, #44c767 5%, #5cbf2a 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#44c767', endColorstr='#5cbf2a',GradientType=0);
+  background-color:#44c767;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  border:1px solid #18ab29;
+  display:inline-block;
+  cursor:pointer;
+  color:#ffffff;
+  font-family:Arial;
+  font-size:28px;
+  font-weight:bold;
+  text-decoration:none;
+  text-shadow:0px 1px 0px #2f6627;
+  width: 12%;
+  height: 88%;
+}
+
+.links a {
+-moz-box-shadow:inset 0px 1px 0px 0px #d9fbbe;
+  -webkit-box-shadow:inset 0px 1px 0px 0px #d9fbbe;
+  box-shadow:inset 0px 1px 0px 0px #d9fbbe;
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #b8e356), color-stop(1, #a5cc52));
+  background:-moz-linear-gradient(top, #b8e356 5%, #a5cc52 100%);
+  background:-webkit-linear-gradient(top, #b8e356 5%, #a5cc52 100%);
+  background:-o-linear-gradient(top, #b8e356 5%, #a5cc52 100%);
+  background:-ms-linear-gradient(top, #b8e356 5%, #a5cc52 100%);
+  background:linear-gradient(to bottom, #b8e356 5%, #a5cc52 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#b8e356', endColorstr='#a5cc52',GradientType=0);
+  background-color:#b8e356;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  border:1px solid #83c41a;
+  display:inline-block;
+  cursor:pointer;
+  color:#ffffff;
+  font-family:Arial;
+  font-size:15px;
+  font-weight:bold;
+  text-decoration:none;
+  text-shadow:0px 1px 0px #86ae47;
+  text-align: center;
+  width: 100%;
+  height: 50px;
+  padding-top: 20px;
+}
+
+.links li {
+  padding-bottom: 10px;
+  list-style: none;
+  text-decoration: none;
+  margin-right: 25px;
+}
+</style>

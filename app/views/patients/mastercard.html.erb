@@ -1,0 +1,586 @@
+
+<%= stylesheet_link_tag "datatables/jquery.dataTables.min" %>                                         
+<%= stylesheet_link_tag "datatables/fixedHeader.dataTables.min" %>                                         
+<%= stylesheet_link_tag "datatables/scroller.dataTables.min" %>                                         
+
+<%=javascript_include_tag "datatables/jquery-1.12.4"%>                                         
+<%=javascript_include_tag "datatables/jquery.dataTables.min"%>                                         
+<%=javascript_include_tag "datatables/dataTables.fixedHeader.min"%>                                         
+<style>
+  /* ............ table ends ------------------- */
+  .dtable {
+    width: 98%;
+    display: table;
+  }
+
+  .drow {
+    display: table-row;
+  }
+
+  .dcell {
+    width: 100%;
+    display: table-cell;
+  }
+  /* ............ table ends ------------------- */
+
+  .data {
+    background-color: lightgray;
+    font-size: 14px;
+  }
+
+  .headers {
+    font-weight: bold;
+    font-size: 14px;
+  }
+
+  .separator {
+    border-style: solid;
+    border-width: 0px 2px 0px 0px;
+    border-color: lightgrey;
+    padding-left: 5px;
+  }
+
+  .separator-data {
+    border-style: solid;
+    border-width: 0px 2px 0px 0px;
+    border-color: white;
+    padding-left: 5px;
+  }
+
+  /* ................................................................................ */
+
+
+  table
+  {
+    width: 98%;
+    border-collapse: collapse;
+    margin-left: 10px;
+  }
+
+  thead
+  {
+    color: black;
+    background: lightgrey;
+  }
+
+
+  /* ................................................................................ */
+
+  .demographics {
+    margin-left: 10px;
+  }
+
+  #fixed_headers th, td {
+    border-style: solid;
+    border-width: 1px;
+  }
+
+  a.rounded:hover span {
+    background-position: 0 -30px;
+  }
+  a.rounded span {
+    background-color: grey;
+    border-bottom: 1px outset black;
+    border-style: outset;
+    border-top: 1px outset black;
+    color: white;
+    display: block;
+    padding: 10px 16px 10px 10px;
+    text-align: center;
+    text-decoration: none;
+    width: 75px;
+  }
+  a span {
+    display: block;
+    height: 30px;
+    line-height: 30px;
+    padding: 0 0 0 15px;
+    position: relative;
+    white-space: nowrap;
+  }
+  
+</style>  
+
+
+<body onload="initDataTable();addFirstSection();getVisitDates();">
+
+  <br />
+
+  <div class="dtable demographics" style="border-width: 1px 0px 0px 0px; border-style: solid;">
+    <div class="drow headers">
+      <div class="dcell separator" style="width: 48%;">ARV number:</div>
+      <div class="dcell separator">National patient ID:</div>
+    </div>
+
+    <div class="drow data">
+      <div class="dcell separator-data" style="width: 48%;" id='arv_number'>&nbsp;</div>
+      <div class="dcell separator-data" id="nid">&nbsp;</div>
+    </div>
+  </div>
+
+
+  <div class="dtable demographics">
+    <div class="drow headers">
+      <div class="dcell separator" style="width: 40%;">Name:</div>
+      <div class="dcell separator" style="width: 10%;">Age:</div>
+      <div class="dcell separator" style="width: 10%;">Sex:</div>
+      <div class="dcell separator" style="width: 10%;">Int Wt(Kg):</div>
+      <div class="dcell separator" style="width: 10%;">Int Ht(cm):</div>
+      <div class="dcell separator" style="width: 10%;">BMI:</div>
+      <div class="dcell separator" style="width: 10%;">TI:</div>
+    </div>
+
+    <div class="drow data demographics">
+      <div class="dcell separator-data" style="width: 40%;" id="name">&nbsp;</div>
+      <div class="dcell separator-data" style="width: 10%;" id="age">&nbsp;</div>
+      <div class="dcell separator-data" style="width: 10%;" id="gender">&nbsp;</div>
+      <div class="dcell separator-data" style="width: 10%;" id="weight">&nbsp;</div>
+      <div class="dcell separator-data" style="width: 10%;" id="height">&nbsp;</div>
+      <div class="dcell separator-data" style="width: 10%;" id="bmi">&nbsp;</div>
+      <div class="dcell separator-data" style="width: 10%;" id="transfer_in">&nbsp;</div>
+    </div>
+
+  </div>
+
+  <div class="dtable demographics">
+    <div class="drow headers">
+      <div class="dcell separator" style="width: 40%;">Location:</div>
+      <div class="dcell separator" style="width: 40%;">Landmark / Address (Physical / P.O Box):</div>
+      <div class="dcell separator" style="width: 20%;">Occupation:</div>
+    </div>
+
+    <div class="drow data demographics">
+      <div class="dcell separator-data" style="width: 40%;" id="current_residence">&nbsp;</div>
+      <div class="dcell separator-data" style="width: 40%;" id="landmark">&nbsp;</div>
+      <div class="dcell separator-data" style="width: 20%;" id="occupation">&nbsp;</div>
+    </div>
+  </div>
+
+  <div class="dtable demographics">
+    <div class="drow headers">
+      <div class="dcell separator" style="width: 30%;">Name of guardian:</div>
+      <div class="dcell separator" style="width: 40%;">Date Place of +HIV test:</div>
+      <div class="dcell separator" style="width: 20%;">Agrees to follow-up:</div>
+    </div>
+
+    <div class="drow data demographics">
+      <div class="dcell separator-data" style="width: 40%;" id="guardian">&nbsp;</div>
+      <div class="dcell separator-data" style="width: 40%;" id="date_place_of_pos_hiv_test">&nbsp;</div>
+      <div class="dcell separator-data" style="width: 20%;" id="agrees_to_followup">&nbsp;</div>
+    </div>
+  </div>
+
+  <div class="dtable demographics">
+    <div class="drow headers">
+      <div class="dcell separator" style="width: 48%;">Date of Starting 1<sup>st</sup> Line ARV regimen:</div>
+      <div class="dcell separator">Reason for starting ART:</div>
+    </div>
+
+    <div class="drow data demographics">
+      <div class="dcell separator-data" style="width: 48%;" id="first_line_date">&nbsp;</div>
+      <div class="dcell separator-data">
+        <%if User.current.admin?%>
+          <a href="/patients/change_reason_for_starting_art?patient_id=<%=params[:patient_id]%>">
+            <span id="reason_for_starting_art">&nbsp;</a></span>
+        <%else%>
+            <span id="reason_for_starting_art">&nbsp;</span>
+        <%end%>
+      </div>
+    </div>
+  </div>
+
+  <div class="dtable demographics">
+    <div class="drow headers">
+      <div class="dcell separator" style="width: 30%;">Pulmonary tuberculosis within the last 2 years:</div>
+      <div class="dcell separator" style="width: 30%;">Extrapulmonary tuberculosis (EPTB):</div>
+      <div class="dcell separator" style="width: 30%;">Pulmonary tuberculosis (current):</div>
+      <div class="dcell separator" style="width: 10%;">Kaposi's sarcoma:</div>
+    </div>
+
+    <div class="drow data demographics">
+      <div class="dcell separator-data" style="width: 10%;" id="2_yrs">&nbsp;</div>
+      <div class="dcell separator-data" style="width: 10%;" id="eptb">&nbsp;</div>
+      <div class="dcell separator-data" style="width: 10%;" id="tb_curent">&nbsp;</div>
+      <div class="dcell separator-data" style="width: 10%;" id="ks">&nbsp;</div>
+    </div>
+
+  </div>
+
+  <div class="dtable demographics">
+    <div class="drow headers">
+      <div class="dcell" style="width: 100%;"><hr /></div>
+    </div>
+  </div>
+
+
+
+  <!-- Mastercard visit ...................................... -->
+
+  <table id="fixed_headers" class="display" cellspacing="0" width="100%" height="40%">
+    <thead>
+      <tr class="header">
+        <th style="width: 8%;">&nbsp;</th>
+        <th style="width: 2.5%;">Ht</th>
+        <th style="width: 2.5%;">Wt</th>
+        <th style="width: 5%;">BMI</th>
+        <th style="width: 5%;">Reg</th>
+        <th style="width: 10%;">Outcome</th>
+        <th style="width: 15%;">Adh</th>
+        <th style="width: 15%;">S.eff</th>
+        <th style="width: 20%;">Pills remaining</th>
+        <th style="width: 20%;">Gave</th>
+        <!-- th style="width: 5%;">CPT</th-->
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+</body>
+
+<script>
+
+  var patientID = '<%= params[:patient_id] %>';
+  var tt_cancel_destination = "/patients/show/" + patientID;
+  var rowBG = '';
+
+  function addRows(fetchedVisit) {
+
+    var vDate           = fetchedVisit['visit_date'];
+
+    add_str = vDate + "&patient_id=" + patientID + '"';  
+
+    vDate = "<a href=\"/patients/specific_patient_visit_date_label?session_date=" + add_str + " class=\"rounded\" style=\"text-decoration:none;\"><span>" + vDate + "</span></a>"
+
+
+    var height          = fetchedVisit['height'];
+    var weight          = fetchedVisit['weight'];
+    var bmi             = fetchedVisit['bmi'];
+    var regimen         = fetchedVisit['regimen'];
+    var outcome         = fetchedVisit['outcome'];
+    var side_effects    = fetchedVisit['side_effects'];
+    var pills_remaining = fetchedVisit['pills_remaining'];
+    var gave            = '';
+    var adherences      = '';
+    var pills_brought   = '';
+  
+    for(var i = 0; i <  fetchedVisit['pills_brought'].length; i++){
+      if(pills_brought.length < 1){
+        pills_brought = fetchedVisit['pills_brought'][i]['short_name']  + " (" + fetchedVisit['pills_brought'][i]['quantity'] + ")";
+      }else{
+        pills_brought += '<br />' + fetchedVisit['pills_brought'][i]['short_name']  + " (" + fetchedVisit['pills_brought'][i]['quantity'] + ")";
+      }
+    }
+
+    for(var i = 0; i <  fetchedVisit['pills_gave'].length; i++){
+      if(gave.length < 1){
+        gave = fetchedVisit['pills_gave'][i]['short_name']  + " (" + fetchedVisit['pills_gave'][i]['quantity'] + ")";
+      }else{
+        gave += '<br />' + fetchedVisit['pills_gave'][i]['short_name']  + " (" + fetchedVisit['pills_gave'][i]['quantity'] + ")";
+      }
+    }
+
+    for(var i = 0; i < fetchedVisit['art_adherences'].length; i++){
+      if(adherences.length < 1){
+        adherences = fetchedVisit['art_adherences'][i]['short_name']  + " (" + fetchedVisit['art_adherences'][i]['adherence'] + ")";
+      }else{
+        adherences += '<br />' + fetchedVisit['art_adherences'][i]['short_name']  + " (" + fetchedVisit['art_adherences'][i]['adherence'] + ")";
+      }
+    }
+
+    setDataTable.row.add([vDate, height, weight, bmi, regimen, outcome, adherences, side_effects, pills_brought, gave]).draw();;
+  }
+
+
+
+  function addFirstSection() {
+    jQuery.ajax({
+      type: "POST",
+      url: "/people/get_patient_name",
+      data: "patient_id=" + patientID,
+      success: function(result){
+        var data = JSON.parse(result);
+
+        if (data['name']){
+          name_link = "<a href=\"/patients/mastercard_modify?field=name&id=" + patientID +  "\">" + data['name'] +  "</a>";
+        } else {
+          name_link = "<a href=\"/patients/mastercard_modify?field=name&id=" + patientID +  "\">Add</a>";
+        }
+
+        if (data['gender']){
+          gender_link = "<a href=\"/patients/mastercard_modify?field=sex&id=" + patientID +  "\">" + data['gender'] +  "</a>";
+        } else {
+          gender_link = "<a href=\"/patients/mastercard_modify?field=sex&id=" + patientID +  "\">Add</a>";
+        }
+
+        if (data['age']){
+          age_link = "<a href=\"/patients/mastercard_modify?field=age&id=" + patientID +  "\">" + data['age'] +  "</a>";
+        } else {
+          age_link = "<a href=\"/patients/mastercard_modify?field=age&id=" + patientID +  "\">Add</a>";
+        }
+      
+        document.getElementById('name').innerHTML = name_link;
+        document.getElementById('gender').innerHTML = gender_link;
+        document.getElementById('age').innerHTML = age_link;
+      
+        addIdentifiers();
+      }
+    });
+  }
+
+  function addIdentifiers() {
+    jQuery.ajax({
+      type: "POST",
+      url: "/people/get_patient_identifiers",
+      data: "patient_id=" + patientID,
+      success: function(result){
+        var data = JSON.parse(result);
+        document.getElementById('nid').innerHTML = data['national_id'];
+
+        if (data['arv_number']){
+          arv_link = "<a href=\"/patients/mastercard_modify?field=arv_number&id=" + patientID +  "\">" + data['arv_number'] +  "</a>";
+        } else {
+          arv_link = "<a href=\"/patients/mastercard_modify?field=arv_number&id=" + patientID +  "\">Add</a>";
+        }
+      
+        document.getElementById('arv_number').innerHTML = arv_link;
+        addInitVitals();
+      }
+    });
+  }
+
+  function addInitVitals() {
+    jQuery.ajax({
+      type: "POST",
+      url: "/people/get_initial_vital_signs",
+      data: "patient_id=" + patientID,
+      success: function(result){
+        var data = JSON.parse(result);
+        document.getElementById('weight').innerHTML = data['weight'];
+        document.getElementById('height').innerHTML = data['height'];
+        document.getElementById('bmi').innerHTML = data['bmi'];
+        addAddresses();
+        addTI();
+      }
+    });
+  }
+
+
+  function addTI() {
+    jQuery.ajax({
+      type: "POST",
+      url: "/people/get_transfer_in",
+      data: "patient_id=" + patientID,
+      success: function(result){
+        var data = JSON.parse(result);
+        document.getElementById('transfer_in').innerHTML = data['transfer_in'];
+      }
+    });
+  }
+
+  function addAddresses() {
+    jQuery.ajax({
+      type: "POST",
+      url: "/people/get_current_address",
+      data: "patient_id=" + patientID,
+      success: function(result){
+        var data = JSON.parse(result);
+
+        if (data['current_residence']){
+          current_residence_link = "<a href=\"/patients/mastercard_modify?field=location&id=" + patientID +  "\">" + data['current_residence'] +  "</a>";
+        }else{
+          current_residence_link = "<a href=\"/patients/mastercard_modify?field=location&id=" + patientID +  "\">Add</a>";
+        }
+
+        if (data['landmark']){
+          landmark_link = "<a href=\"/patients/mastercard_modify?field=address&id=" + patientID +  "\">" + data['landmark'] +  "</a>";
+        } else {
+          landmark_link = "<a href=\"/patients/mastercard_modify?field=address&id=" + patientID +  "\">Add</a>";
+        }
+
+        document.getElementById('current_residence').innerHTML = current_residence_link;
+        document.getElementById('landmark').innerHTML = landmark_link;
+      
+        addOccupation();
+      }
+    });
+  }
+
+  function addOccupation() {
+    jQuery.ajax({
+      type: "POST",
+      url: "/people/get_occupation",
+      data: "patient_id=" + patientID,
+      success: function(result){
+        var data = JSON.parse(result);
+      
+        if (data['occupation']){
+          occupation_link = "<a href=\"/patients/mastercard_modify?field=occupation&id=" + patientID +  "\">" + data['occupation'] +  "</a>";
+        }else{
+          occupation_link = "<a href=\"/patients/mastercard_modify?field=occupation&id=" + patientID +  "\">Add</a>";
+        }
+
+        document.getElementById('occupation').innerHTML = occupation_link;
+        addGuardian();
+      }
+    });
+  }
+
+  function addGuardian() {
+    jQuery.ajax({
+      type: "POST",
+      url: "/people/get_guardian",
+      data: "patient_id=" + patientID,
+      success: function(result){
+        var data = JSON.parse(result);
+      
+        if (data['guardian_name']){
+          guardian_link = "<a href=\"/patients/mastercard_modify?field=guardian&id=" + patientID +  "\">" + data['guardian_name'] +  "</a>";
+        }else{
+          guardian_link = "<a href=\"/patients/mastercard_modify?field=guardian&id=" + patientID +  "\">Add</a>";
+        }
+      
+        document.getElementById('guardian').innerHTML = guardian_link;
+      
+        addAgreesToFollowUp();
+      }
+    });
+  }
+
+  function addAgreesToFollowUp() {
+    jQuery.ajax({
+      type: "POST",
+      url: "/people/get_agrees_to_followup",
+      data: "patient_id=" + patientID,
+      success: function(result){
+        var data = JSON.parse(result);
+        document.getElementById('agrees_to_followup').innerHTML = data['agrees_to_followup'];
+        addDatePlaceOfPosHIVtest();
+      }
+    });
+  }
+
+  function addDatePlaceOfPosHIVtest() {
+    jQuery.ajax({
+      type: "POST",
+      url: "/people/get_date_place_of_pos_hiv_test",
+      data: "patient_id=" + patientID,
+      success: function(result){
+        var data = JSON.parse(result);
+        var test_date = data['test_date'];
+        var test_loc  = data['test_location'];
+        document.getElementById('date_place_of_pos_hiv_test').innerHTML = test_date + " / " + test_loc;
+        addDateOfFirstLine();
+      }
+    });
+  }
+
+  function addDateOfFirstLine() {
+    jQuery.ajax({
+      type: "POST",
+      url: "/people/get_date_of_first_line",
+      data: "patient_id=" + patientID,
+      success: function(result){
+        var data = JSON.parse(result);
+        var first_line_date = data['first_line_date'];
+        document.getElementById('first_line_date').innerHTML = first_line_date;
+        addReasonForART();
+      }
+    });
+  }
+
+  function addReasonForART() {
+    jQuery.ajax({
+      type: "POST",
+      url: "/people/get_reason_for_starting_art",
+      data: "patient_id=" + patientID,
+      success: function(result){
+        var data = JSON.parse(result);
+        var reason = data['reason_for_starting_art'];
+        document.getElementById('reason_for_starting_art').innerHTML = reason;
+        addTBstats();
+      }
+    });
+  }
+
+  function addTBstats() {
+    jQuery.ajax({
+      type: "POST",
+      url: "/people/get_tb_stats",
+      data: "patient_id=" + patientID,
+      success: function(result){
+        var data = JSON.parse(result);
+        document.getElementById('2_yrs').innerHTML = data['last_2_yrs'];
+        document.getElementById('eptb').innerHTML = data['eptb'];
+        document.getElementById('tb_curent').innerHTML = data['tb_current'];
+        document.getElementById('ks').innerHTML = data['ks'];
+      }
+    });
+  }
+
+  function getVisitDates() {
+    jQuery.ajax({
+      type: "POST",
+      url: "/patient_mastercard/get_visit_dates",
+      data: "patient_id=" + patientID,
+      success: function(result){
+        visitDates = JSON.parse(result);
+        addVisits();
+      }
+    });
+  }
+
+  function addVisits() {
+    try {
+      if(visitDates[0].length < 1)
+        return
+
+    }catch(e){
+      return;
+    }
+
+    var visit_date = visitDates[0];
+    visitDates.shift();
+
+    jQuery.ajax({
+      type: "POST",
+      url: "/patient_mastercard/get_visit",
+      data: "patient_id=" + patientID + "&visit_date=" + visit_date,
+      success: function(result){
+        data = JSON.parse(result);
+        addRows(data);
+        addVisits();
+      }
+    });
+  }
+
+  var setDataTable = null;
+
+  function initDataTable() {
+    setDataTable = jQuery('#fixed_headers').DataTable( {
+      fixedHeader: true,
+      searching: false,
+      scrollY: 280,
+      scroller: {
+        loadingIndicator: true
+      }
+    } );
+  }
+
+
+  var remainingDates = [];
+  visitDates = [];
+</script>
+
+<style>
+
+  #fixed_headers_wrapper {
+    width: 98%;
+    margin-left:10px;
+  }
+
+  #fixed_headers_length {
+    display: none;
+  }
+
+</style>
+

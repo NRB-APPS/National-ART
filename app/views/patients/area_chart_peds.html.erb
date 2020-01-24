@@ -1,0 +1,109 @@
+
+<%= javascript_include_tag "Highcharts/js/jquery.min.js" %>
+<%= javascript_include_tag "Highcharts/js/highcharts" %>
+<script>
+  var standard_high_weight = [];
+  var standard_low_weight = [];
+  var median_weight = [];
+  var age_in_months = [];
+  var weight_trail = [];
+  var weight_obs = [];
+
+  <%(@weight_height_for_ages || {}).each do |age, data|%>
+    weight_trail.push(null);
+  <%end%>
+
+  <%(@sorted_weight_trail || {}).each do |age, data|%>
+    weight_obs.push([<%=age%>,<%=data%>]);
+  <%end%>
+
+  function loadData() {
+    for(var i = 0; i < weight_obs.length; i++) {
+      m_index = weight_obs[i][0];
+      weight_trail[m_index] = weight_obs[i][1];
+    }
+    
+    <%(@weight_height_for_ages || {}).sort_by {|x, y| x }.each do |age, data|%>
+      standard_low_weight.push(<%=data[:standard_low_weight]%>);
+      standard_high_weight.push(<%=data[:standard_high_weight]%>);
+      median_weight.push(<%=data[:median_weight]%>);
+      age_in_months.push(<%=age%>);
+    <%end%>
+  }
+  
+  function plotBabyGraph() {
+
+    jQuery('#charts').highcharts({
+        chart: {
+            type: 'line'
+        },
+        title: {
+            text: ''
+        },
+        xAxis: {
+            categories: age_in_months ,
+            title: {
+              text: 'Age in months'
+            },
+            plotBands: [{ // visualize the weekend
+                from: 4.5,
+                to: 6.5
+            }]
+        },
+        yAxis: {
+            title: {
+                text: 'Weight'
+            }
+        },
+        tooltip: {
+            shared: true,
+            valueSuffix: ' Kg'
+        },
+        credits: {
+            enabled: false
+        },
+        plotOptions: {
+          series: {
+            fillOpacity: 0.5,
+            connectNulls: true,
+            marker: {
+              enabled: false
+            }
+          }
+        },
+        series: [{
+            name: 'Standard high weight',
+            data: standard_high_weight,
+            marker: {
+              fillColor: '#c70a00',
+              lineWidth: 2,
+              lineColor: '999'
+            }
+        }, {
+            name: 'Median weight',
+            data: median_weight
+        }, {
+            name: "Weight trail (child's weight)",
+            data: weight_trail,
+            marker: { enabled: true }   
+        }, {
+            name: 'Standard low weight',
+            data: standard_low_weight
+        }]
+    });
+
+  }
+
+
+  loadData();
+  plotBabyGraph();
+</script>
+
+<div id="charts" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+
+<style>
+#charts {
+  padding-bottom: 50px;
+}
+
+</style>

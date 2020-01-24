@@ -1,0 +1,3908 @@
+<title>Revised Cohort Report</title>
+<style type="text/css" xmlns="http://www.w3.org/1999/html">
+    td {
+        padding: 12px;
+    }
+    .table-main {
+        width: 99%;
+        height: 100%;
+        border: 0;
+        border-spacing: 0;
+        font-family: "Helvetica Neue", Arial, "Lucida Grande", sans-serif;
+        font-size: large;
+        overflow: auto;
+        text-overflow: ellipsis;
+        margin: auto;
+        page-break-inside: auto;
+        padding-bottom: 70px;
+    }
+
+    .table-top {
+        page-break-inside: auto;
+        width: 99%;
+        border: 0;
+        border-spacing: 0;
+        font-family: "Helvetica Neue", Arial, "Lucida Grande", sans-serif;
+        font-size: large;
+        overflow: auto;
+        text-overflow: ellipsis;
+        margin: auto;
+        page-break-inside: auto;
+    }
+    .border-null {
+        border: none;
+    }
+    .text-bold {
+        font-weight: bold;
+    }
+    .text-center {
+        text-align: center;
+    }
+    .text-italic {
+        font-style: italic;
+    }
+    .text-smaller {
+        font-size: smaller;
+    }
+    .index {
+        border: none;
+        width: 2%;
+    }
+    .border-null-right {
+        border-right: none;
+    }
+    .border-null-left {
+        border-left: none;
+    }
+    .border-null-top {
+        border-top: none;
+    }
+    .border-null-bottom {
+        border-bottom: none;
+    }
+    .border-left-dotted {
+        border-left-style: dotted;
+    }
+    .border-right-dotted {
+        border-right-style: dotted;
+    }
+    .border-bottom-dotted {
+        border-bottom-style: dotted;
+    }
+    .border-top-dotted {
+        border-top-style: dotted;
+    }
+    .buttons {
+        top: 0px;
+    }
+    .button {
+        font-size: 28px;
+        text-shadow: -1px -1px 0 rgba(0,0,0,0.3);
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: bold;
+        cursor: pointer;
+        color: #ffffff;
+        padding: 10px;
+        display: inline-block;
+        text-decoration: none;
+        min-width: 120px;
+        min-height: 55px;
+        margin: 3px;
+        border-radius: 3px !important;
+    }
+    .button-print:hover {
+        border: #5ca6c4;
+        background-color: #2F30EE;
+    }
+    .button-print {
+        border: #7eb9d0;
+        background-color: #5ca6c4;
+        float: left;
+    }
+    .button-finish:hover {
+        border: #224b09;
+        background-color: #224b09;
+    }
+    .button-finish {
+        border: #4ba614;
+        background-color: #4ba614;
+        float: right;
+    }
+
+    .button-disaggregated{
+      border: #7eb9d0;
+        background-color: #5ca6c4;
+        float: right;
+}
+
+    .row-button-print {
+        position: fixed;
+        left: 0px;
+        bottom: 0px;
+        height: 80px;
+        overflow: hidden;
+        padding-right: 20px;
+        width: 100%;
+        background-color: rgb(51,51,51);
+    }
+    .row-break {
+        line-height: 1px;
+    }
+    .clinic-head {
+        width: 10% !important;
+    }
+    .clinic-description {
+        width: 23%;
+    }
+    .clinic-result {
+        width: 16%;
+    }
+    .column-break {
+        width: 1%;
+        border: none;
+    }
+    .bolder {
+        border: black;
+        border-style: solid;
+        border-width: 2px;
+    }
+    .bolder-left {
+        border-left: black;
+        border-left-style: solid;
+        border-left-width: 2px;
+    }
+    .bolder-right {
+        border-right: black;
+        border-right-style: solid;
+        border-right-width: 2px;
+    }
+    .bolder-bottom {
+        border-bottom: black;
+        border-bottom-style: solid;
+        border-bottom-width: 2px;
+    }
+    .bolder-top {
+        border-top: black;
+        border-top-style: solid;
+        border-top-width: 2px;
+    }
+    .number {
+        text-align: right;
+    }
+  #consistency_check {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    margin-left: 25px;
+    margin-right: 15px;
+    color: #ea091a;
+    font-size: 18px;
+    font-family: Arial, Helvetica, sans-serif;
+    letter-spacing: 2px;
+    line-height: 32px
+  }
+  #incosistence_title {
+    font-size: 24px;
+    text-align: center;
+  }
+</style>
+
+<script type="text/javascript">
+
+ function drillDown(indicator) {
+  var patient_ids = [];
+    switch(indicator){
+      case 'total_registered':
+        for(i = 0; i < totalReg.length; i++){
+          var patient_id = totalReg[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'cum_total_registered':
+        for(i = 0; i < totalCumReg.length; i++){
+          var patient_id = totalCumReg[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'initiated_on_art_first_time':
+        for(i = 0; i < patients_initiated_first_time.length; i++){
+          var patient_id = patients_initiated_first_time[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'cum_initiated_on_art_first_time':
+        for(i = 0; i < cum_patients_initiated_first_time.length; i++){
+          var patient_id = cum_patients_initiated_first_time[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 're_initiated_on_art':
+        for(i = 0; i < patientsReInitiated.length; i++){
+          var patient_id = patientsReInitiated[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'cum_re_initiated_on_art':
+        for(i = 0; i < cumPatientsReInitiated.length; i++){
+          var patient_id = cumPatientsReInitiated[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'transfer_in':
+        for(i = 0; i < patientsTI.length; i++){
+          var patient_id = patientsTI[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'cum_transfer_in':
+        for(i = 0; i < cum_patientsTI.length; i++){
+          var patient_id = cum_patientsTI[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'all_males':
+        for(i = 0; i < allMales.length; i++){
+          var patient_id = allMales[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'cum_all_males':
+        for(i = 0; i < cumAllMales.length; i++){
+          var patient_id = cumAllMales[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'non_pregnant_females':
+        for(i = 0; i < non_pregnant_females.length; i++){
+          var patient_id = non_pregnant_females[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'cum_non_pregnant_females':
+        for(i = 0; i < cum_non_pregnant_females.length; i++){
+          var patient_id = cum_non_pregnant_females[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'pregnant_females_all_ages':
+        for(i = 0; i < pregnant_females.length; i++){
+          var patient_id = pregnant_females[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'cum_pregnant_females_all_ages':
+        for(i = 0; i < cum_pregnant_females.length; i++){
+          var patient_id = cum_pregnant_females[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'children_below_24_months_at_art_initiation':
+        for(i = 0; i < children_below_24_months_at_art_initiation.length; i++){
+          var patient_id = children_below_24_months_at_art_initiation[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'cum_children_below_24_months_at_art_initiation':
+        for(i = 0; i < cum_children_below_24_months_at_art_initiation.length; i++){
+          var patient_id = cum_children_below_24_months_at_art_initiation[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'children_24_months_14_years_at_art_initiation':
+        for(i = 0; i < children_24_months_14_years_at_art_initiation.length; i++){
+          var patient_id = children_24_months_14_years_at_art_initiation[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'cum_children_24_months_14_years_at_art_initiation':
+        for(i = 0; i < cum_children_24_months_14_years_at_art_initiation.length; i++){
+          var patient_id = cum_children_24_months_14_years_at_art_initiation[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'adults_at_art_initiation':
+        for(i = 0; i < adults_at_art_initiation.length; i++){
+          var patient_id = adults_at_art_initiation[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'cum_adults_at_art_initiation':
+        for(i = 0; i < cum_adults_at_art_initiation.length; i++){
+          var patient_id = cum_adults_at_art_initiation[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'unknown_age':
+        for(i = 0; i < unknown_age.length; i++){
+          var patient_id = unknown_age[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'cum_unknown_age':
+        for(i = 0; i < cum_unknown_age.length; i++){
+          var patient_id = cum_unknown_age[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;          
+      case 'presumed_severe_hiv_disease_in_infants':
+        for(i = 0; i < presumed_severe_hiv_disease_in_infants.length; i++){
+          var patient_id = presumed_severe_hiv_disease_in_infants[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'cum_presumed_severe_hiv_disease_in_infants':
+        for(i = 0; i < cum_presumed_severe_hiv_disease_in_infants.length; i++){
+          var patient_id = cum_presumed_severe_hiv_disease_in_infants[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'confirmed_hiv_infection_in_infants_pcr':
+        for(i = 0; i < confirmed_hiv_infection_in_infants_pcr.length; i++){
+          var patient_id = confirmed_hiv_infection_in_infants_pcr[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'cum_confirmed_hiv_infection_in_infants_pcr':
+        for(i = 0; i < cum_confirmed_hiv_infection_in_infants_pcr.length; i++){
+          var patient_id = cum_confirmed_hiv_infection_in_infants_pcr[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'children_12_23_months':
+        for(i = 0; i < children_12_23_months.length; i++){
+          var patient_id = children_12_23_months[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'cum_children_12_23_months':
+        for(i = 0; i < cum_children_12_23_months.length; i++){
+          var patient_id = cum_children_12_23_months[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'who_stage_two':
+        for(i = 0; i < who_stage_two.length; i++){
+          var patient_id = who_stage_two[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'cum_who_stage_two':
+        for(i = 0; i < cum_who_stage_two.length; i++){
+          var patient_id = cum_who_stage_two[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'breastfeeding_mothers':
+        for(i = 0; i < breastfeeding_mothers.length; i++){
+          var patient_id = breastfeeding_mothers[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'cum_breastfeeding_mothers':
+        for(i = 0; i < cum_breastfeeding_mothers.length; i++){
+          var patient_id = cum_breastfeeding_mothers[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'pregnant_women':
+        for(i = 0; i < pregnant_women.length; i++){
+          var patient_id = pregnant_women[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'cum_pregnant_women':
+        for(i = 0; i < cum_pregnant_women.length; i++){
+          var patient_id = cum_pregnant_women[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'who_stage_three':
+        for(i = 0; i < who_stage_three.length; i++){
+          var patient_id = who_stage_three[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'cum_who_stage_three':
+        for(i = 0; i < cum_who_stage_three.length; i++){
+          var patient_id = cum_who_stage_three[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'who_stage_four':
+        for(i = 0; i < who_stage_four.length; i++){
+          var patient_id = who_stage_four[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'cum_who_stage_four':
+        for(i = 0; i < cum_who_stage_four.length; i++){
+          var patient_id = cum_who_stage_four[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'asymptomatic':
+        for(i = 0; i < asymptomatic.length; i++){
+          var patient_id = asymptomatic[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'cum_asymptomatic':
+        for(i = 0; i < cum_asymptomatic.length; i++){
+          var patient_id = cum_asymptomatic[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'unknown_other_reason_outside_guidelines':
+        for(i = 0; i < unknown_other_reason_outside_guidelines.length; i++){
+          var patient_id = unknown_other_reason_outside_guidelines[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'cum_unknown_other_reason_outside_guidelines':
+        for(i = 0; i < cum_unknown_other_reason_outside_guidelines.length; i++){
+          var patient_id = cum_unknown_other_reason_outside_guidelines[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'cum_kaposis_sarcoma':
+        for(i = 0; i < cum_kaposis_sarcoma.length; i++){
+          var patient_id = cum_kaposis_sarcoma[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'kaposis_sarcoma':
+        for(i = 0; i < kaposis_sarcoma.length; i++){
+          var patient_id = kaposis_sarcoma[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'cum_current_episode_of_tb':
+        for(i = 0; i < cum_current_episode_of_tb.length; i++){
+          var patient_id = cum_current_episode_of_tb[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'current_episode_of_tb':
+        for(i = 0; i < current_episode_of_tb.length; i++){
+          var patient_id = current_episode_of_tb[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'cum_tb_within_the_last_two_years':
+        for(i = 0; i < cum_tb_within_the_last_two_years.length; i++){
+          var patient_id = cum_tb_within_the_last_two_years[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'tb_within_the_last_two_years':
+        for(i = 0; i < tb_within_the_last_two_years.length; i++){
+          var patient_id = tb_within_the_last_two_years[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'cum_no_tb':
+        for(i = 0; i < cum_no_tb.length; i++){
+          var patient_id = cum_no_tb[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'no_tb':
+        for(i = 0; i < no_tb.length; i++){
+          var patient_id = no_tb[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'total_alive_and_on_art':
+        for(i = 0; i < aliveAndOnARTdetails.length; i++){
+          var patient_id = aliveAndOnARTdetails[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'died_within_the_1st_month_of_art_initiation':
+        for(i = 0; i < died_in_first_month.length; i++){
+          var patient_id = died_in_first_month[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'died_within_the_2nd_month_of_art_initiation':
+        for(i = 0; i < died_in_second_month.length; i++){
+          var patient_id = died_in_second_month[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'died_within_the_3rd_month_of_art_initiation':
+        for(i = 0; i < died_in_third_month.length; i++){
+          var patient_id = died_in_third_month[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'died_after_the_3rd_month_of_art_initiation':
+        for(i = 0; i < died_after_third_month.length; i++){
+          var patient_id = died_after_third_month[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'died_total':
+        for(i = 0; i < patient_died.length; i++){
+          var patient_id = patient_died[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'defaulted':
+        for(i = 0; i < defaulted.length; i++){
+          var patient_id = defaulted[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'stopped_art':
+        for(i = 0; i < stopped_art.length; i++){
+          var patient_id = stopped_art[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'transfered_out':
+        for(i = 0; i < transfered_out.length; i++){
+          var patient_id = transfered_out[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'total_patients_with_side_effects':
+        for(i = 0; i < withSideEffects.length; i++){
+          var patient_id = withSideEffects[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'total_patients_without_side_effects':
+        for(i = 0; i < noSideEffects.length; i++){
+          var patient_id = noSideEffects[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'unknown_side_effects':
+        for(i = 0; i < unknownSideEffects.length; i++){
+          var patient_id = unknownSideEffects[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+
+      case 'patients_with_0_6_doses_missed_at_their_last_visit':
+        for(i = 0; i < adherent.length; i++){
+          var patient_id = adherent[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'patients_with_7_plus_doses_missed_at_their_last_visit':
+        for(i = 0; i < notAdherent.length; i++){
+          var patient_id = notAdherent[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'patients_with_unknown_adhrence':
+        for(i = 0; i < unknownAdherence.length; i++){
+          var patient_id = unknownAdherence[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+
+      case 'total_pregnant':
+        for(i = 0; i < totalPregantWomen.length; i++){
+          var patient_id = totalPregantWomen[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'total_breastfeeding':
+        for(i = 0; i < totalBreastfeedingWomen.length; i++){
+          var patient_id = totalBreastfeedingWomen[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'all_other_patients':
+        for(i = 0; i < totalAllOtherDetails.length; i++){
+          var patient_id = totalAllOtherDetails[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'tb_not_suspected':
+        for(i = 0; i < tb_not_suspected.length; i++){
+          var patient_id = tb_not_suspected[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'tb_suspected':
+        for(i = 0; i < tb_suspected.length; i++){
+          var patient_id = tb_suspected[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'tb_confirmed_currently_not_yet_on_tb_treatment':
+        for(i = 0; i < tb_confirmed_currently_not_yet_on_tb_treatment.length; i++){
+          var patient_id = tb_confirmed_currently_not_yet_on_tb_treatment[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+
+      case 'tb_confirmed_on_tb_treatment':
+        for(i = 0; i < tb_confirmed_on_tb_treatment.length; i++){
+          var patient_id = tb_confirmed_on_tb_treatment[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'unknown_tb_status':
+        for(i = 0; i < unknown_tb_status.length; i++){
+          var patient_id = unknown_tb_status[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'zero_p':
+        for(i = 0; i < regimenZeroP.length; i++){
+          var patient_id = regimenZeroP[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'two_p':
+        for(i = 0; i < regimenTwoP.length; i++){
+          var patient_id = regimenTwoP[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'four_p':
+        for(i = 0; i < regimenFourP.length; i++){
+          var patient_id = regimenFourP[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'nine_p':
+        for(i = 0; i < regimenNineP.length; i++){
+          var patient_id = regimenNineP[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'elleven_p':
+        for(i = 0; i < regimenEllevenP.length; i++){
+          var patient_id = regimenEllevenP[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'zero_a':
+        for(i = 0; i < regimenZeroA.length; i++){
+          var patient_id = regimenZeroA[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'two_a':
+        for(i = 0; i < regimenTwoA.length; i++){
+          var patient_id = regimenTwoA[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'four_a':
+        for(i = 0; i < regimenFourA.length; i++){
+          var patient_id = regimenFourA[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'five_a':
+        for(i = 0; i < regimenFiveA.length; i++){
+          var patient_id = regimenFiveA[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'six_a':
+        for(i = 0; i < regimenSixA.length; i++){
+          var patient_id = regimenSixA[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'seven_a':
+        for(i = 0; i < regimenSevenA.length; i++){
+          var patient_id = regimenSevenA[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'eight_a':
+        for(i = 0; i < regimenEightA.length; i++){
+          var patient_id = regimenEightA[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'ten_a':
+        for(i = 0; i < regimenTenA.length; i++){
+          var patient_id = regimenTenA[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'elleven_a':
+        for(i = 0; i < regimenEllevenA.length; i++){
+          var patient_id = regimenEllevenA[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'twelve_a':
+        for(i = 0; i < regimenTwelveA.length; i++){
+          var patient_id = regimenTwelveA[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'unknown_regimen':
+        for(i = 0; i < unknownRegimen.length; i++){
+          var patient_id = unknownRegimen[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;
+      case 'nine_a':
+        for(i = 0; i < regimenNineA.length; i++){
+          var patient_id = regimenNineA[i]['patient_id'];
+          patient_ids.push(patient_id);
+        }
+          break;                    
+      default:
+
+    }
+      document.getElementById('patient_ids').value = patient_ids.join(',');
+      document.getElementById('indicator').value = indicator;
+
+      document.pat_drilldown.target = "myList";
+      var w = (window.innerWidth - 80) ; var h = (window.innerHeight - 8);
+      window.open("","myList","width=" + w + ",height=" + h + ",toolbar=0");
+      document.pat_drilldown.submit();
+  }
+
+var quarter = '<%= params[:quarter] %> ';
+function showDisaggregatedReport(){
+  body = document.getElementsByTagName("body")[0];
+
+  form = document.createElement("form");
+  form.method = "POST"
+  form.action = "/cohort_tool/flat_tables_disaggregated_cohort";
+  body.appendChild(form);
+
+  input = document.createElement("input");
+  input.type = "hidden";
+  input.value = quarter;
+  input.name = "quarter";
+  form.appendChild(input);
+
+  form.submit();
+
+}
+</script>
+
+<table class="table-top" border="2px;">
+    <tr>
+        <td class="index">1.</td>
+        <td class="border-top-dotted border-left-dotted border-null-bottom text-bold">
+            Clinic name
+        </td>
+        <td colspan="6" class="bolder">
+            <%= Location.current_health_center.name %>
+             <div style="float:right;font-style:italic;font-size:14;font-weight:bold;">Version 16</div>
+        </td>
+    </tr>
+    <tr>
+        <td class="index">2.</td>
+        <td class="border-left-dotted border-null-bottom border-null-top">
+            Supervisors
+        </td>
+        <td colspan="2" class="bolder-left text-bold border-null-bottom border-right-dotted">
+            Name
+        </td>
+        <td colspan="4" class="bolder-right text-bold border-null-bottom border-null-left">
+            Signature
+        </td>
+    </tr>
+    <tr>
+        <td class="index">3.</td>
+        <td class="border-left-dotted border-null-bottom border-null-top">
+            &nbsp;
+        </td>
+        <td colspan="2" class="bolder-left border-top-dotted border-right-dotted border-null-bottom">
+            &nbsp;
+        </td>
+        <td colspan="4" class="bolder-right border-null-left border-top-dotted border-null-bottom">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">4.</td>
+        <td class="border-left-dotted border-null-bottom border-null-top">
+            &nbsp;
+        </td>
+        <td colspan="2" class="bolder-left border-top-dotted border-null-bottom border-right-dotted">
+            &nbsp;
+        </td>
+        <td colspan="4" class="bolder-right border-top-dotted border-null-bottom border-null-left">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">5.</td>
+        <td class="border-left-dotted border-null-bottom border-null-top">
+            &nbsp;
+        </td>
+        <td colspan="2" class="bolder-left border-top-dotted border-null-bottom border-right-dotted">
+            &nbsp;
+        </td>
+        <td colspan="4" class="bolder-right border-top-dotted border-null-bottom border-null-left">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">6.</td>
+        <td class="border-left-dotted border-null-bottom border-null-top">
+            &nbsp;
+        </td>
+        <td colspan="2" class="bolder-left border-top-dotted border-right-dotted">
+            &nbsp;
+        </td>
+        <td colspan="4" class="bolder-right border-null-left border-top-dotted">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">7.</td>
+        <td width="20%" colspan="2" class="border-bottom-dotted border-left-dotted border-null-top">
+            Quarter evaluated
+        </td>
+        <td class="bolder">
+            <%year = @quarter.match(/[0-9](.*)/i)[1].to_i rescue nil%>
+            Year <%= (year.blank? == true ? nil : ": #{year}") %>
+        </td>
+        <td colspan="4" class="bolder">
+            <%year = @quarter.match(/[0-9](.*)/i)[0].to_i rescue nil%>
+            Quarter <%= (year.blank? == true ? nil : ": #{year}") %>
+        </td>
+    </tr>
+    <tr class="row-break">
+        <td class="border-null" colspan="7">
+            &nbsp;
+        </td>
+    </tr>
+</table>
+
+<div id="consistency_check">
+  <div id="patients_consistency"></div>
+  <div id="cum_patients_consistency"></div>
+  <div id="gender_consistency"></div>
+  <div id="cum_gender_consistency"></div>
+  <div id="age_consistency"></div>
+  <div id="cum_age_consistency"></div>
+  <div id="reasons_consistency"></div>
+  <div id="cum_reasons_consistency"></div>
+  <div id="conditions_consistency"></div>
+  <div id="cum_conditions_consistency"></div>
+  <div id="died_consistency"></div>
+  <div id="total_consistency"></div>
+  <div id="regimen_consistency"></div>
+  <div id="pregnant_consistency"></div>
+  <div id="tb_status_consistency"></div>
+  <div id="side_effect_consistency"></div>
+  <div id="adherence_consistency"></div>
+</div>
+
+<table class="table-main" border="2px;">
+    <tr>
+        <td class="border-null">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-null text-bold">
+            ART CLINIC
+        </td>
+        <td class="border-null text-center text-italic" colspan="5">
+            *Supervisors: No need to copy the 'Clinic own data' on this page
+        </td>
+    </tr>
+    <tr>
+        <td class="border-null">
+            &nbsp;
+        </td>
+        <td class="border-null" colspan="2">
+            &nbsp;
+        </td>
+        <td colspan="2" class="text-bold text-center border-null">
+            Newly registered in quarter
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td colspan="2" class="text-bold text-center border-null">
+            Cumulative ever registered
+        </td>
+    </tr>
+    <tr>
+        <td class="border-null">
+            &nbsp;
+        </td>
+        <td class="border-null text-bold" colspan="2">
+            Patient registration details
+        </td>
+        <td class="border-null text-center text-italic text-smaller">
+            Clinic own data*
+        </td>
+        <td class="border-null text-center text-italic text-smaller">
+            Checked data
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="border-null text-center text-italic text-smaller">
+            Clinic own data*
+        </td>
+        <td class="border-null text-center text-italic text-smaller">
+            Checked data
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            26.
+        </td>
+        <td colspan="2" class="border-bottom-dotted border-top-dotted border-left-dotted">
+            Total Registered
+        </td>
+        <td class="number">
+            <a href="javascript:drillDown('total_registered');" id="total_registered">
+                <%#= @cohort.total_registered.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <a href="javascript:drillDown('cum_total_registered');" id="cum_total_registered">
+                <%#= @cohort.cum_total_registered.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr class="row-break">
+        <td colspan="7" class="border-null">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            27.
+        </td>
+        <td class="clinic-head text-bold border-left-dotted border-top-dotted border-null-bottom border-null-right">
+            FT
+        </td>
+        <td class="clinic-description border-top-dotted border-null-bottom border-null-left">
+            Patients initiated on ART first time
+        </td>
+        <td class="clinic-result number patients_on_art">
+            <a href="javascript:drillDown('initiated_on_art_first_time');" id="initiated_on_art_first_time" class="on-art">
+                <%#= @cohort.initiated_on_art_first_time.count %>
+            </a>
+        </td>
+        <td class="clinic-result">
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="clinic-result number cum_patients_on_art">
+            <a href="javascript:drillDown('cum_initiated_on_art_first_time');" id="cum_initiated_on_art_first_time" class="cum-on-art">
+                <span id="re_initiated_cum"></span>
+            </a>
+        </td>
+        <td class="clinic-result">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            28.
+        </td>
+        <td class="text-bold border-left-dotted border-null-top border-null-bottom border-null-right">
+            Re
+        </td>
+        <td class="border-null-left border-null-top border-null-bottom">
+            Patients re-initiated on ART
+        </td>
+        <td class="number patients_on_art">
+            <a href="javascript:drillDown('re_initiated_on_art');" id="re_initiated_on_art" class="on-art">
+                <%#= @cohort.re_initiated_on_art.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number cum_patients_on_art">
+            <a href="javascript:drillDown('cum_re_initiated_on_art');" class="cum-on-art">
+              <span id="re_initiated_cum"></span>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            29.
+        </td>
+        <td class="text-bold border-bottom-dotted border-left-dotted border-null-top border-null-right">
+            TI
+        </td>
+        <td class="border-bottom-dotted border-null-top border-null-left">
+            Patients transferred in on ART
+        </td>
+        <td class="number patients_on_art">
+            <a href="javascript:drillDown('transfer_in');" id="transfer_in" class="on-art">
+                <%#= @cohort.transfer_in.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number cum_patients_on_art">
+            <a href="javascript:drillDown('cum_transfer_in');" id="cum_transfer_in" class="cum-on-art">
+                <%#= @cohort.cum_transfer_in.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr class="row-break">
+        <td colspan="8" class="border-null">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            30.
+        </td>
+        <td class="text-bold border-left-dotted border-top-dotted border-null-bottom border-null-right">
+            M
+        </td>
+        <td class="border-top-dotted border-null-bottom border-null-left">
+            Males (all ages)
+        </td>
+        <td  class="number gender_class">
+            <a href="javascript:drillDown('all_males');" id="all_males" class="gender1">
+                <%#= @cohort.all_males.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number cum_gender_class">
+            <a href="javascript:drillDown('cum_all_males');" id="cum_all_males" class="cum-gender">
+                <%#= @cohort.cum_all_males.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            31.
+        </td>
+        <td class="text-bold border-left-dotted border-null-top border-null-bottom border-null-right">
+            FNP
+        </td>
+        <td class="border-null-left border-null-top border-null-bottom">
+            Non-pregnant Females (all ages)
+        </td>
+        <td class="number gender_class">
+            <a href="javascript:drillDown('non_pregnant_females');" id="non_pregnant_females" class="gender1">
+                <%#= @cohort.non_pregnant_females.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number cum_gender_class">
+            <a href="javascript:drillDown('cum_non_pregnant_females');" id="cum_non_pregnant_females" class="cum-gender">
+                <%#= @cohort.cum_non_pregnant_females.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            32.
+        </td>
+        <td class="text-bold border-bottom-dotted border-left-dotted border-null-top border-null-right">
+            FP
+        </td>
+        <td class="border-bottom-dotted border-null-top border-null-left">
+            Pregnant Females (all ages)
+        </td>
+        <td class="number gender_class">
+            <a href="javascript:drillDown('pregnant_females_all_ages');" id="pregnant_females_all_ages" class="gender1">
+                <%#= @cohort.pregnant_females_all_ages.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number cum_gender_class">
+            <a href="javascript:drillDown('cum_pregnant_females_all_ages');" id="cum_pregnant_females_all_ages" class="cum-gender">
+                <%#= @cohort.cum_pregnant_females_all_ages.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr class="row-break">
+        <td colspan="7" class="border-null">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            33.
+        </td>
+        <td class="text-bold border-left-dotted border-top-dotted border-null-bottom border-null-right">
+            A
+        </td>
+        <td class="border-top-dotted border-null-bottom border-null-left">
+            Children below 24 m at ART initiation
+        </td>
+        <td class="number age_class">
+            <a href="javascript:drillDown('children_below_24_months_at_art_initiation');" id="children_below_24_months_at_art_initiation" class="age">
+            <%#= @cohort.children_below_24_months_at_art_initiation.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number cum_age_class">
+            <a href="javascript:drillDown('cum_children_below_24_months_at_art_initiation');" id="cum_children_below_24_months_at_art_initiation" class="cum-age">
+            <%#= @cohort.cum_children_below_24_months_at_art_initiation.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            34.
+        </td>
+        <td class="text-bold border-left-dotted border-null-top border-null-bottom border-null-right">
+            B
+        </td>
+        <td class="border-null-left border-null-top border-null-bottom">
+            Children 24 m - 14 yrs at ART initiation
+        </td>
+        <td class="number age_class">
+            <a href="javascript:drillDown('children_24_months_14_years_at_art_initiation');" id="children_24_months_14_years_at_art_initiation" class="age">
+            <%#= @cohort.children_24_months_14_years_at_art_initiation.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number cum_age_class">
+            <a href="javascript:drillDown('cum_children_24_months_14_years_at_art_initiation');" id="cum_children_24_months_14_years_at_art_initiation" class="cum-age">
+            <%#= @cohort.cum_children_24_months_14_years_at_art_initiation.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            35.
+        </td>
+        <td class="text-bold border-left-dotted border-null-top border-null-bottom border-null-right">
+            C
+        </td>
+        <td class="border-null-left border-null-top border-null-bottom">
+            Adults 15 years or older at ART initiation
+        </td>
+        <td class="number age_class">
+            <a href="javascript:drillDown('adults_at_art_initiation');" id="adults_at_art_initiation" class="age">
+                <%#= @cohort.adults_at_art_initiation.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number cum_age_class">
+            <a href="javascript:drillDown('cum_adults_at_art_initiation');" id="cum_adults_at_art_initiation" class="cum-age">
+                <%#= @cohort.cum_adults_at_art_initiation.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            &nbsp;
+        </td>
+        <td class="text-bold border-left-dotted border-bottom-dotted border-null-top border-null-right">
+            &nbsp;
+        </td>
+        <td class="border-bottom-dotted border-null-top border-null-left">
+            Unknown age
+        </td>
+        <td class="number age_class">
+            <a href="javascript:drillDown('unknown_age');" id="unknown_age" class="age">
+                <%#= @cohort.unknown_age.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number cum_age_class">
+            <a href="javascript:drillDown('cum_unknown_age');" id="cum_unknown_age" class="cum-age">
+                <%#= @cohort.cum_unknown_age.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            &nbsp;
+        </td>
+        <td colspan="6" class="border-null">
+            Reason for starting ART
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            36.
+        </td>
+        <td class="text-bold border-left-dotted border-top-dotted border-null-bottom border-null-right">
+            PSHD
+        </td>
+        <td class="border-top-dotted border-null-bottom border-null-left">
+            Pres. Sev. HIV disease age < 12 m
+        </td>
+        <td class="number reason_class">
+            <a href="javascript:drillDown('presumed_severe_hiv_disease_in_infants');" id="presumed_severe_hiv_disease_in_infants" class="reason">
+                <%#= @cohort.presumed_severe_hiv_disease_in_infants.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number cum_reason_class">
+            <a href="javascript:drillDown('cum_presumed_severe_hiv_disease_in_infants');" id="cum_presumed_severe_hiv_disease_in_infants" class="cum-reason">
+              <%#= @cohort.cum_presumed_severe_hiv_disease_in_infants.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            37.
+        </td>
+        <td class="text-bold border-left-dotted border-null-bottom border-null-top border-null-right">
+            PCR
+        </td>
+        <td class="border-null-bottom border-null-top border-null-left">
+            Infants < 12 mths PCR+
+        </td>
+        <td class="number reason_class">
+            <a href="javascript:drillDown('confirmed_hiv_infection_in_infants_pcr');" id="confirmed_hiv_infection_in_infants_pcr" class="reason">
+                <%#= @cohort.confirmed_hiv_infection_in_infants_pcr.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number cum_reason_class">
+            <a href="javascript:drillDown('cum_confirmed_hiv_infection_in_infants_pcr');" id="cum_confirmed_hiv_infection_in_infants_pcr" class="cum-reason">
+                <%#= @cohort.cum_confirmed_hiv_infection_in_infants_pcr.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            38.
+        </td>
+        <td class="text-bold border-left-dotted border-null-bottom border-null-top border-null-right">
+            U5
+        </td>
+        <td class="border-null-bottom border-null-top border-null-left">
+            Children 12-59 mths
+        </td>
+        <td class="number reason_class">
+            <a href="javascript:drillDown('children_12_23_months');" id="children_12_23_months" class="reason">
+                <%#= @cohort.children_12_23_months.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number cum_reason_class">
+            <a href="javascript:drillDown('cum_children_12_23_months');" id="cum_children_12_23_months" class="cum-reason">
+                <%#= @cohort.cum_children_12_23_months.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            39.
+        </td>
+        <td class="text-bold border-left-dotted border-null-right border-null-top border-null-bottom">
+            Preg
+        </td>
+        <td class="border-null-left border-null-top border-null-bottom">
+            Pregnant women
+        </td>
+        <td class="number reason_class">
+            <a href="javascript:drillDown('pregnant_women');" id="pregnant_women" class="reason">
+                <%#= @cohort.pregnant_women.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number cum_reason_class">
+            <a href="javascript:drillDown('cum_pregnant_women');" id="cum_pregnant_women" class="cum-reason">
+                <%#= @cohort.cum_pregnant_women.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr style="page-break-after: always;">
+        <td class="index" style="page-break-inside: avoid; page-break-after: always;">
+            40.
+        </td>
+        <td class="text-bold border-left-dotted border-null-bottom border-null-right border-null-top">
+            BF
+        </td>
+        <td class="border-null-bottom border-null-top border-null-left">
+            Breastfeeding mothers
+        </td>
+        <td class="number reason_class">
+            <a href="javascript:drillDown('breastfeeding_mothers');" id="breastfeeding_mothers" class="reason">
+                <%#= @cohort.breastfeeding_mothers.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number cum_reason_class">
+            <a href="javascript:drillDown('cum_breastfeeding_mothers');" id="cum_breastfeeding_mothers" class="cum-reason">
+                <%#= @cohort.cum_breastfeeding_mothers.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            41.
+        </td>
+        <td class="text-bold border-left-dotted border-null-bottom border-null-right border-null-top">
+            CD4
+        </td>
+        <td class="border-null-bottom border-null-top border-null-left">
+            CD4 below threshold
+        </td>
+        <td class="number reason_class">
+            <a href="javascript:drillDown('who_stage_two');" id="who_stage_two" class="reason">
+                <%#= @cohort.who_stage_two.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number cum_reason_class">
+            <a href="javascript:drillDown('cum_who_stage_two');" id="cum_who_stage_two" class="cum-reason">
+                <%#= @cohort.cum_who_stage_two.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            42.
+        </td>
+        <td class="text-bold border-left-dotted border-null-bottom border-null-right border-null-top">
+            Asy
+        </td>
+        <td class="border-null-bottom border-null-top border-null-left">
+            Asymptomatic / mild
+        </td>
+        <td class="number reason_class">
+            <a href="javascript:drillDown('asymptomatic');" id="asymptomatic" class="reason">
+                <%#= @cohort.asymptomatic.count %>
+            </a>        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number cum_reason_class">
+            <a href="javascript:drillDown('cum_asymptomatic');" id="cum_asymptomatic" class="cum-reason">
+                <%#= @cohort.cum_asymptomatic.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            43.
+        </td>
+        <td class="text-bold border-left-dotted border-null-bottom border-null-right border-null-top">
+            3
+        </td>
+        <td class="border-null-bottom border-null-top border-null-left">
+            WHO stage 3
+        </td>
+        <td class="number reason_class">
+            <a href="javascript:drillDown('who_stage_three');" id="who_stage_three" class="reason">
+                <%#= @cohort.who_stage_three.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number cum_reason_class">
+            <a href="javascript:drillDown('cum_who_stage_three');" id="cum_who_stage_three" class="cum-reason">
+                <%#= @cohort.cum_who_stage_three.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            44.
+        </td>
+        <td class="text-bold border-left-dotted border-null-bottom border-null-right border-null-top">
+            4
+        </td>
+        <td class="border-null-bottom border-null-top border-null-left">
+            WHO stage 4
+        </td>
+        <td class="number reason_class">
+            <a href="javascript:drillDown('who_stage_four');" id="who_stage_four" class="reason">
+                <%#= @cohort.who_stage_four.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number cum_reason_class">
+            <a href="javascript:drillDown('cum_who_stage_four');" id="cum_who_stage_four" class="cum-reason">
+                <%#= @cohort.cum_who_stage_four.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            45.
+        </td>
+        <td class="text-bold border-bottom-dotted border-left-dotted border-null-right border-null-top">
+            Unk
+        </td>
+        <td class="border-bottom-dotted border-null-top border-null-left">
+            Unknown / reason outside guidelines
+        </td>
+        <td class="number reason_class">
+            <a href="javascript:drillDown('unknown_other_reason_outside_guidelines');" id="unknown_other_reason_outside_guidelines" class="reason">
+                <%#= @cohort.unknown_other_reason_outside_guidelines.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number cum_reason_class">
+            <a href="javascript:drillDown('cum_unknown_other_reason_outside_guidelines');" id="cum_unknown_other_reason_outside_guidelines" class="cum-reason">
+              <%#= @cohort.cum_unknown_other_reason_outside_guidelines.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr class="row-break">
+        <td colspan="7" class="border-null">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            &nbsp;
+        </td>
+        <td colspan="6" class="border-null">
+            Stage defining conditions at ART initiation
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            46.
+        </td>
+        <td class="text-bold border-top-dotted border-left-dotted border-null-bottom border-null-right">
+            Nev/>2yrs
+        </td>
+        <td class="border-top-dotted border-null-bottom border-null-left">
+            Never TB or TB over 2 years ago
+        </td>
+        <td class="number condition_class">
+            <a href="javascript:drillDown('no_tb');" id="no_tb" class="condition">
+                <%#= @cohort.no_tb.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number cum_condition_class">
+            <a href="javascript:drillDown('cum_no_tb');" id="cum_no_tb" class="cum-condition">
+                <%#= @cohort.cum_no_tb.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            47.
+        </td>
+        <td class="text-bold border-left-dotted border-null-bottom border-null-top border-null-right">
+            Last 2yrs
+        </td>
+        <td class="border-null-bottom border-null-top border-null-left">
+            TB within the last 2 years
+        </td>
+        <td class="number condition_class">
+            <a href="javascript:drillDown('tb_within_the_last_two_years');" id="tb_within_the_last_two_years" class="condition">
+                <%#= @cohort.tb_within_the_last_two_years.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number cum_condition_class">
+            <a href="javascript:drillDown('cum_tb_within_the_last_two_years');" id="cum_tb_within_the_last_two_years" class="cum-condition">
+                <%#= @cohort.cum_tb_within_the_last_two_years.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            48.
+        </td>
+        <td class="text-bold border-left-dotted border-bottom-dotted border-null-right border-null-top">
+            Curr
+        </td>
+        <td class="border-bottom-dotted border-null-top border-null-left">
+            Current episode of TB
+        </td>
+        <td class="number condition_class">
+            <a href="javascript:drillDown('current_episode_of_tb');" id="current_episode_of_tb" class="condition">
+                <%#= @cohort.current_episode_of_tb.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number cum_condition_class">
+            <a href="javascript:drillDown('cum_current_episode_of_tb');" id="cum_current_episode_of_tb" class="cum-condition">
+                <%#= @cohort.cum_current_episode_of_tb.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr class="row-break">
+        <td colspan="7" class="border-null">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            49.
+        </td>
+        <td class="text-bold border-bottom-dotted border-top-dotted border-left-dotted border-null-right">
+            KS
+        </td>
+        <td class="border-bottom-dotted border-top-dotted border-null-left">
+            Kaposi's Sarcoma
+        </td>
+        <td class="number">
+            <a href="javascript:drillDown('kaposis_sarcoma');" id="kaposis_sarcoma">
+                <%#= @cohort.kaposis_sarcoma.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number">
+            <a href="javascript:drillDown('cum_kaposis_sarcoma');" id="cum_kaposis_sarcoma">
+                <%#= @cohort.cum_kaposis_sarcoma.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="border-null">
+            &nbsp;
+        </td>
+        <td colspan="5" class="text-bold border-null">
+            Primary outcomes as of the end of the quarter evaluated
+        </td>
+        <td colspan="2" class="text-bold border-null">
+            Out of all patients ever registered
+        </td>
+    </tr>
+    <tr>
+        <td class="border-null">
+            &nbsp;
+        </td>
+        <td colspan="5" class="text-bold border-null">
+            &nbsp;
+        </td>
+        <td class="border-null text-center text-italic text-smaller">
+            Clinic own data**
+        </td>
+        <td class="border-null text-center text-italic text-smaller">
+            Checked data
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            50.
+        </td>
+        <td colspan="4" class="border-bottom-dotted border-top-dotted border-left-dotted">
+            Total alive and on ART
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number reg_on_art_class">
+            <a href="javascript:drillDown('total_alive_and_on_art');" id="total_alive_and_on_art" class="registered-on-art">
+                <%#= @cohort.total_alive_and_on_art.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr class="row-break">
+        <td colspan="7" class="border-null">
+            &nbsp;
+        </td>
+    </tr>
+
+    <tr>
+        <td class="index">
+            51.
+        </td>
+        <td class="text-bold border-top-dotted border-left-dotted border-null-bottom border-null-right">
+            M1
+        </td>
+        <td colspan="3" class="border-top-dotted border-null-bottom border-null-left">
+            Died within the 1st month after ART initiation
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number dead_class">
+            <a href="javascript:drillDown('died_within_the_1st_month_of_art_initiation');" id="died_in_first_month" class="dead">
+                <%#= @cohort.died_within_the_1st_month_of_art_initiation.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            52.
+        </td>
+        <td class="text-bold border-left-dotted border-null-bottom border-null-top border-null-right">
+            M2
+        </td>
+        <td colspan="3" class="border-null-bottom border-null-top border-null-left">
+            Died within the 2nd month after ART initiation
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number dead_class">
+            <a href="javascript:drillDown('died_within_the_2nd_month_of_art_initiation');" id="died_in_second_month" class="dead">
+                <%#= @cohort.died_within_the_2nd_month_of_art_initiation.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            53.
+        </td>
+        <td class="text-bold border-left-dotted border-null-bottom border-null-top border-null-right">
+            M3
+        </td>
+        <td colspan="3" class="border-null-bottom border-null-top border-null-left">
+            Died within the 3rd month after ART initiation
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number dead_class">
+            <a href="javascript:drillDown('died_within_the_3rd_month_of_art_initiation');" id="died_in_third_month" class="dead">
+                <%#= @cohort.died_within_the_3rd_month_of_art_initiation.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            54.
+        </td>
+        <td class="text-bold border-left-dotted border-bottom-dotted border-null-top border-null-right">
+            M4+
+        </td>
+        <td colspan="3" class="border-bottom-dotted border-null-top border-null-left">
+            Died after the end of the 3rd month after ART initiation
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number dead_class">
+            <a href="javascript:drillDown('died_after_the_3rd_month_of_art_initiation');" id="died_after_third_month" class="dead">
+                <%#= @cohort.died_after_the_3rd_month_of_art_initiation.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            55.
+        </td>
+        <td colspan="4" class="border-top-dotted border-left-dotted border-null-bottom">
+            <b>Died</b> total
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number reg_on_art_class">
+            <a href="javascript:drillDown('died_total');" id="died_total" class="registered-on-art">
+                <%#= @cohort.died_total.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            56.
+        </td>
+        <td colspan="4" class="border-left-dotted border-null-bottom border-null-top">
+            <b>Def</b>aulted (more than 2 months overdue after expected to have run out of ARVs)
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number reg_on_art_class">
+            <a href="javascript:drillDown('defaulted');" id="defaulted" class="registered-on-art">
+                <%#= @cohort.defaulted.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            57.
+        </td>
+        <td colspan="4" class="border-left-dotted border-null-bottom border-null-top">
+            <b>Stop</b>ped taking ARVs (clinician or patient own decision, last known alive)
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number reg_on_art_class">
+            <a href="javascript:drillDown('stopped_art');" id="stopped_art" class="registered-on-art">
+                <%#= @cohort.stopped_art.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            58.
+        </td>
+        <td colspan="4" class="border-left-dotted border-bottom-dotted border-null-top">
+            <b>T</b>ransferred <b>O</b>ut
+        </td>
+        <td class="column-break">
+            &nbsp;
+        </td>
+        <td class="number reg_on_art_class">
+            <a href="javascript:drillDown('transfered_out');" id="transfered_out" class="registered-on-art">
+                <%#= @cohort.transfered_out.count %>
+            </a>
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    <tr class="row-break">
+        <td colspan="7" class="border-null">
+            &nbsp;
+        </td>
+    </tr>
+    <tr>
+        <td class="index border-null">
+            &nbsp;
+        </td>
+        <td class="border-null text-bold" colspan="6">
+            Secondary outcomes of those alive on ART
+        </td>
+    </tr>
+  <tr>
+    <td class="index">
+      61.
+    </td>
+    <td class="border-top-dotted border-left-dotted border-null-bottom border-null-right">
+      ART Regimens
+    </td>
+    <td colspan="2" class="border-top-dotted border-null-bottom border-null-left border-null-right">
+      Paediatric formulations (blue card)
+    </td>
+    <td colspan="2" class="border-null-bottom border-null-left border-top-dotted">
+      Regimen <b>0P</b>
+    </td>
+    <td colspan="2" class="number regimen_class">
+      <a href="javascript:drillDown('zero_p');" id="zero_p" class="regimen">
+        <%#= @cohort.zero_p.count %>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      62.
+    </td>
+    <td rowspan="4" colspan="3" class="text-italic text-center  border-left-dotted border-null-right
+      border-null-bottom border-null-top">
+      Count regimen for <u>all patients registered</u> at this site,
+      including those who currently get supplies from another site
+    </td>
+    <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+      Regimen <b>2P</b>
+    </td>
+    <td colspan="2" class="number regimen_class">
+      <a href="javascript:drillDown('two_p');" id="two_p" class="regimen">
+        <%#= @cohort.two_p.count %>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      63.
+    </td>
+    <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+      Regimen <b>4P</b>
+    </td>
+    <td colspan="2" class="number regimen_class">
+      <a href="javascript:drillDown('four_p');" id="four_p" class="regimen">
+        <%#= @cohort.four_p.count %>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      64.
+    </td>
+    <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+      Regimen <b>9P</b>
+    </td>
+    <td colspan="2" class="number regimen_class">
+      <a href="javascript:drillDown('nine_p');" id="nine_p" class="regimen">
+        <%#= @cohort.nine_p.count %>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      65.
+    </td>
+    <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+      Regimen <b>11P</b>
+    </td>
+    <td colspan="2" class="number regimen_class">
+      <a href="javascript:drillDown('elleven_p');" id="elleven_p" class="regimen">
+        <%#= @cohort.elleven_p.count %>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      66.
+    </td>
+    <td class="border-left-dotted border-null-top border-null-bottom border-null-right">
+      &nbsp;
+    </td>
+    <td colspan="2" class="border-top-dotted border-null-left border-null-bottom border-null-right">
+      Adult formulations (yellow card)
+    </td>
+    <td colspan="2" class="border-top-dotted border-null-bottom border-null-left">
+      Regimen <b>0A</b>
+    </td>
+    <td colspan="2" class="number regimen_class">
+      <a href="javascript:drillDown('zero_a');" id="zero_a" class="regimen">
+        <%#= @cohort.zero_a.count %>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      67.
+    </td>
+    <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+      &nbsp;
+    </td>
+    <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+      Regimen <b>2A</b>
+    </td>
+    <td colspan="2" class="number regimen_class">
+      <a href="javascript:drillDown('two_a');" id="two_a" class="regimen">
+        <%#= @cohort.two_a.count %>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      68.
+    </td>
+    <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+      &nbsp;
+    </td>
+    <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+      Regimen <b>4A</b>
+    </td>
+    <td colspan="2" class="number regimen_class">
+      <a href="javascript:drillDown('four_a');" id="four_a" class="regimen">
+        <%#= @cohort.four_a.count %>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      69.
+    </td>
+    <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+      &nbsp;
+    </td>
+    <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+      Regimen <b>5A</b>
+    </td>
+    <td colspan="2" class="number regimen_class">
+      <a href="javascript:drillDown('five_a');" id="five_a" class="regimen">
+        <%#= @cohort.five_a.count %>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      70.
+    </td>
+    <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+      &nbsp;
+    </td>
+    <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+      Regimen <b>6A</b>
+    </td>
+    <td colspan="2" class="number regimen_class">
+      <a href="javascript:drillDown('six_a');" id="six_a" class="regimen">
+        <%#= @cohort.six_a.count %>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      71.
+    </td>
+    <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+      &nbsp;
+    </td>
+    <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+      Regimen <b>7A</b>
+    </td>
+    <td colspan="2" class="number regimen_class">
+      <a href="javascript:drillDown('seven_a');" id="seven_a" class="regimen">
+        <%#= @cohort.seven_a.count %>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      72.
+    </td>
+    <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+      &nbsp;
+    </td>
+    <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+      Regimen <b>8A</b>
+    </td>
+    <td colspan="2" class="number regimen_class">
+      <a href="javascript:drillDown('eight_a');" id="eight_a" class="regimen">
+        <%#= @cohort.eight_a.count %>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      73.
+    </td>
+    <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+      &nbsp;
+    </td>
+    <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+      Regimen <b>9A</b>
+    </td>
+    <td colspan="2" class="number regimen_class">
+      <a href="javascript:drillDown('nine_a');" id="nine_a" class="regimen">
+        <%#= @cohort.nine_a.count %>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      74.
+    </td>
+    <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+      &nbsp;
+    </td>
+    <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+      Regimen <b>10A</b>
+    </td>
+    <td colspan="2" class="number regimen_class">
+      <a href="javascript:drillDown('ten_a');" id="ten_a" class="regimen">
+        <%#= @cohort.ten_a.count %>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      75.
+    </td>
+    <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+      &nbsp;
+    </td>
+    <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+      Regimen <b>11A</b>
+    </td>
+    <td colspan="2" class="number regimen_class">
+      <a href="javascript:drillDown('elleven_a');" id="elleven_a" class="regimen">
+        <%#= @cohort.elleven_a.count %>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      76.
+    </td>
+    <td colspan="3" class="border-left-dotted border-null-top border-null-bottom border-null-right">
+      &nbsp;
+    </td>
+    <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+      Regimen <b>12A</b>
+    </td>
+    <td colspan="2" class="number regimen_class">
+      <a href="javascript:drillDown('twelve_a');" id="twelve_a" class="regimen">
+        <%#= @cohort.twelve_a.count %>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+
+    </td>
+    <td colspan="3" class="text-center border-left-dotted border-bottom-dotted border-null-top border-null-right">
+      Specify above regimens counted as 'Other'
+    </td>
+    <td colspan="2" class="border-bottom-dotted border-null-top border-null-left">
+      Other (paed. / adult)
+    </td>
+    <td colspan="2" class="number regimen_class">
+      <a href="javascript:drillDown('unknown_regimen');" id="unknown_regimen" class="regimen">
+        <%#= @cohort.unknown_regimen.count %>
+      </a>
+    </td>
+  </tr>
+  <tr class="row-break">
+    <td colspan="7" class="border-null">
+      &nbsp;
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      77.
+    </td>
+    <td class="text-bold border-top-dotted border-left-dotted border-null-bottom border-null-right">
+      Pregnant / Breastfeeding
+    </td>
+    <td colspan="2" class="border-top-dotted border-null-bottom border-null-left border-null-right">
+      (as of the last visit before end of quarter)
+    </td>
+    <td colspan="2" class="border-top-dotted border-null-bottom border-null-left" colspan="2">
+      <b>Preg</b>nant
+    </td>
+    <td colspan="2" class="number pregnant_class">
+      <a href="javascript:drillDown('total_pregnant');" id="total_pregnant_women" class="preg_breastfeed">
+
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      78.
+    </td>
+    <td class="border-left-dotted border-null-bottom border-null-top border-null-right">
+      &nbsp;
+    </td>
+    <td colspan="2" class="border-null-left border-null-right border-null-top border-null-bottom">
+      &nbsp;
+    </td>
+    <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+      <b>B</b>reast<b>f</b>eeding
+    </td>
+    <td colspan="2" class="number pregnant_class">
+      <a href="javascript:drillDown('total_breastfeeding');" id="total_breastfeeding_women" class="preg_breastfeed">
+
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      79.
+    </td>
+    <td class="border-left-dotted border-bottom-dotted border-null-top border-null-right">
+      &nbsp;
+    </td>
+    <td colspan="2" class="border-bottom-dotted border-null-top border-null-left border-null-right">
+      &nbsp;
+    </td>
+    <td colspan="2" class="border-bottom-dotted border-null-top border-null-left">
+      All <b>others</b> (not circled)
+    </td>
+    <td colspan="2" class="number pregnant_class ">
+      <a href="javascript:drillDown('all_other_patients');" id="total_all_others" class="preg_breastfeed">
+
+      </a>
+    </td>
+  </tr>
+  <tr class="row-break">
+    <td colspan="7" class="border-null">
+      &nbsp;
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      80.
+    </td>
+    <td class="border-top-dotted border-left-dotted border-null-bottom border-null-right">
+      <b>Current TB status</b> any form of TB
+    </td>
+    <td colspan="2" class="border-top-dotted border-null-bottom border-null-left border-null-right">
+      (as of the last visit before end of quarter)
+    </td>
+    <td colspan="2" class="border-top-dotted border-null-left border-null-bottom">
+      TB <b>not</b> suspected
+    </td>
+    <td colspan="2" class="number tb_status_class">
+      <a href="javascript:drillDown('tb_not_suspected');" id="tb_not_suspected" class="tb_status">
+        <%#= @cohort.tb_not_suspected.count %>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      81.
+    </td>
+    <td class="border-left-dotted border-null-bottom border-null-top border-null-right">
+      &nbsp;
+    </td>
+    <td colspan="2" class="border-null-right border-null-bottom border-null-top border-null-left">
+      &nbsp;
+    </td>
+    <td colspan="2" class="border-null-left border-null-top border-null-bottom">
+      TB <b>suspected</b>
+    </td>
+    <td colspan="2" class="number tb_status_class">
+      <a href="javascript:drillDown('tb_suspected');" id="tb_suspected" class="tb_status">
+        <%#= @cohort.tb_suspected.count %>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      82.
+    </td>
+    <td colspan="3" class="border-left-dotted border-null-bottom border-null-top border-null-right">
+      &nbsp;
+    </td>
+    <td colspan="2" class="border-null-top border-null-bottom border-null-left">
+      TB conf., <b>not</b> on Rx
+    </td>
+    <td colspan="2" class="number tb_status_class">
+      <a href="javascript:drillDown('tb_confirmed_currently_not_yet_on_tb_treatment');" id="tb_confirmed_not_on_tb_treatment" class="tb_status">
+        <%#= @cohort.tb_confirmed_currently_not_yet_on_tb_treatment.count %>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      83.
+    </td>
+    <td colspan="3" class="border-left-dotted border-null-right border-null-bottom border-null-top">
+      &nbsp;
+    </td>
+    <td colspan="2" class="border-null-left border-null-top border-null-bottom">
+      TB conf., <b>on TB Rx</b>
+    </td>
+    <td colspan="2" class="number tb_status_class">
+      <a href="javascript:drillDown('tb_confirmed_on_tb_treatment');" id="tb_confirmed_on_tb_treatment" class="tb_status">
+        <%#= @cohort.tb_confirmed_on_tb_treatment.count %>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      84.
+    </td>
+    <td colspan="3" class="border-left-dotted border-bottom-dotted border-null-top border-null-right">
+      &nbsp;
+    </td>
+    <td colspan="2" class="border-bottom-dotted border-null-top border-null-left">
+      Unknown (not circled)
+    </td>
+    <td colspan="2" class="number tb_status_class">
+      <a href="javascript:drillDown('unknown_tb_status');" id="unknown_tb_status" class="tb_status">
+        <%#= @cohort.unknown_tb_status.count %>
+      </a>
+    </td>
+  </tr>
+  <tr class="row-break">
+    <td colspan="7" class="border-null">
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      85.
+    </td>
+    <td class="text-bold border-top-dotted border-left-dotted border-null-bottom border-null-right">
+      Side effects
+    </td>
+    <td colspan="2" class="border-top-dotted border-null-bottom border-null-left border-null-right">
+      (as of the last visit before end of quarter)
+    </td>
+    <td colspan="2" class="text-bold border-top-dotted border-null-bottom border-null-left" colspan="2">
+      None
+    </td>
+    <td colspan="2" class="number side_effects_class">
+      <a href="javascript:drillDown('total_patients_without_side_effects');" id="no_side_effects" class="side_effects">
+        <%#= @cohort.total_patients_without_side_effects.count %>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      86.
+    </td>
+    <td class="border-left-dotted border-null-bottom border-null-top border-null-right">
+      &nbsp;
+    </td>
+    <td colspan="2" class="border-null-left border-null-right border-null-top border-null-bottom">
+      &nbsp;
+    </td>
+    <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+      <b>Any</b> side effects
+    </td>
+    <td colspan="2" class="number side_effects_class">
+      <a href="javascript:drillDown('total_patients_with_side_effects');" id="with_side_effects" class="side_effects">
+        <%#= @cohort.total_patients_with_side_effects.count %>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      87.
+    </td>
+    <td class="border-left-dotted border-bottom-dotted border-null-top border-null-right">
+      &nbsp;
+    </td>
+    <td colspan="2" class="border-bottom-dotted border-null-top border-null-left border-null-right">
+      &nbsp;
+    </td>
+    <td colspan="2" class="border-bottom-dotted border-null-top border-null-left">
+      <b>Unk</b>own (not circled)
+    </td>
+    <td colspan="2" class="number side_effects_class">
+      <a href="javascript:drillDown('unknown_side_effects');" id="unknown_side_effects" class="side_effects">
+        <%#= @cohort.unknown_side_effects.count %>
+      </a>
+    </td>
+  </tr>
+  <tr class="row-break">
+    <td colspan="7" class="border-null">
+      &nbsp;
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      88.
+    </td>
+    <td class="text-bold border-left-dotted border-top-dotted border-null-bottom border-null-right">
+      Adherence
+    </td>
+    <td colspan="2" class="border-top-dotted border-null-bottom border-null-left border-null-right">
+      (as of the last visit before end of quarter)
+    </td>
+    <td colspan="2" class="border-top-dotted border-null-bottom border-null-left">
+      <b>0 - 3 doses missed</b>
+    </td>
+    <td colspan="2" class="number adherence_class">
+      <a href="javascript:drillDown('patients_with_0_6_doses_missed_at_their_last_visit');" id="adherent" class="adherence">
+        <%#= @cohort.patients_with_0_6_doses_missed_at_their_last_visit.count %>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td class="index">
+      89.
+    </td>
+    <td class="border-left-dotted border-null-top border-null-bottom border-null-right">
+      &nbsp;
+    </td>
+    <td colspan="2" class="border-null-bottom border-null-top border-null-left border-null-right">
+      &nbsp;
+    </td>
+    <td colspan="2" class="border-null-bottom border-null-top border-null-left">
+      <b>4+</b> doses missed
+    </td>
+    <td colspan="2" class="number adherence_class">
+      <a href="javascript:drillDown('patients_with_7_plus_doses_missed_at_their_last_visit');" id="not_adherent" class="adherence">
+        <%#= @cohort.patients_with_7_plus_doses_missed_at_their_last_visit.count %>
+      </a>
+    </td>
+  </tr>
+    <tr>
+        <td class="index">
+            90.
+        </td>
+        <td class="border-left-dotted border-bottom-dotted border-null-top border-null-right">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-bottom-dotted border-null-top border-null-right border-null-left">
+            &nbsp;
+        </td>
+        <td colspan="2" class="border-bottom-dotted border-null-top border-null-left">
+            <b>Unk</b>nown (not circled)
+        </td>
+        <td colspan="2" class="number adherence_class">
+            <a href="javascript:drillDown('patients_with_unknown_adhrence');" id="unknown_adherence" class="adherence">
+                <%#= @cohort.patients_with_unknown_adhrence.count %>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="7" class="border-null">
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            91.
+        </td>
+        <td class="border-top-dotted border-left-dotted border-bottom-dotted border-null-right">
+            <b>CPT</b>
+        </td>
+        <td colspan="2" class="border-top-dotted border-dotted-bottom border-null-left border-null-right">
+           Apprx. % of patients retained in <b>ART</b> who are currently on CPT
+         </td>
+        <td colspan="2" class="border-top-dotted border-null-left border-dotted-bottom">
+        </td>
+        <td colspan="2"  id="cpt_percent" class="number">
+
+        </td>
+    </tr>
+    <tr>
+        <td colspan="7" class="border-null">
+        </td>
+    </tr>
+    <tr>
+          <td class="index">
+              92.
+          </td>
+          <td class="text-bold border-top-dotted border-left-dotted border-null-bottom border-null-right">
+              IPT
+          </td>
+          <td colspan="2"  class="border-top-dotted border-null-bottom border-null-left border-null-right">
+             Apprx. % of patients retained in <b>pre-ART</b> who are currently on IPT
+          </td>
+          <td colspan="2" class="border-top-dotted border-null-bottom border-null-left" colspan="2">
+          </td>
+          <td colspan="2" class="number">
+                  <%= "0  %" %>
+          </td>
+      </tr>
+      <tr>
+          <td class="index">
+          </td>
+          <td class="border-left-dotted border-bottom-dotted border-null-top border-null-right">
+              &nbsp;
+          </td>
+          <td colspan="2"  class="border-null-left border-null-right border-null-top border-bottom-dotted">
+               Apprx. % of patients retained in <b>ART</b> who are currently on IPT
+          </td>
+          <td colspan="2" class="border-bottom-dotted border-null-top border-null-left">
+          </td>
+          <td colspan="2"  id="ipt_percent" class="number">
+
+          </td>
+      </tr>
+    <tr>
+        <td colspan="7" class="border-null">
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            93.
+        </td>
+        <td class="border-top-dotted border-left-dotted border-bottom-dotted border-null-right">
+            <b>PIFP</b>
+        </td>
+        <td colspan="2"  class="border-top-dotted border-dotted-bottom border-null-left border-null-right">
+            Apprx. % of <u>women</u> who received Depo at <b>ART</b> in the last quarter
+        </td>
+        <td colspan="2" class="border-top-dotted border-null-left border-dotted-bottom">
+        </td>
+        <td colspan="2"  id="family_planning" class="number">
+
+        </td>
+    </tr>
+    <tr>
+        <td colspan="7" class="border-null">
+        </td>
+    </tr>
+    <tr>
+        <td class="index">
+            94.
+        </td>
+        <td class="border-top-dotted border-left-dotted border-bottom-dotted border-null-right">
+            <b>BP screen</b>
+        </td>
+        <td colspan="2" class="border-top-dotted border-dotted-bottom border-null-left border-null-right">
+            Apprx. % of <u>adult <b>ART</b></u> patients with BP recorded at least once this year
+        </td>
+        <td colspan="2"  class="border-top-dotted border-null-left border-dotted-bottom">
+        </td>
+        <td colspan="2"  id="bp_screen" class="number">
+
+        </td>
+    </tr>
+    <tr>
+        <td colspan="7" class="border-null">
+        </td>
+    </tr>
+</table>
+
+<!-- Controls -->
+<div class="row-button-print">
+  <div class="buttons">
+    <button class="button button-finish" onmousedown="javascript:location='/'">Finish</button>
+    <button class="button button-print" onmousedown="javascript:printPDF();">Print</button>
+    <button class="button button-disaggregated" onmousedown="showDisaggregatedReport();">Cohort disaggregated report</button>
+
+  </div>
+</div>
+
+
+<form id="patients" method="post" action="/cohort_tool/flattables_list_more_details" name="pat_drilldown">
+  <input id='patient_ids' type='hidden' name = 'patient_ids' />
+  <input id='indicator' type='hidden' name = 'indicator' />
+</form>
+
+<%= javascript_include_tag "jquery.min" %>
+<script type="text/javascript">
+
+
+var startDate             = new Date("<%=@start_date%>");
+var endDate               = new Date("<%=@end_date%>");
+var revisedARTcohortDate  = new Date("2016-04-01");
+var cumStartDate          = new Date("1900-01-01");
+
+var cummulativeData = [];
+
+//Patients outcome
+var patientsOutcome           = [];
+var total_alive_and_on_art    = [];
+var patient_died              = [];
+var defaulted                 = [];
+var transfered_out            = [];
+var stopped_art               = [];
+
+//Patient died in months
+var died_in_first_month     = [];
+var died_in_second_month    = [];
+var died_in_third_month     = [];
+var died_after_third_month  = [];
+
+//Toal Registered
+var totalReg                = [];
+var totalCumReg             = [];
+
+//Patients initiated first time
+var patients_initiated_first_time     = [];
+var cum_patients_initiated_first_time = [];
+
+//Patients transfered in
+var patientsTI      = [];
+var cum_patientsTI  = [];
+
+//Patients re-initiated on ART
+var patientsReInitiated = [];
+var cumPatientsReInitiated = [];
+
+//Males
+var allMales = [];
+var cumAllMales = [];
+
+//Pregnant females
+var pregnant_females = [];
+var cum_pregnant_females = [];
+
+//Non pregnant females
+var non_pregnant_females = [];
+var cum_non_pregnant_females = [];
+
+//Patients Age section
+var children_below_24_months_at_art_initiation        = [];
+var cum_children_below_24_months_at_art_initiation    = [];
+
+var children_24_months_14_years_at_art_initiation     = [];
+var cum_children_24_months_14_years_at_art_initiation = [];
+
+var adults_at_art_initiation      = [];
+var cum_adults_at_art_initiation  = [];
+
+var unknown_age       = [];
+var cum_unknown_age   = [];
+
+//Reason for starting ART
+var presumed_severe_hiv_disease_in_infants = [];
+var cum_presumed_severe_hiv_disease_in_infants = [];
+
+var confirmed_hiv_infection_in_infants_pcr = [];
+var cum_confirmed_hiv_infection_in_infants_pcr = [];
+
+var children_12_23_months = [];
+var cum_children_12_23_months = [];
+
+var who_stage_two = [];
+var cum_who_stage_two = [];
+
+var breastfeeding_mothers = [];
+var cum_breastfeeding_mothers = [];
+
+var pregnant_women = [];
+var cum_pregnant_women = [];
+
+var who_stage_three = [];
+var cum_who_stage_three = [];
+
+var who_stage_four = [];
+var cum_who_stage_four = [];
+
+var asymptomatic = [];
+var cum_asymptomatic = [];
+
+var unknown_other_reason_outside_guidelines = [];
+var cum_unknown_other_reason_outside_guidelines = [];
+
+//Stage defining conditions at ART initiation
+var kaposis_sarcoma = [];
+var cum_kaposis_sarcoma = [];
+
+var current_episode_of_tb = [];
+var cum_current_episode_of_tb = [];
+
+var tb_within_the_last_two_years = [];
+var cum_tb_within_the_last_two_years = [];
+
+var no_tb = [];
+var cum_no_tb = [];
+
+//Patients Alive and on ART plus regimen, side_effects, TB status and Adherence details
+var aliveAndOnARTdetails = [];
+
+var sideEffects = [];
+
+//TB status
+var tb_suspected = [];
+var tb_not_suspected = [];
+var tb_confirmed_on_tb_treatment = []
+var tb_confirmed_currently_not_yet_on_tb_treatment = []
+var unknown_tb_status = [];
+
+//Regimen categories
+var regimenZeroP = [];
+var regimenTwoP  =  [];
+var regimenFourP  =  [];
+var regimenNineP  =  [];
+var regimenEllevenP  =  [];
+var regimenZeroA  =  [];
+var regimenTwoA  =  [];
+var regimenFourA  =  [];
+var regimenFiveA  =  [];
+var regimenSixA  =  [];
+var regimenSevenA  =  [];
+var regimenEightA  =  [];
+var regimenNineA  =  [];
+var regimenTenA  =  [];
+var regimenEllevenA  =  [];
+var regimenTwelveA  =  [];
+var unknownRegimen =  [];
+
+//Side Effects
+var unknownSideEffects = [];
+var withSideEffects = [];
+var noSideEffects = [];
+
+//Adherence
+var unknownAdherence = [];
+var adherent = [];
+var notAdherent = [];
+
+//Total Pregnant and Breastfeeding women
+var totalPregantWomen       = [];
+var totalBreastfeedingWomen = [];
+var totalAllOtherDetails         = [];
+
+function loadCumulativeTotalReg(results) {
+  //load:: Total Registered cummulative
+  totalCumReg = JSON.parse(results);
+  document.getElementById('cum_total_registered').innerHTML = totalCumReg.length;
+}
+
+function loadPatientOuctomes(outcomes){
+  //load outcomes
+  for(i = 0; i < outcomes.length; i++){
+      console.log(outcomes[i]);
+  }
+}
+
+function loadQuarterlyData(){ 
+  //load:: Total Registered Quarterly
+  updateQuarterlyTotalReg(totalCumReg);
+}
+
+function loadMaleAllAges(data, e, passed_array){
+  var males = [];
+  for( i = 0; i < data.length; i++){
+    if(data[i]['gender'] == 'M'){
+      males.push(data[i]);
+      passed_array.push(data[i]);
+    }
+  }
+
+  e.innerHTML = males.length;
+}
+
+function loadPregnantPatients(e, data ,passed_array){
+  var pregnant_females = [];
+  for (var i = 0; i < data.length; i++) {
+    if(data[i]['gender'] == 'F' || data[i]['gender'] == 'Female'){
+      if(data[i]['patient_pregnant'] == 'Yes'){
+        pregnant_females.push(data[i]);
+        passed_array.push(data[i]);
+      }
+    }
+  }
+
+    e.innerHTML = pregnant_females.length;
+}
+
+function loadNonPregnantPatients(e, data,  passed_array){
+  var patients = [];
+  for(var i = 0; i < data.length; i++){
+    if(data[i]['gender'] == 'F' || data[i]['gender'] == 'Female'){
+      if (data[i]['patient_not_pregnant'] == 'Yes' && data[i]['patient_pregnant'] != 'Yes'){
+        patients.push(data[i]);
+        passed_array.push(data[i]);
+      }
+    }
+  }
+
+  e.innerHTML = patients.length;
+}
+
+
+function patientsReInitiatedTIBreakDown(data,initiated_first_time, e1, e2, ti, re_in){ 
+  var re_initiated    = [];
+  var transfer_in     = [];
+  var not_first_time  = [];
+
+  for(var i = 0; i < data.length; i++){
+    var patient_id = parseInt(data[i]['patient_id']);
+    var found = false;
+    for(var j = 0; j < initiated_first_time.length; j++){
+      if(parseInt(initiated_first_time[j]['patient_id']) == patient_id){
+        found = true;
+      }
+    } 
+    if(!found)
+      not_first_time.push(data[i]);
+
+  }
+
+  for(var i = 0; i < not_first_time.length; i++){
+    if(not_first_time[i]['re_initiated'] == 'Re-initiated'){
+      re_initiated.push(not_first_time[i]);
+      re_in.push(not_first_time[i]);
+    }else{
+      transfer_in.push(not_first_time[i]);
+      ti.push(not_first_time[i]);
+    }
+  }
+
+  e1.innerHTML = re_initiated.length;
+  e2.innerHTML = transfer_in.length;
+}
+
+function loadPatientsInitiatedOnARTFirstTime(e, data, passed_array){
+  var first_time = [];
+  var first_time = [];
+
+  for(var i = 0; i < data.length; i++){
+    var date_enrolled         = new Date(data[i]['date_enrolled']);
+    var earliest_start_date   = new Date(data[i]['earliest_start_date']);
+
+    if(+date_enrolled === +earliest_start_date){
+      first_time.push(data[i]);
+      passed_array.push(data[i]);
+    }
+  }
+  e.innerHTML = first_time.length;
+}
+
+function updateQuarterlyTotalReg(data){
+  for(var i = 0; i < data.length; i++){
+    var date_enrolled = data[i]['date_enrolled'];
+    date_enrolled = new Date(date_enrolled);
+
+    if(date_enrolled >= startDate && date_enrolled <= endDate)
+      totalReg.push(data[i]);
+    
+
+  }
+
+  document.getElementById('total_registered').innerHTML = totalReg.length;
+}
+
+function ageAtARTinitiation(data, min_age,max_age, e, passed_array){
+  var patients = [];
+  for(var i = 0; i < data.length; i++){
+    var age = parseInt(data[i]['age_at_initiation']);
+    if(age >= min_age && age < max_age){
+      patients.push(data[i]);
+      passed_array.push(data[i]);
+    }
+  }
+
+  e.innerHTML = patients.length;
+}
+
+function unknownAge(e, data, ary, ary2, ary3, unk_age){
+  var patients = [];
+  for(var i = 0; i < data.length; i++){
+    var found       = false;
+    var patient_id  = parseInt(data[i]['patient_id']);
+
+    for(var x = 0; x < ary.length; x++){
+      if(patient_id == parseInt(ary[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < ary2.length; x++){
+      if(patient_id == parseInt(ary2[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < ary3.length; x++){
+      if(patient_id == parseInt(ary3[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    if(!found) {
+      patients.push(data[i]);
+      unk_age.push(data[i]);
+    }
+  }
+
+  e.innerHTML = patients.length;
+}
+
+function getReasonForStartingArt(e, field, reason_for_art, data, passed_array){
+    var patients = [];
+    var revised_guidelines_reasons = [];
+    if(field == 'Asympomatic'){
+      for(var a = 0; a < data.length; a++){
+        if(data[a]['reason_for_starting'] == "Asymptomatic"){
+          patients.push(data[a]);
+          passed_array.push(data[a]);
+        }
+      }
+      for(var i = 0; i < data.length; i++){
+        var reason_for_starting = data[i]['reason_for_starting'];
+        var date_enrolled = new Date(data[i]['date_enrolled']);
+        for(var c = 0; c < reason_for_art.length; c++){
+          if(reason_for_starting == reason_for_art[c]){
+            if(date_enrolled >= revisedARTcohortDate && date_enrolled <= endDate){
+              patients.push(data[i]);
+              passed_array.push(data[i]);
+            }
+          }
+
+        }
+      }
+
+    }else{
+      for(var i = 0; i < data.length; i++){
+        var reason_for_starting = data[i]['reason_for_starting'];
+        for(var x = 0; x < reason_for_art.length; x++){
+            if(reason_for_art[x] == reason_for_starting){
+                patients.push(data[i]);
+                passed_array.push(data[i]);
+            }
+        }
+       
+      }
+    }
+
+
+    e.innerHTML = patients.length;
+}
+
+function unknownOtherReasonForStartingART(e, data, ary, ary2, ary3, ary4, ary5, ary6, ary7, ary8, ary9, unk_reason){
+  var patients = [];
+  for(var i = 0; i < data.length; i++){
+    var found       = false;
+    var patient_id  = parseInt(data[i]['patient_id']);
+
+    for(var x = 0; x < ary.length; x++){
+      if(patient_id == parseInt(ary[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < ary2.length; x++){
+      if(patient_id == parseInt(ary2[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < ary3.length; x++){
+      if(patient_id == parseInt(ary3[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < ary4.length; x++){
+      if(patient_id == parseInt(ary4[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < ary5.length; x++){
+      if(patient_id == parseInt(ary5[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < ary6.length; x++){
+      if(patient_id == parseInt(ary6[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < ary7.length; x++){
+      if(patient_id == parseInt(ary7[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < ary8.length; x++){
+      if(patient_id == parseInt(ary8[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < ary9.length; x++){
+      if(patient_id == parseInt(ary9[x]['patient_id'])){
+        found = true;
+      }
+    }    
+
+    if(!found) {
+      patients.push(data[i]);
+      unk_reason.push(data[i]);
+    }
+  }
+
+  e.innerHTML = patients.length;
+}
+
+function getKaposisSarcoma(e, data, start_date, end_date, passed_array){
+  var patients = [];
+  for(i = 0; i < data.length; i++){
+    date_enrolled = new Date(data[i]['date_enrolled']);
+    if((data[i]['kaposis_sarcoma'] == 'Yes') || (data[i]['who_stages_criteria_present'] == 'Kaposis Sacroma')){
+     var kaposis_sarcoma_date = new Date(data[i]['kaposis_sarcoma_v_date']);
+      if(kaposis_sarcoma_date <= date_enrolled){
+        patients.push(data[i]);
+        passed_array.push(data[i]);
+      }
+    }
+  }
+  e.innerHTML = patients.length;
+}
+
+function getCurrentEpisodeTB(e, data, start_date, end_date, passed_array){
+  var who_criteria_present = ['Pulmonary tuberculosis (current)', 'Extrapulmonary tuberculosis (EPTB)', 'Pulmonary tuberculosis'];
+  var startDate = new Date(start_date);
+  var endDate   = new Date(end_date);
+
+  var patients = [];
+  for(i = 0; i < data.length; i++){
+    var patient_id = parseInt(data[i]['patient_id']);
+    var date_enrolled = new Date(data[i]['date_enrolled']);
+
+    if(data[i]['pulmonary_tuberculosis'] == "Yes"){
+      var pulmonary_tuberculosis_date = new Date(data[i]['pulmonary_tuberculosis_v_date']);
+
+      if(pulmonary_tuberculosis_date <= date_enrolled){
+        patients.push(data[i]);
+        passed_array.push(data[i]);
+      }
+     }else if(data[i]['extrapulmonary_tuberculosis'] == "Yes"){
+        var extrapulmonary_tuberculosis_date = new Date(data[i]['extrapulmonary_tuberculosis_v_date']);
+        
+        if(extrapulmonary_tuberculosis_date <= date_enrolled){
+          patients.push(data[i]);
+          passed_array.push(data[i]);
+        } 
+     }else{
+      for(x = 0; x < who_criteria_present.length; x++){
+        if(data[i]['who_stages_criteria_present'] == who_criteria_present[x]){
+          var who_criteria_present_date = new Date(data[i]['who_stages_criteria_present_v_date']);
+          
+          if(who_criteria_present_date <= date_enrolled){
+          patients.push(data[i]);
+          passed_array.push(data[i]);
+         }
+        }
+      } 
+     }
+   }
+  e.innerHTML = patients.length;
+}
+
+function differenceOf2Arrays (array1, array2) {
+  var temp = [];
+  for (var i in array1) {
+    if(array2.indexOf(array1[i]) === -1) temp.push(array1[i]);
+  }
+  for(i in array2) {
+    if(array1.indexOf(array2[i]) === -1) temp.push(array2[i]);
+  }
+  return temp.sort((a,b) => a-b);
+}
+
+
+function getTBwithinPastTwoYrs(e, data, start_date, end_date, current_tb_episode, passed_array){
+  var who_criteria_present            = ['Pulmonary tuberculosis within the last 2 years', 'Ptb within the past two years'];
+  var patients                        = [];
+  var not_current_TB                  = [];
+  
+  not_current_TB = (differenceOf2Arrays(data, current_tb_episode));
+  for(i = 0; i < not_current_TB.length; i++){
+    if(not_current_TB[i]['pulmonary_tuberculosis_last_2_years'] == 'Yes'){
+      var pulmonary_tuberculosis_last_2_years_v_date = new Date(not_current_TB[i]['pulmonary_tuberculosis_last_2_years_v_date']);
+      var date_enrolled = new Date(not_current_TB[i]['date_enrolled']);
+
+      if(pulmonary_tuberculosis_last_2_years_v_date <= date_enrolled){
+        patients.push(not_current_TB[i]);
+        passed_array.push(not_current_TB[i]);
+      }
+    }else{
+      for(x = 0; x < who_criteria_present.length; x++){
+        if(not_current_TB[i]['who_stages_criteria_present'] == who_criteria_present[x]){
+          var who_criteria_present_v_date = new Date(not_current_TB[i]['who_stages_criteria_present_v_date']);
+          var date_enrolled = new Date(not_current_TB[i]['date_enrolled']);
+          if(who_criteria_present_v_date <= date_enrolled){
+            patients.push(not_current_TB[i]);
+            passed_array.push(not_current_TB[i]);
+          }
+         }
+      }      
+    }
+  }
+  e.innerHTML = patients.length;
+}
+
+function noTB(e, data, ary, ary2, no_tb_array){
+  var patients = [];
+  for(var i = 0; i < data.length; i++){
+    var found       = false;
+    var patient_id  = parseInt(data[i]['patient_id']);
+
+    for(var x = 0; x < ary.length; x++){
+      if(patient_id == parseInt(ary[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < ary2.length; x++){
+      if(patient_id == parseInt(ary2[x]['patient_id'])){
+        found = true;
+      }
+    }
+    
+    if(!found) {
+      patients.push(data[i]);
+      no_tb_array.push(data[i]);
+    }
+  }
+
+  e.innerHTML = patients.length;
+}
+
+function getCumulativeNumbers() {
+  jQuery.ajax({
+    type: "POST",
+    url: "/cohort_flat_table/get_cumulative_data",
+    data: "start_date=<%=@start_date%>&end_date=<%=@end_date%>",
+    success: function(result){
+      loadCumulativeTotalReg(result);
+      loadQuarterlyData();
+
+      //load: Patient initiated on ART first time Cumulative and Quarterly
+      var ft = document.getElementById('initiated_on_art_first_time');
+      loadPatientsInitiatedOnARTFirstTime(ft, totalReg, patients_initiated_first_time);
+
+      var cumFt =document.getElementById('cum_initiated_on_art_first_time');
+      loadPatientsInitiatedOnARTFirstTime(cumFt, totalCumReg, cum_patients_initiated_first_time);
+    
+      //load:: Patients re-initiated on ART and TI
+      var e  = document.getElementById('re_initiated_on_art');
+      var e2  = document.getElementById('transfer_in'); 
+      patientsReInitiatedTIBreakDown(totalReg, patients_initiated_first_time, e, e2, patientsTI, patientsReInitiated);
+      e =  document.getElementById('re_initiated_cum');
+      e2 =  document.getElementById('cum_transfer_in'); 
+      patientsReInitiatedTIBreakDown(totalCumReg, cum_patients_initiated_first_time, e, e2, cum_patientsTI, cumPatientsReInitiated);
+
+
+      //Load Males all ages
+      e = document.getElementById('all_males');
+      loadMaleAllAges(totalReg, e, allMales);
+      e1 = document.getElementById('cum_all_males');
+      loadMaleAllAges(totalCumReg, e1, cumAllMales);
+
+      //Load Pregnant Patients
+      e = document.getElementById('pregnant_females_all_ages');
+      loadPregnantPatients(e, totalReg, pregnant_females);
+      e = document.getElementById('cum_pregnant_females_all_ages');
+      loadPregnantPatients(e, totalCumReg, cum_pregnant_females);
+
+      //Load Non-Pregnant Patients
+      e = document.getElementById('non_pregnant_females');
+      loadNonPregnantPatients(e, totalReg,  non_pregnant_females);
+      e = document.getElementById('cum_non_pregnant_females');
+      loadNonPregnantPatients(e, totalCumReg, cum_non_pregnant_females);
+
+      //Children below 24m at ART initiation
+      e = document.getElementById("children_below_24_months_at_art_initiation");
+      ageAtARTinitiation(totalReg, 0, 2, e, children_below_24_months_at_art_initiation);
+      e = document.getElementById("cum_children_below_24_months_at_art_initiation");
+      ageAtARTinitiation(totalCumReg, 0, 2, e, cum_children_below_24_months_at_art_initiation);
+
+      //Children between 2 and 14 years at ART initiation
+      e = document.getElementById("children_24_months_14_years_at_art_initiation");
+      ageAtARTinitiation(totalReg, 2, 15, e, children_24_months_14_years_at_art_initiation);
+      e = document.getElementById("cum_children_24_months_14_years_at_art_initiation");
+      ageAtARTinitiation(totalCumReg, 2, 15, e, cum_children_24_months_14_years_at_art_initiation);
+
+      //Adults (above 14 years) at ART initiation
+      e = document.getElementById("adults_at_art_initiation");
+      ageAtARTinitiation(totalReg, 15, 500, e, adults_at_art_initiation);
+      e = document.getElementById("cum_adults_at_art_initiation");
+      ageAtARTinitiation(totalCumReg, 15, 500, e, cum_adults_at_art_initiation);
+
+      //Unknown age
+      e = document.getElementById('unknown_age');
+      unknownAge(e, totalReg, children_below_24_months_at_art_initiation, children_24_months_14_years_at_art_initiation, adults_at_art_initiation, unknown_age);
+      
+      e = document.getElementById('cum_unknown_age');
+      unknownAge(e, totalCumReg, cum_children_below_24_months_at_art_initiation, cum_children_24_months_14_years_at_art_initiation, cum_adults_at_art_initiation, cum_unknown_age);
+
+      //Reason for starting ART
+      //presumed Sever HIV in infants
+      var presumedReasons = ['Presumed Severe HIV', 'Presumed severe HIV criteria in infants'];
+      e = document.getElementById('presumed_severe_hiv_disease_in_infants');
+      getReasonForStartingArt(e, 'Presumed HIV', presumedReasons, totalReg, presumed_severe_hiv_disease_in_infants);
+      e = document.getElementById('cum_presumed_severe_hiv_disease_in_infants');
+      getReasonForStartingArt(e, 'Presumed HIV', presumedReasons, totalCumReg, cum_presumed_severe_hiv_disease_in_infants);
+
+
+      //Patient Pregnant reason for starting
+      var pregnant_reasons = ['Patient pregnant', 'Patient pregnant at initiation'];
+      e = document.getElementById('pregnant_women');
+      getReasonForStartingArt(e, 'Pregnant', pregnant_reasons, totalReg, pregnant_women);
+      e = document.getElementById('cum_pregnant_women');
+      getReasonForStartingArt(e, 'Pregnant', pregnant_reasons, totalCumReg, cum_pregnant_women);
+
+      //Infants < 12mths PCR+
+      var infant_comfirmed_reasons = ['HIV DNA polymerase chain reaction', 'HIV PCR'];
+      e = document.getElementById('confirmed_hiv_infection_in_infants_pcr');
+      getReasonForStartingArt(e, 'Confirmed HIV', infant_comfirmed_reasons, totalReg, confirmed_hiv_infection_in_infants_pcr);
+      e = document.getElementById('cum_confirmed_hiv_infection_in_infants_pcr');
+      getReasonForStartingArt(e, 'Confirmed HIV', infant_comfirmed_reasons, totalCumReg, cum_confirmed_hiv_infection_in_infants_pcr);
+
+      //HIV infected Children 24 - 59mnths
+      var children12_24mths_reasons = ['HIV Infected', 'HIV infected'];
+      e = document.getElementById('children_12_23_months');
+      getReasonForStartingArt(e, 'Children 12 to 24mnths', children12_24mths_reasons, totalReg, children_12_23_months);
+      e = document.getElementById('cum_children_12_23_months');
+      getReasonForStartingArt(e, 'Children 12 to 24mnths',children12_24mths_reasons, totalCumReg, cum_children_12_23_months);
+
+     //Breastfeeding reason
+      var breastfeeding_reasons = ['Currently breastfeeding child', 'Breastfeeding'];
+      e = document.getElementById('breastfeeding_mothers');
+      getReasonForStartingArt(e, 'Breastfeeding', breastfeeding_reasons, totalReg, breastfeeding_mothers);
+      e = document.getElementById('cum_breastfeeding_mothers');
+      getReasonForStartingArt(e, 'Breastfeeding', breastfeeding_reasons, totalCumReg, cum_breastfeeding_mothers);
+
+     //WHO stage IV reason
+      var who_stage_IV_reasons = ['WHO stage IV adult', 'WHO stage IV peds', 'WHO stage 4'];
+      e = document.getElementById('who_stage_four');
+      getReasonForStartingArt(e, 'WHO stage 4', who_stage_IV_reasons, totalReg, who_stage_four);
+      e = document.getElementById('cum_who_stage_four');
+      getReasonForStartingArt(e, 'WHO stage 4', who_stage_IV_reasons, totalCumReg, cum_who_stage_four);
+
+     //WHO stage III reason
+      var who_stage_III_reasons = ['WHO stage III adult', 'WHO stage III peds', 'WHO stage 3'];
+      e = document.getElementById('who_stage_three');
+      getReasonForStartingArt(e, 'WHO stage 3', who_stage_III_reasons, totalReg, who_stage_three);
+      e = document.getElementById('cum_who_stage_three');
+      getReasonForStartingArt(e, 'WHO stage 3', who_stage_III_reasons, totalCumReg, cum_who_stage_three);
+
+     //CD4 below threshold
+      var cd4_below_threshold_reasons = ["CD4 count <= 350", "CD4 count less than or equal to 350", "CD4 count <= 750", "CD4 count less than or equal to 750", "CD4 count less than or equal to 250", "CD4 count <= 250", "CD4 count less than or equal to 500", "CD4 count <= 500"];
+      e = document.getElementById('who_stage_two');
+      getReasonForStartingArt(e, 'CD4 count', cd4_below_threshold_reasons, totalReg, who_stage_two);
+      e = document.getElementById('cum_who_stage_two');
+      getReasonForStartingArt(e, 'CD4 count', cd4_below_threshold_reasons, totalCumReg, cum_who_stage_two);
+
+     //Asympomatic also includes the reason for WHO 1 and 2 before revised_art_guidelines_date = '2016-04-01'.to_date
+      var asymptomatic_reasons = ['WHO stage II adult', 'WHO stage II adults', 'WHO stage II peds', 'WHO stage 2', 'WHO stage I adult', 'WHO stage I peds', 'WHO stage 1', 'LYMPHOCYTE COUNT BELOW THRESHOLD WITH WHO STAGE 1', 'LYMPHOCYTE COUNT BELOW THRESHOLD WITH WHO STAGE 2', 'LYMPHOCYTES'];
+      e = document.getElementById('asymptomatic');
+      getReasonForStartingArt(e, 'Asympomatic', asymptomatic_reasons, totalReg, asymptomatic);
+      e = document.getElementById('cum_asymptomatic');
+      getReasonForStartingArt(e, 'Asympomatic', asymptomatic_reasons, totalCumReg, cum_asymptomatic);
+
+      //Unknown Reason for starting 
+      e = document.getElementById('unknown_other_reason_outside_guidelines');
+      unknownOtherReasonForStartingART(e, totalReg, presumed_severe_hiv_disease_in_infants, pregnant_women, confirmed_hiv_infection_in_infants_pcr, children_12_23_months, breastfeeding_mothers, who_stage_four, who_stage_three, who_stage_two, asymptomatic, unknown_other_reason_outside_guidelines);
+    
+      e = document.getElementById('cum_unknown_other_reason_outside_guidelines');
+      unknownOtherReasonForStartingART(e, totalCumReg, cum_presumed_severe_hiv_disease_in_infants, cum_pregnant_women, cum_confirmed_hiv_infection_in_infants_pcr, cum_children_12_23_months, cum_breastfeeding_mothers, cum_who_stage_four, cum_who_stage_three, cum_who_stage_two, cum_asymptomatic, cum_unknown_other_reason_outside_guidelines);
+
+      //Kaposis sacorma
+      e = document.getElementById('kaposis_sarcoma');
+      getKaposisSarcoma(e, totalReg, startDate, endDate, kaposis_sarcoma);
+      e = document.getElementById('cum_kaposis_sarcoma');
+      getKaposisSarcoma(e, totalCumReg, cumStartDate, endDate, cum_kaposis_sarcoma);
+
+      //Current TB episode
+      e = document.getElementById('current_episode_of_tb');
+      getCurrentEpisodeTB(e, totalReg, startDate, endDate, current_episode_of_tb);
+      e = document.getElementById('cum_current_episode_of_tb');
+      getCurrentEpisodeTB(e, totalCumReg, cumStartDate, endDate, cum_current_episode_of_tb);
+
+      //TB within the past 2 years
+      e = document.getElementById('tb_within_the_last_two_years');
+      getTBwithinPastTwoYrs(e, totalReg, startDate, endDate, current_episode_of_tb, tb_within_the_last_two_years);
+      e = document.getElementById('cum_tb_within_the_last_two_years');
+      getTBwithinPastTwoYrs(e, totalCumReg, cumStartDate, endDate, cum_current_episode_of_tb, cum_tb_within_the_last_two_years);
+
+      //No TB
+      e = document.getElementById('no_tb');
+      noTB(e, totalReg, current_episode_of_tb, tb_within_the_last_two_years, no_tb);
+      e = document.getElementById('cum_no_tb');
+      noTB(e, totalCumReg, cum_current_episode_of_tb, cum_tb_within_the_last_two_years, cum_no_tb);
+    }     
+  });
+
+}
+
+function getCPTiptBpScreenFamilyPlanning(){
+  jQuery.ajax({
+    type: "POST",
+     url: "/cohort_flat_table/get_patients_cpt_ipt_pfip_and_bp_screen",
+    data: "start_date=<%=@start_date%>&end_date=<%=@end_date%>",
+    success: function(get_patients_cpt_ipt_pfip_and_bp_screen){
+      patientsPercentage = JSON.parse(get_patients_cpt_ipt_pfip_and_bp_screen);
+
+      var cpt   = "";
+      var ipt   = "";
+      var bp    = "";
+      var pfip  = "";
+
+      for(var i = 0; i < patientsPercentage.length; i++){
+        cpt  = patientsPercentage[i]['cpt_usage_percent'];
+        ipt  = patientsPercentage[i]['ipt_usage_percent'];
+        bp   = patientsPercentage[i]['bp_screening'];
+        pfip = patientsPercentage[i]['family_planning'];
+      }
+
+      //CPT
+      document.getElementById('cpt_percent').innerHTML  = cpt;
+      document.getElementById('ipt_percent').innerHTML  = ipt;
+      document.getElementById('family_planning').innerHTML  = pfip;
+      document.getElementById('bp_screen').innerHTML  = bp;
+   }
+   });
+}
+
+function loadTotalPregnantAndBreastfeeding(){
+  jQuery.ajax({
+    type: "POST",
+     url: "/cohort_flat_table/get_total_pregnant_and_breastfeeding",
+    data: "start_date=<%=@start_date%>&end_date=<%=@end_date%>",
+    success: function(female_patients){
+      pregnantAndBreastfeedingWomen = JSON.parse(female_patients);
+
+      //total pregnant
+      e = document.getElementById('total_pregnant_women');
+      getTotalPregnantAndBreastfeeding(e, 'pregnant', pregnantAndBreastfeedingWomen, totalPregantWomen);
+
+      //total breastfeeding
+      e = document.getElementById('total_breastfeeding_women');
+      getTotalPregnantAndBreastfeeding(e, 'breastfeeding', pregnantAndBreastfeedingWomen, totalBreastfeedingWomen);
+
+      //all other patients     
+      e = document.getElementById('total_all_others');
+      getTotalPregnantAndBreastfeeding(e, 'Other Patient', pregnantAndBreastfeedingWomen, totalAllOtherDetails);
+    }
+  });
+}
+
+function getTotalPregnantAndBreastfeeding(e, femaleStatus, data, passed_array){
+  var patients = [];
+  for(var i = 0; i < data.length; i++){
+    if(femaleStatus == 'pregnant'){
+      if(data[i]['patient_pregnant'] == 'Yes'){
+        patients.push(data[i]);
+        passed_array.push(data[i]);
+      }
+    }
+
+    if(femaleStatus == 'breastfeeding'){
+      if(data[i]['patient_breastfeeding'] == 'Yes'){
+        patients.push(data[i]);
+        passed_array.push(data[i]);
+      }
+    }
+
+    if(femaleStatus == 'Other Patient'){
+      if(data[i]['other_patient'] == 'Other Patient'){
+        patients.push(data[i]);
+        passed_array.push(data[i]);
+      }
+    }
+
+  }
+  e.innerHTML = patients.length;
+}
+
+function getPatientAliveOnARTdetails(){
+  jQuery.ajax({
+    type: "POST",
+    url: "/cohort_flat_table/get_patients_alive_and_ART_details",
+    data: "start_date=<%=@start_date%>&end_date=<%=@end_date%>",
+    success: function(patients_alive_and_ART_details){
+      aliveAndOnARTdetails = JSON.parse(patients_alive_and_ART_details);
+      //Regimen
+      //0P
+      e = document.getElementById('zero_p');
+      getRegimenCategory(e, aliveAndOnARTdetails, '0P', regimenZeroP);
+      //2P
+      e = document.getElementById('two_p');
+      getRegimenCategory(e, aliveAndOnARTdetails, '2P', regimenTwoP);
+      //4P
+      e = document.getElementById('four_p');
+      getRegimenCategory(e, aliveAndOnARTdetails, '4P', regimenFourP);
+      //9P
+      e = document.getElementById('nine_p');
+      getRegimenCategory(e, aliveAndOnARTdetails, '9P', regimenNineP);
+      //11P
+      e = document.getElementById('elleven_p');
+      getRegimenCategory(e, aliveAndOnARTdetails, '11P', regimenEllevenP);
+      //0A
+      e = document.getElementById('zero_a');
+      getRegimenCategory(e, aliveAndOnARTdetails, '0A', regimenZeroA);
+      //2A
+      e = document.getElementById('two_a');
+      getRegimenCategory(e, aliveAndOnARTdetails, '2A', regimenTwoA);
+      //4A
+      e = document.getElementById('four_a');
+      getRegimenCategory(e, aliveAndOnARTdetails, '4A', regimenFourA);
+      //5A
+      e = document.getElementById('five_a');
+      getRegimenCategory(e, aliveAndOnARTdetails, '5A', regimenFiveA);
+      //6A
+      e = document.getElementById('six_a');
+      getRegimenCategory(e, aliveAndOnARTdetails, '6A', regimenSixA);
+      //7A
+      e = document.getElementById('seven_a');
+      getRegimenCategory(e, aliveAndOnARTdetails, '7A', regimenSevenA);
+      //8A
+      e = document.getElementById('eight_a');
+      getRegimenCategory(e, aliveAndOnARTdetails, '8A', regimenEightA);
+      //9A
+      e = document.getElementById('nine_a');
+      getRegimenCategory(e, aliveAndOnARTdetails, '9A', regimenNineA);
+      //10A
+      e = document.getElementById('ten_a');
+      getRegimenCategory(e, aliveAndOnARTdetails, '10A', regimenTenA);
+      //11A
+      e = document.getElementById('elleven_a');
+      getRegimenCategory(e, aliveAndOnARTdetails, '11A', regimenEllevenA);
+      //12A
+      e = document.getElementById('twelve_a');
+      getRegimenCategory(e, aliveAndOnARTdetails, '12A', regimenTwelveA);
+
+      e = document.getElementById('unknown_regimen');
+      getUknownRegimenCategory(e, aliveAndOnARTdetails, regimenZeroP, regimenTwoP, regimenFourP, regimenNineP, regimenEllevenP, regimenZeroA, regimenTwoA, regimenFourA, regimenFiveA, regimenSixA, regimenSevenA, regimenEightA, regimenNineA, regimenTenA, regimenEllevenA, regimenTwelveA, unknownRegimen);
+
+      //TB status
+      //TB Suspected
+      var tbStatusNames = ['TB Suspected'];
+      e = document.getElementById('tb_suspected');
+      getTBstatus(e, tbStatusNames, aliveAndOnARTdetails, tb_suspected);
+      
+      //TB NOT Suspected
+      var tbStatusNames = ['TB NOT Suspected'];
+      e = document.getElementById('tb_not_suspected');
+      getTBstatus(e, tbStatusNames, aliveAndOnARTdetails, tb_not_suspected);
+
+      //Confirmed TB on treatment
+      var tbStatusNames = ['Confirmed TB on treatment'];
+      e = document.getElementById('tb_confirmed_on_tb_treatment');
+      getTBstatus(e, tbStatusNames, aliveAndOnARTdetails, tb_confirmed_on_tb_treatment);      
+
+      //'TB Confirmed NOT on treatment', 'Confirmed TB NOT on treatment'
+      var tbStatusNames = ['TB Confirmed NOT on treatment', 'Confirmed TB NOT on treatment'];
+      e = document.getElementById('tb_confirmed_not_on_tb_treatment');
+      getTBstatus(e, tbStatusNames, aliveAndOnARTdetails, tb_confirmed_currently_not_yet_on_tb_treatment);      
+
+      //Unknown TB Status
+      e = document.getElementById('unknown_tb_status');
+      getUnknownTBstatus(e, aliveAndOnARTdetails, tb_suspected, tb_not_suspected, tb_confirmed_on_tb_treatment, tb_confirmed_currently_not_yet_on_tb_treatment, unknown_tb_status);
+
+      //Side Effects
+      //unknown side effects
+      e = document.getElementById('unknown_side_effects');
+      getUnknownSideEffects(e, aliveAndOnARTdetails, unknownSideEffects);
+
+      //With side effects
+      e = document.getElementById('with_side_effects');
+      getSideEffects(e, aliveAndOnARTdetails, unknownSideEffects, withSideEffects);
+
+      //No side effects
+      e = document.getElementById('no_side_effects');
+      getNoSideEffects(e, aliveAndOnARTdetails, unknownSideEffects, withSideEffects, noSideEffects);
+
+
+      //Adherence
+      //Adherent (0-3) dosses missed
+      e = document.getElementById('adherent');
+      getPatientAdherence(e, 'Adherent', aliveAndOnARTdetails, adherent);
+      
+      //No adherent (4+) dosses misses
+      e = document.getElementById('not_adherent');
+      getPatientAdherence(e, 'Not adherent', aliveAndOnARTdetails, notAdherent);
+      
+      //Unknown Adherence
+      e = document.getElementById('unknown_adherence');
+      getUnknownPatientAdherence(e, aliveAndOnARTdetails, adherent, notAdherent, unknownAdherence);
+    }
+  });
+}
+
+function getPatientAdherence(e, adherence, aliveAndOnART, adherence_array){
+  var patients = [];
+  for(i = 1; i < aliveAndOnART.length; i++){
+    var patient_id = parseInt(aliveAndOnART[i]['patient_id'])
+
+    if(aliveAndOnART[i]['patient_art_adherence'] == adherence){
+      patients.push(aliveAndOnART[i]);
+      adherence_array.push(aliveAndOnART[i]);
+    }
+  }
+    e.innerHTML = patients.length;
+}
+
+function getUnknownPatientAdherence(e, aliveAndOnARTdetails, adherent, notAdherent, unknownAdherence){
+  var patients = [];
+  for(var i = 0; i < aliveAndOnARTdetails.length; i++){
+    var found       = false;
+    var patient_id  = parseInt(aliveAndOnARTdetails[i]['patient_id']);
+
+    for(var x = 0; x < adherent.length; x++){
+      if(patient_id == parseInt(adherent[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < notAdherent.length; x++){
+      if(patient_id == parseInt(notAdherent[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    if(!found) {
+      patients.push(aliveAndOnARTdetails[i]);
+      unknownAdherence.push(aliveAndOnARTdetails[i]);
+    }
+  }
+
+  e.innerHTML = patients.length;
+
+}
+
+function getUnknownSideEffects(e, patients_alive_and_ART, passed_array){
+  var patients = [];
+
+  for(i = 0; i < patients_alive_and_ART.length; i++){
+    var side_effects = patients_alive_and_ART[i]['patient_side_effect'];
+    if(side_effects == "Unknown" || side_effects == "unknown"  ){
+      patients.push(patients_alive_and_ART[i]);
+      passed_array.push(patients_alive_and_ART[i]);
+    }
+  }
+  e.innerHTML = patients.length;
+}
+
+function getSideEffects(e, patients_alive_and_ART, unknown_side_effects, passed_array){
+  var patients = [];
+  var patients_without_unk_side_effects  = [];
+
+  for(var i = 0; i < patients_alive_and_ART.length; i++){
+    var found       = false;
+    var patient_id  = parseInt(patients_alive_and_ART[i]['patient_id']);
+
+    for(var x = 0; x < unknown_side_effects.length; x++){
+      if(patient_id == parseInt(unknown_side_effects[x]['patient_id'])){
+        found = true;
+      }
+    }
+    
+    if(!found) {
+      patients_without_unk_side_effects.push(patients_alive_and_ART[i]);
+    }
+  }
+
+
+  for(i = 0; i < patients_without_unk_side_effects.length; i++){
+    var side_effects = patients_without_unk_side_effects[i]['patient_side_effect'];
+    var earliest_start_date = new Date(patients_without_unk_side_effects[i]['earliest_start_date']);
+    var visit_date = new Date(patients_without_unk_side_effects[i]['visit_date']);
+
+    if(side_effects == "Yes"  ){
+      if(earliest_start_date != visit_date){
+        patients.push(patients_without_unk_side_effects[i]);
+        passed_array.push(patients_without_unk_side_effects[i]);
+      }
+    }
+  }
+  e.innerHTML = patients.length;
+}
+
+function getNoSideEffects(e, aliveAndOnARTdetails, unknownSideEffects, withSideEffects, noSideEffects){
+  var patients = [];
+
+  for(var i = 0; i < aliveAndOnARTdetails.length; i++){
+    var found       = false;
+    var patient_id  = parseInt(aliveAndOnARTdetails[i]['patient_id']);
+
+    for(var x = 0; x < unknownSideEffects.length; x++){
+      if(patient_id == parseInt(unknownSideEffects[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < withSideEffects.length; x++){
+      if(patient_id == parseInt(withSideEffects[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    if(!found) {
+      patients.push(aliveAndOnARTdetails[i]);
+      noSideEffects.push(aliveAndOnARTdetails[i]);
+    }
+  }
+
+  e.innerHTML = patients.length;
+
+}
+
+function getTBstatus(e, tb_status_array, patients_alive_and_ART, passed_array){
+  var patients = [];
+
+  for(i = 0; i < patients_alive_and_ART.length; i++){
+    var tb_status = patients_alive_and_ART[i]['tb_status'];
+    for(x = 0; x < tb_status_array.length; x++){
+      if(tb_status == tb_status_array[x]){
+        patients.push(patients_alive_and_ART[i]);
+        passed_array.push(patients_alive_and_ART[i]);
+      }
+    }
+  }
+   e.innerHTML = patients.length;
+
+}
+
+function getUnknownTBstatus(e, aliveAndOnART, suspected, not_suspected, confirmed_on_treatment, not_yet_on_tb_treatment, unknown_tb_status){
+  var patients = [];
+  for(var i = 0; i < aliveAndOnART.length; i++){
+    var found       = false;
+    var patient_id  = parseInt(aliveAndOnART[i]['patient_id']);
+
+    for(var x = 0; x < suspected.length; x++){
+      if(patient_id == parseInt(suspected[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < not_suspected.length; x++){
+      if(patient_id == parseInt(not_suspected[x]['patient_id'])){
+        found = true;
+      }
+    }
+    
+    for(var x = 0; x < confirmed_on_treatment.length; x++){
+      if(patient_id == parseInt(confirmed_on_treatment[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < not_yet_on_tb_treatment.length; x++){
+      if(patient_id == parseInt(not_yet_on_tb_treatment[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    if(!found) {
+      patients.push(aliveAndOnART[i]);
+      unknown_tb_status.push(aliveAndOnART[i]);
+    }
+  }
+
+  e.innerHTML = patients.length;
+
+}
+
+
+function getRegimenCategory(e, patients_alive_and_ART, regimen_category, passed_array){
+  var patients = [];
+  for(i = 0; i < patients_alive_and_ART.length; i++){
+    var patient_regimen_category = patients_alive_and_ART[i]['regimen_category'];
+    if(patient_regimen_category == regimen_category){
+      patients.push(patients_alive_and_ART[i]);
+      passed_array.push(patients_alive_and_ART[i])
+    }
+  }
+  e.innerHTML = patients.length;
+}
+
+function getUknownRegimenCategory(e, data, ary, ary2, ary3, ary4, ary5, ary6, ary7, ary8, ary9, ary10, ary11, ary12, ary13, ary14, ary15, ary16, unknownRegimen){
+  var patients = [];
+  for(var i = 0; i < data.length; i++){
+    var found       = false;
+    var patient_id  = parseInt(data[i]['patient_id']);
+
+    for(var x = 0; x < ary.length; x++){
+      if(patient_id == parseInt(ary[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < ary2.length; x++){
+      if(patient_id == parseInt(ary2[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < ary3.length; x++){
+      if(patient_id == parseInt(ary3[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < ary4.length; x++){
+      if(patient_id == parseInt(ary4[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < ary5.length; x++){
+      if(patient_id == parseInt(ary5[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < ary6.length; x++){
+      if(patient_id == parseInt(ary6[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < ary7.length; x++){
+      if(patient_id == parseInt(ary7[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < ary8.length; x++){
+      if(patient_id == parseInt(ary8[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < ary9.length; x++){
+      if(patient_id == parseInt(ary9[x]['patient_id'])){
+        found = true;
+      }
+    }
+    
+
+    for(var x = 0; x < ary10.length; x++){
+      if(patient_id == parseInt(ary10[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < ary11.length; x++){
+      if(patient_id == parseInt(ary11[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < ary12.length; x++){
+      if(patient_id == parseInt(ary12[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < ary13.length; x++){
+      if(patient_id == parseInt(ary13[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < ary14.length; x++){
+      if(patient_id == parseInt(ary14[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < ary15.length; x++){
+      if(patient_id == parseInt(ary15[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    for(var x = 0; x < ary16.length; x++){
+      if(patient_id == parseInt(ary16[x]['patient_id'])){
+        found = true;
+      }
+    }
+
+    if(!found) {
+      patients.push(data[i]);
+      unknownRegimen.push(data[i]);
+    }
+  }
+
+  e.innerHTML = patients.length;
+}
+
+function getPatientOutcomes() {
+  jQuery.ajax({
+    type: "POST",
+    url: "/cohort_flat_table/get_patient_outcomes",
+    data: "start_date=<%=@start_date%>&end_date=<%=@end_date%>",
+    success: function(outcomes){
+      patientsOutcome = JSON.parse(outcomes);
+
+      //Total alive and on ART
+      e = document.getElementById('total_alive_and_on_art');
+      getPatientStates(e, 'On antiretrovirals', patientsOutcome, total_alive_and_on_art);
+
+      //Patient died
+      e = document.getElementById('died_total');
+      getPatientStates(e, 'Patient died', patientsOutcome, patient_died);
+      
+      //Defaulted
+      e = document.getElementById('defaulted');
+      getPatientStates(e, 'Defaulted', patientsOutcome, defaulted);
+
+      //Transferred out
+      e = document.getElementById('transfered_out');
+      getPatientStates(e, 'Patient transferred out', patientsOutcome, transfered_out);
+      
+      //Stopped taking ART
+      e = document.getElementById('stopped_art');
+      getPatientStates(e, 'Treatment stopped', patientsOutcome, stopped_art);
+
+      //Died in months 
+      //Died within first month of ART initiation
+      e = document.getElementById('died_in_first_month');
+      getPatientDiedInMonths(e, '1st month', patient_died, died_in_first_month);
+      
+      //Died within second month of ART initiation
+      e = document.getElementById('died_in_second_month');
+      getPatientDiedInMonths(e, '2nd month', patient_died, died_in_second_month);
+      
+      //Died within third month of ART initiation
+      e = document.getElementById('died_in_third_month');
+      getPatientDiedInMonths(e, '3rd month', patient_died, died_in_third_month);
+      
+      //Died within after third month of ART initiation
+      e = document.getElementById('died_after_third_month');
+      getPatientDiedInMonths(e, '4+ months', patient_died, died_after_third_month);
+
+    }
+  });
+}
+
+function getPatientStates(e, outcome_name, outcomes, passed_array){
+  var patients = [];
+
+  for(i = 0; i < outcomes.length; i++){
+    if(outcomes[i]['cum_outcome'] == outcome_name){
+      patients.push(outcomes[i]);
+      passed_array.push(outcomes[i]);
+    }
+  }
+  e.innerHTML = patients.length;
+}
+
+function getPatientDiedInMonths(e, month_died_in, patient_died, passed_array){
+  var patients = [];
+  for(i = 0; i < patient_died.length; i++){
+    if(patient_died[i]['died_in'] == month_died_in){
+      patients.push(patient_died[i]);
+      passed_array.push(patient_died[i])
+    }
+  }
+  e.innerHTML = patients.length;
+}
+
+getCumulativeNumbers();
+getPatientOutcomes();
+getPatientAliveOnARTdetails();
+getCPTiptBpScreenFamilyPlanning();
+loadTotalPregnantAndBreastfeeding();
+</script>

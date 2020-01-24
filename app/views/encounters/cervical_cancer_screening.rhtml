@@ -1,0 +1,489 @@
+<script type="text/javascript">
+  var tt_cancel_destination = '/patients/show/<%=@patient.id%>';
+  var viaReferred = '<%= @via_referred %>';
+  var patientHasviaResults = '<%= @has_via_results %>';
+  var patientID = '<%=@patient.id%>';
+  var lesionSizeTooBig = '<%= @lesion_size_too_big %>';
+  var cervicalCancerFirstVisitPatient = '<%= @cervical_cancer_first_visit_patient %>';
+  var patientWentForVIA = '<%= @patient_went_for_via %>';
+  var cryoDelayed = '<%= @cryo_delayed %>';
+ 
+  function patientReferredAndHasNoresults(){
+    if (viaReferred == 'true' && patientHasviaResults == 'false'){
+      return true;
+    }
+
+    return false;
+  }
+
+  function viaNotReferred(){
+    if (viaReferred != 'true'){
+      return true;
+    }
+    return false;
+  }
+
+  function updateCryptoDate(){
+    year = __$('cryo_year').value;
+    month = __$('cryo_month').value;
+    day = __$("touchscreenInput" + tstCurrentPage).value;
+    if (parseInt(day) < 10){
+      day = '0' + day;
+    }
+    if (parseInt(month) < 10){
+      month = '0' + month;
+    }
+    
+    cryptoDate = day + '-' + month + '-' + year; // 01/Jan/2014
+    
+    __$('cryo_done_date').value = cryptoDate;
+  }
+
+  function changeAttributes(){
+    __$('nextButton').innerHTML = '<span>Continue</span>';
+    __$('nextButton').onmousedown = function(){
+      ContinueWorkFlow();
+    }
+    __$('backButton').style.display = 'none';
+    __$('clearButton').style.display = 'none';
+    __$('cancelButton').style.display = 'none';
+    __$('keyboard').style.display = 'none';
+    __$('inputFrame0').style.display = 'none';
+  }
+
+  function modifyAttributes(){
+    __$('keyboard').style.display = 'none';
+    __$('inputFrame' + tstCurrentPage).style.display = 'none';
+    __$('helpText' + tstCurrentPage).style.position = 'absolute';
+    __$('helpText' + tstCurrentPage).style.fontSize = '2em';
+    __$('helpText' + tstCurrentPage).style.paddingLeft = '0px';
+    __$('helpText' + tstCurrentPage).style.paddingTop = '234px';
+    __$('helpText' + tstCurrentPage).style.width = '90%';
+    __$('helpText' + tstCurrentPage).style.left = '35px';
+    __$('helpText' + tstCurrentPage).style.textAlign = 'center';
+  }
+
+  function ContinueWorkFlow(){
+    jQuery.ajax({
+      type: "POST",
+      url: "/patients/set_cervical_cancer_session_variable",
+      data: "patient_id=" + patientID,
+      success: function(nextUrl){
+        window.location = nextUrl;
+      }
+    });
+  }
+
+  function cervicalFirstVisitPatient(){
+    if (cervicalCancerFirstVisitPatient == 'true'){
+      return true;
+    }
+
+    return false
+  }
+
+  function patientVIAwithinThreeYears(){
+    if (cervicalFirstVisitPatient() == true){
+      viaYear = parseInt(__$('via_year').value);
+      viaMonth = parseInt(__$('via_month').value);
+      dateString = viaYear + ', ' + viaMonth + ', ' + 1;
+      viaDate = new Date(dateString);
+      today = new Date();
+      date_diff_result = dateDiff(today, viaDate);
+      if (date_diff_result[2] < 3){
+        return true
+      }
+      else{
+        return false
+      }
+    }
+    else {
+      return false
+    }
+  }
+
+  function dateDiff(date1,date2) {
+    var diff = Math.floor(date1.getTime() - date2.getTime());
+    var day = 1000 * 60 * 60 * 24;
+
+    var days = Math.floor(diff/day);
+    var months = Math.floor(days/31);
+    var years = Math.floor(months/12);
+
+    return [days, months, years]
+  }
+
+  function updateVIAdoneDate(){
+    year = __$('via_year').value;
+    month = __$('via_month').value;
+    day = 1; //We are just setting the day to be 1 coz we are not capturing it;
+    
+    if (parseInt(day) < 10){
+      day = '0' + day;
+    }
+
+    if (parseInt(month) < 10){
+      month = '0' + month;
+    }
+
+    viaDate = day + '-' + month + '-' + year; // 01/Jan/2014
+
+    if (__$('via_done_date')){
+      __$('via_done_date').value = viaDate;
+    }
+  }
+
+  function showCervicalCancerWarning(){
+    jQuery("#cervical_cancer_reminder").show();
+    jQuery("#cervical_cancer_reminder_cover").show();
+  }
+
+  function hideCervicalCancerWarning(){
+    jQuery("#cervical_cancer_reminder").hide();
+    jQuery("#cervical_cancer_reminder_cover").hide();
+  }
+
+  function setCervicalCancerDelayedReminder(){
+    jQuery("#cervical_cancer_reminder").hide();
+    jQuery("#cervical_cancer_reminder_cover").hide();
+    
+    available_options = document.getElementsByTagName('li');
+    for(i=0; i<available_options.length; i++){
+      inputValue = available_options[i].getAttribute("tstvalue");
+      if (inputValue.match(/CRYO DELAYED/i)){
+        available_options[i].onmouseup = function(){
+          showCervicalCancerWarning();
+        }
+      }     
+    }
+  }
+  
+</script>
+
+<style type="text/css">
+  #tt_page_month_cryo_was_done .options{height:515px;}
+  #tt_page_month_cryo_was_done .options li{font-size:30px;}
+  .tt_page_day_cryo_was_done #Unknown { display:none; }
+  #tt_page_month_via_was_done .options{height:515px;}
+
+  .referral_count{
+    color: orange;
+    font-weight: bold;
+    font-size: 14pt;
+    font-style: italic;
+    float: right;
+    text-align: center;
+    border-radius: 50%;
+    width: 290px;
+    height: 43px;
+    background: black;
+  }
+
+  .referral_count span{
+    top: 9px;
+    position: relative;
+  }
+  
+</style>
+<% if @via_results_expired == false %>
+  <style>
+    #helpText0{
+      position: absolute;
+      text-align: center;
+    }
+
+    #helpText0 {
+      position: absolute;
+      text-align: center;
+    }
+
+    .helpTextClass {
+      -moz-user-select: none;
+      font-size: 2em;
+      padding-left: 0px;
+      padding-top: 35px;
+      width: 90%;
+      left: 35px;
+    }
+
+  </style>
+
+  <%
+  helpText = "Patient has retrospective results from less than three years ago."
+  helpText += " Therefore she can only be referred to VIA after <b>#{@remaining_days}</b> days"
+%>
+  <form action="#" >
+    <%= text_field_tag "info", nil,
+      {
+      :tt_onLoad => "changeAttributes();",
+      :optional => "true",
+      :tt_pageStyleClass => "NoControls",
+      :helpText => "#{helpText}" } %>
+  </form>
+<% else %>
+
+  <% if @via_referred && @has_via_results && (!@lesion_size_too_big)%>
+
+    <style>
+      #helpText0{
+        position: absolute;
+        text-align: center;
+      }
+
+      #helpText0 {
+        position: absolute;
+        text-align: center;
+      }
+
+      .helpTextClass {
+        -moz-user-select: none;
+        font-size: 2em;
+        padding-left: 0px;
+        padding-top: 35px;
+        width: 90%;
+        left: 35px;
+      }
+
+    </style>
+
+    <%
+
+    unless @latest_via_referral_outcome.blank?
+      #@latest_cervical_cancer_result = @latest_cervical_cancer_result.to_s + " - " + @latest_via_referral_outcome
+      @latest_cervical_cancer_result = @latest_via_referral_outcome
+    end
+    if @terminal == true
+      helpText = "This patient had an outcome of \"<b style='color: orange;'>#{@latest_cervical_cancer_result} #{}</b>\" results. And she is no longer eligible for Cervical Cancer Screening"
+    else
+      helpText = "This patient had an outcome of \"<b style='color: orange;'>#{@latest_cervical_cancer_result}</b>\" after referral. You will be reminded to refer the patient
+      back to VIA after <b>#{@remaining_days}</b> days"
+    end
+
+  %>
+    <form action="#" >
+      <%= text_field_tag "info", nil,
+        {
+        :tt_onLoad => "changeAttributes();",
+        :optional => "true",
+        :tt_pageStyleClass => "NoControls",
+        :helpText => "#{helpText}" } %>
+    </form>
+
+  <% else %>
+    <form action='/encounters/create' method = 'post'>
+      <% month_names = month_name_options.gsub('<option value="Unknown">Unknown</option>', '') %>
+
+      <%= hidden_field_tag "encounter[encounter_type_name]", "CERVICAL CANCER SCREENING" %>
+      <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+      <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+      <%= hidden_field_tag "encounter[provider_id]", current_user.user_id %>
+
+      <%= touch_select_tag 'EVER HAD VIA?', @patient, options_for_select(["", "Yes", "No"]),
+        {:id => 'ever_had_via',
+        :helpText => "Ever had VIA?",
+        :condition => "cervicalFirstVisitPatient() == true;",
+        :tt_pageStyleClass => "NoKeyboard"
+      } %>
+
+      <%= text_field_tag "via_year", nil,
+        {
+        :id => 'via_year',
+        :helpText => 'Year VIA Was Done',
+        :condition => "__$('ever_had_via').value.match(/YES/i)",
+        :field_type => 'number',
+        :tt_pageStyleClass => "Numeric NumbersOnly"
+      }  %>
+
+      <%= select_tag "via_month", month_names,
+        {
+        :id => 'via_month',
+        :condition => "__$('via_year').value.length > 0",
+        :helpText => 'Month VIA Was Done',
+        :tt_onLoad => "__$('keyboard').style.display = 'none'",
+        :tt_onUnLoad => "updateVIAdoneDate();"
+      } %>
+
+      <%= touch_select_tag 'VIA REFERRAL', @patient, options_for_select(["", "Yes", "No"]),
+        {:id => 'refer_to_via',
+        :helpText => "This patient is elligible for VIA. Refer to VIA? <span class='referral_count'><span>Today's Referrals Count: #{@todays_refferals_count}/#{@daily_referral_limit}</span></span><br /><br />",
+        :condition => "viaNotReferred() == true && patientVIAwithinThreeYears() == false;",
+        :tt_pageStyleClass => "NoKeyboard"
+      } %>
+
+      <%= touch_select_tag 'VIA RESULTS AVAILABLE?', @patient, options_for_select(["", "Yes", "No"]),
+        {:id => 'results_available?',
+        :helpText => "Are the VIA results available?",
+        :condition => "patientReferredAndHasNoresults() == true && cryoDelayed == 'false';",
+        :tt_pageStyleClass => "NoKeyboard"
+      } %>
+
+      <%= touch_select_tag 'PATIENT WENT FOR VIA?', @patient, options_for_select(["", "Yes", "No"]),
+        {:id => 'patient_went_for_via',
+        :helpText => "Did patient go for VIA?",
+        :condition => "__$('results_available?').value == 'No' && patientWentForVIA == 'false'",
+        :tt_pageStyleClass => "NoKeyboard"
+      } %>
+
+      <%= text_field_tag "no_via", nil,{
+        :id => "no_via",
+        :tt_onLoad => "modifyAttributes();",
+        :condition => "__$('patient_went_for_via').value == 'No'",
+        :optional => "true",
+        :tt_pageStyleClass => "NoControls",
+        :helpText => "Refer this patient to VIA" } %>
+
+      <%= text_field_tag "yes_via", nil, {
+        :id => "yes_via",
+        :tt_onLoad => "modifyAttributes()",
+        :condition => "__$('patient_went_for_via').value == 'Yes' || (__$('results_available?').value == 'No' && patientWentForVIA == 'true')",
+        :optional => "true",
+        :tt_pageStyleClass => "NoControls",
+        :helpText => "Remind the patient to bring results on next visit!" } %>
+
+      <%= touch_select_tag 'VIA RESULTS', @patient, options_for_select(["", "Negative", "Positive", "Suspect Cancer"]),
+        {:id => 'via_results',
+        :helpText => "Record Results",
+        :condition => "__$('results_available?').value == 'Yes'",
+        :tt_pageStyleClass => "NoKeyboard"
+      } %>
+
+      <%= touch_select_tag 'POSITIVE CRYO', @patient, options_for_select(["", "Cryo Done", "Cryo Delayed", "Lesion Size too big"]),
+        {:id => 'positive_cryo',
+        :helpText => "Record Cryo Result",
+        :condition => "__$('via_results').value.match(/Positive/i) || cryoDelayed == 'true'",
+        :tt_onLoad => "setCervicalCancerDelayedReminder();",
+        :tt_pageStyleClass => "NoKeyboard"
+      } %>
+
+      <%= text_field_tag "cryo_year", nil,
+        {
+        :id => 'cryo_year',
+        :helpText => 'Year Cryo Was Done',
+        :condition => "__$('positive_cryo').value.match(/Cryo Done/i)",
+        :field_type => 'number',
+        :tt_pageStyleClass => "Numeric NumbersOnly"
+      }  %>
+
+      <%= select_tag "cryo_month", month_names,
+        {
+        :id => 'cryo_month',
+        :condition => "__$('cryo_year').value.length > 0",
+        :helpText => 'Month Cryo Was Done',
+        :tt_onLoad => "__$('keyboard').style.display = 'none'"
+      } %>
+
+      <%= text_field_tag "cryo_day",  nil,
+        {
+        :id => 'cryo_day',
+        :condition => "__$('cryo_month').value.length > 0",
+        :field_type => 'number',
+        :tt_onUnLoad => "updateCryptoDate();",
+        :helpText => "Day Cryo Was Done"
+      } %>
+
+      <%= select_tag "referral_outcome", options_for_select(['','Yes', 'No']),
+        {
+        :id => "referral_outcome",
+        :condition => "__$('via_results').value.match(/Suspect Cancer/i) || __$('positive_cryo').value.match(/Lesion Size too big/i) || __$('lesion_size_too_big').value.match(/TRUE/i)",
+        :helpText => "Do you want to capture Referral outcomes today?"
+      } %>
+
+      <%= touch_select_tag 'VIA REFERRAL OUTCOME', @patient, options_for_select(["", "Pre/Cancer Treated", "Cancer Untreatable", "No Cancer"]),
+        {:id => 'via_referral_outcome',
+        :helpText => "Select Referral Outcome",
+        :condition => "__$('referral_outcome').value.match(/YES/i)",
+        :tt_pageStyleClass => "NoKeyboard"
+      } %>
+
+      <%= touch_hidden_tag("CRYO DONE DATE", @patient, "", {:id => 'cryo_done_date'}) %>
+
+      <% if @cervical_cancer_first_visit_patient == true %>
+        <%= touch_hidden_tag("VIA DONE DATE", @patient, "", {:id => 'via_done_date'}) %>
+      <% end %>
+
+      <% if @lesion_size_too_big == true %>
+        <%= hidden_field_tag("lesion_size_too_big", "true", {:id => 'lesion_size_too_big'}) %>
+      <% else %>
+        <%= hidden_field_tag("lesion_size_too_big", "false", {:id => 'lesion_size_too_big'}) %>
+      <% end %>
+
+    </form>
+  <% end %>
+
+<% end %>
+
+<div id="cervical_cancer_reminder" style="display:none;">
+  <div id="cervical_cancer_reminder_header">
+    <span style="font-size: 16pt; font-weight: bold;">Cervical Cancer Screening Reminder</span>
+  </div>
+
+  <div id="cervical_cancer_reminder_content">
+    <div style="position: relative; overflow:auto; height: 80%; font-size: 14pt; font-weight: bold; color: white;">
+      <br />
+      <Center>This patient had positive VIA but cryo was not done.<br />
+        Refer urgently for cryo again</center>
+    </div>
+  </div>
+
+  <div id="cervical_cancer_reminder_footer">
+    <span onclick="hideCervicalCancerWarning();">Continue</span>
+  </div>
+</div>
+
+<div id="cervical_cancer_reminder_cover" style="display:none;">
+
+</div>
+
+<style type="text/css">
+  #cervical_cancer_reminder_cover{
+    position: absolute;
+    background-color: black;
+    width: 100%;
+    height: 102%;
+    left: 0%;
+    top: 0%;
+    z-index: 990;
+    opacity: 0.3;
+  }
+
+  #cervical_cancer_reminder{
+    position: absolute;
+    width: 60%;
+    height: 40%;
+    top: 10%;
+    z-index: 991;
+    left: 16%;
+    border: 1px solid black;
+    background-color: #CD3333;
+    border-radius: 15px;
+  }
+
+  #cervical_cancer_reminder_header{
+    padding: 10px;
+    background-color: white;
+    color: black;
+    border-radius: 15px 15px 0px 0px;
+  }
+
+  #cervical_cancer_reminder_footer{
+    background-color: #FFD39B;
+    height: 60px;
+    width: 100%;
+    position: absolute;
+    width: 100%;
+    position: absolute;
+    bottom: 0px;
+    border-radius: 0px 0px 15px 15px;
+  }
+
+  #cervical_cancer_reminder_footer span{
+    background-color: goldenrod;
+    position: absolute;
+    padding: 12px 20%;
+    right: 8px;
+    bottom: 8px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+</style>

@@ -1,0 +1,169 @@
+<style>
+
+.stats {
+  display: table;
+  margin-left: 5px;
+	display: none;
+}
+
+
+.stats-row {
+  display: table-row;
+}
+
+.stats-cell {
+  display: table-cell;
+}
+
+.numbers {
+  width: 10%;
+  text-align: right;
+  padding-right: 5px;
+}
+
+.color-code {
+  background-color: rgba(0, 255, 0, 0.3);
+}
+
+.trends {
+  font-size: 12px;
+}
+
+.bar-chart {
+  font-size: 12px;
+  font-family: "Times New Roman", Times, serif;
+}
+
+</style>
+<%=javascript_include_tag "Highcharts/jquery.1.8.2.min"%>
+
+<style type="text/css">
+  ${demo.css}
+</style>
+
+<script type="text/javascript">
+
+var c
+
+function renderPieChart() {
+
+$(function () {
+    $('#container-pie').highcharts({
+        chart: {
+            type: 'pie',
+            options3d: {
+                enabled: true,
+                alpha: 45
+            }
+        },
+        title: {
+            text: "<span style='font-size: 12px;'>Patients' record completeness percentage: " + startDateDisplay + "</span>"
+        },
+        subtitle: {
+            text: 'Percentage of "Complete/Incomplete" visits'
+        },
+        plotOptions: {
+            pie: {
+                innerSize: 40,
+                depth: 15,
+						dataLabels: {
+                enabled: true
+            },
+            showInLegend: true
+					}
+        },
+        tooltip: {
+            valueSuffix: '%'
+        },
+				exporting: {
+					enabled: false
+				},
+				credits: {
+					enabled: false
+				},
+        colors: ['#FF0000', '#00FF00'],
+        series: [{
+            name: 'Patients visit',
+            data: [
+								{
+									name: 'Incomplete',
+									y: incomplete_percentage,
+									sliced: true,
+									selected: true
+								},
+                ['Complete', complete_percentage]
+            ]
+        }]
+    });
+});
+
+}
+
+</script>
+
+<%=javascript_include_tag "Highcharts/js/highcharts"%>
+<%=javascript_include_tag "Highcharts/js/highcharts-3d"%>
+<%=javascript_include_tag "Highcharts/js/modules/exporting"%>
+
+<div id="container-pie" style="height: 500px;"></div>
+
+<div class="stats bar-chart">
+
+  
+  <div class="stats-row">
+    <div class="stats-cell">Total patients seen:</div>
+    <div class="stats-cell numbers" id="total_seen"></div>
+  </div>
+
+  <div class="stats-row color-code">
+    <div class="stats-cell">Complete visits:</div>
+    <div class="stats-cell numbers" id="complete"></div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stats-cell">Incomplete visit:</div>
+    <div class="stats-cell numbers" id="incomplete"></div>
+  </div>
+
+</div>
+
+<script>
+var incomplete_percentage = 0;
+var complete_percentage	=	0;
+
+//var startDate = "<%#=(start_date)%>";
+//var startDateDisplay = "<%#=(start_date).strftime('%d/%b/%Y')%>";
+
+
+function getTableCalculations() {
+ jQuery.ajax({
+    type: "GET",
+    url: "/notification_tracker/patients_seen",
+    data: "visit_date=" + startDate,
+    success: function(result){
+			var data = JSON.parse(result);
+			document.getElementById('total_seen').innerHTML     = data['total'];
+			document.getElementById('complete').innerHTML       = data['complete'];
+			document.getElementById('incomplete').innerHTML     = data['incomplete'];
+		}        
+	});
+}
+
+function getCalculations() {
+ jQuery.ajax({
+    type: "GET",
+    url: "/notification_tracker/patients_seen",
+    data: "visit_date=" + startDate,
+    success: function(result){
+			var data              = JSON.parse(result);
+			incomplete_percentage = data['incomplete_percentage'];
+			complete_percentage   = data['complete_percentage'];
+			renderPieChart();
+		}        
+	});
+}
+
+//getCalculations();
+//getTableCalculations();
+
+</script>

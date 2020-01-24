@@ -1,0 +1,42 @@
+
+<%= javascript_include_tag 'jquery' %>
+
+<script language="javascript">
+  var tt_cancel_destination = '/clinic';
+  var keyValueData = JSON.parse('<%= @key_value_data.to_json %>');
+
+  function updateInputTins(){
+    obsID = __$('pharmacy_obs_id').value;
+    tins = keyValueData[obsID];
+    currentInput = __$('touchscreenInput' + tstCurrentPage)
+    currentInput.value = tins;
+  }
+
+</script>
+
+<style type="text/css">
+  #tt_page_select_product .options{
+    height: 297px;
+  }
+</style>
+
+<form method="POST" action="/clinic/update_pharmacy_obs">
+
+  <%= select_tag "pharmacy_obs_id", options_for_select(@encounter_dates),
+    {
+    :id => "pharmacy_obs_id",
+    :helpText => "Select Transaction Date"
+  } %>
+
+  <%= text_field_tag "number_of_tins", nil, {
+    :id => "number_of_tins",
+    :tt_onLoad => "updateInputTins();",
+    :helpText => 'Number of tins',
+    :field_type => 'number',
+    :absoluteMin => "1",
+    :min => "1",
+    :tt_pageStyleClass => "Numeric NumbersOnly"
+  } %>
+
+</form>
+

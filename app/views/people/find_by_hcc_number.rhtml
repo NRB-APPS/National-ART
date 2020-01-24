@@ -1,0 +1,41 @@
+<%= javascript_include_tag "prototype" %>
+<script type="text/javascript">
+  var tt_cancel_destination = "/clinic"
+
+  function hccCode(){
+    inputElement = document.getElementById('tt_page_enter_hcc_number').getElementsByTagName("input")[0]
+    prefix = document.createElement("span")
+    style = document.createAttribute("style")
+    style.value = "position: absolute; z-index: 100; left: 0px; font-size: 35px;"
+    prefix.setAttributeNode(style)
+    inputElement.setAttribute("style","text-align:right;width:99%;")
+    <% unless  PatientIdentifier.site_prefix.blank? %>
+        prefix.innerHTML = "<%=  PatientIdentifier.site_prefix + '-HCC' %>"
+    <% else %>
+        prefix.innerHTML = "-HCC"
+    <% end %>
+    inputElement.parentNode.insertBefore(prefix, inputElement)
+    style.value+= 'left:30px;'
+    prefix.setAttributeNode(style)
+
+    other_identifiers = document.getElementById('Unknown')
+    other_identifiers.innerHTML = '<span>Search by other</span>'
+    other_identifiers.setAttribute('onmousedown','searchByOther()')
+  }
+
+  function searchByOther(){
+    document.location = '/people/search_by_identifier'
+  }
+</script>
+
+<style>
+
+#qwerty,#date,#star,#abc,#slash,#percent,#comma,#minus,#plus,#decimal {
+  display:none;
+}
+
+</style>
+
+<form method = 'post' action = 'find_by_hcc_number'>
+   <%= text_field_tag :hcc_number, nil , :field_type => 'number' , :helpText => 'Enter HCC Number',:tt_onLoad =>'hccCode()'%>
+</form> 

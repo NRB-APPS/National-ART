@@ -1,0 +1,590 @@
+<style>      
+  
+  .cellActive {
+    border-color: green !important;
+  }
+
+  #cancelButton {
+    display: none;
+  }
+                                                                     
+  .nonclinic {
+    background-color: #C0C0C0 ! important;
+  }
+  .selected {
+    background-color: #99EE99 ! important;
+    color: #000000;
+    font-weight:bold;
+  }
+  .publicholiday {
+    background-color: #CD3333 ! important;
+  }
+  div {
+    -moz-user-select: none;
+  }
+  #cover {
+    position: absolute;
+    background-color: black;
+    width: 100%;
+    height: 102%;
+    left: 0%;
+    top: 0%;
+    z-index: 500;
+    opacity: 0.5;
+    align: center;
+  }
+  #alertPage{
+    position: absolute;
+    left: 575px;
+    width: 350px;
+    height: 150px;
+    top: 185px;
+    padding-bottom: 10px;
+    font-size: 1em;
+    text-align: center;
+    background-color: tomato;
+    padding: 10px;
+    z-index: 999;
+    border: 5px outset tomato;
+    border-radius: 15px;
+    z-index: 900;
+  }
+  .message{
+    font-size:20px;
+    color:white;
+    font-weight:bold;
+  }
+
+  .cTable {
+    height: 78%;
+    width: 97%;
+  }
+
+  .cRow {
+    line-height: 30px;
+  }
+
+  .FastTrackBtn{
+    text-decoration: none;
+    border:1px solid #25729a;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    font-family:arial, helvetica, sans-serif;
+    padding: 10px 10px 10px 10px;
+    text-shadow: -1px -1px 0 rgba(0,0,0,0.3);
+    text-align: center;
+  }
+
+</style>
+
+<script src="/javascripts/jquery-1.3.2.min.js" type="text/javascript"></script>
+<script src="/javascripts/notification_tracker.js" type="text/javascript"></script>
+<script language="javascript" type="text/javascript" src="/javascripts/jquery.flot.js"></script>
+<script src="/javascripts/touchscreenYesNo.js" type="text/javascript"></script>
+
+
+<script type="text/javascript">
+  <!--
+  tt_cancel_destination = "/patients/show/<%= @patient.patient_id%>";
+  tt_cancel_show = '/patients/show/<%= @patient.id %>?auto_load_forms=false';
+  var patient_id = <%= @patient.id %>;
+  var globalDate
+  var counts = <%= @counts.to_json() %>;
+
+  var set_clinic_holidays = [];
+<%
+
+@clinic_days = CoreService.get_global_property_value('clinic.days') rescue []
+@clinic_days = CoreService.get_global_property_value('peads.clinic.days') rescue [] if PatientService.age(@patient.person).to_i <= 14
+days = []
+(@clinic_days || []).include?('Sunday')?days.push("Sunday"):days.push("")
+(@clinic_days || []).include?('Monday')?days.push("Monday"):days.push("")
+(@clinic_days || []).include?('Tuesday')?days.push("Tuesday"):days.push("")
+(@clinic_days || []).include?('Wednesday')?days.push("Wednesday"):days.push("")
+(@clinic_days || []).include?('Thursday')?days.push("Thursday"):days.push("")
+(@clinic_days || []).include?('Friday')?days.push("Friday"):days.push("")
+(@clinic_days || []).include?('Saturday')?days.push("Saturday"):days.push("")
+clinic_holidays = []
+
+(@set_clinic_holidays || []).each do |holiday|
+  clinic_holidays << holiday %>
+  set_clinic_holidays.push("<%= holiday %>");<%
+end
+
+clinic_holidays = clinic_holidays.to_json
+
+if @clinic_days.blank?
+  days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+end
+
+%>
+  var clinic_holidays = <%= clinic_holidays %>
+  var totalWeekend = new Array;
+  var totalHoliday = new Array;
+  function summary() {
+    //updateWhoStage();
+    //updateReasonForArtEligibility();
+    //var conditions = selectedConditions();
+    var display = "<div><span class='title'>WHO Stage: Test</span></div>";
+
+    //$('inputFrame'+tstCurrentPage).innerHTML = '<div id="summary">' + display + '</div>' ;
+    $("clearButton").style.display = 'none';
+    $("cancelButton").style.display = 'none';
+
+    generateBalancer();
+    $("observations__value_datetime").value = "";
+  }
+
+  var date_set = [];
+
+  for(var c = 0; c < clinic_holidays.length; c++) {
+    date_set.push(clinic_holidays[c]);
+  }
+
+  function showSelectedDates() {
+    activeCells = document.getElementsByClassName('cellActive');
+    for(var i = 0; i < activeCells.length; i++) {
+      weekDay = activeCells[i].getAttribute('date');
+      param = activeCells[i];
+      nn = new Date(weekDay).getDay();
+      var days = '<%= days.join(',') %>';
+      days = days.split(',');
+      if (days[nn] == ""){
+
+        activeCells[i].setAttribute("ajaxCalendarUrl", "/patients/number_of_booked_patients?date=" + weekDay);
+        activeCells[i].className += " nonclinic";
+        activeCells[i].setAttribute('onclick', "showConfirm('Non-clinic day', this);");
+		
+        totalWeekend.push(activeCells[i])
+		   
+      }
+      else{
+        activeCells[i].setAttribute("ajaxCalendarUrl", "/patients/number_of_booked_patients?date=" + weekDay)
+        activeCells[i].setAttribute('onclick', "showConfirm('none', this);");
+		
+        for(var x = 0 ; x < clinic_holidays.length; x++){
+          if (weekDay == clinic_holidays[x]) {
+            activeCells[i].className += " publicholiday";
+            activeCells[i].setAttribute('onclick', "showConfirm('Public Holiday', this);");
+            totalHoliday.push(activeCells[i])
+          }
+			
+        }
+		
+      }
+    }
+  }
+
+  function setAttributes() {
+    buttons = document.getElementsByClassName('btn');
+    for(var i = 0; i < buttons.length; i++) {
+      new_attr = buttons[i].getAttribute('onclick') + ';showSelectedDates();'
+      buttons[i].setAttribute('onclick',new_attr);
+    }
+   
+    var nextBtn = document.getElementById('nextButton');
+    nextBtn.setAttribute('onmousedown', 'checkSelectedDate();');
+  }
+
+  function checkSelectedDate() {
+    var selectedDate = ($("observations__value_datetime").value);
+    var booked_patients = null;
+
+    if(checkIfHoliday(selectedDate) == true){
+      showHolidayPopup();
+      return;
+    }
+
+    jQuery.ajax({
+      type: "POST",
+      url: "/patients/number_of_booked_patients",
+      data: "date=" + selectedDate,
+      success: function(result){
+        validateSelectedDate(result, selectedDate);
+      }
+          
+    });
+  }
+
+  function checkIfHoliday(selectedDate) {
+    for(var h = 0; h < set_clinic_holidays.length; h++) {
+      if(set_clinic_holidays[h] == selectedDate) {
+        return true
+      }
+    }
+    return false;
+  }
+
+  function validateSelectedDate(result, selectedDate) {
+    var clinicLimit = parseInt("<%= @appointment_limit %>");
+    try{
+      var booked_patients = parseInt(JSON.parse(result)[selectedDate]);
+      document.getElementById('number_of_booked_patients').innerHTML = booked_patients;
+    }catch(e){
+      var booked_patients = 0;
+    };
+
+    if(booked_patients >= clinicLimit) {
+      showAlertPopup();
+    }else{
+      resetOverBookingAttr();
+    }
+
+  }
+
+  var attt;
+  var result;
+
+  function showConfirm(attt, field){
+    globalDate = field
+    getTotal();
+    activeCells = document.getElementsByClassName('cellActive');
+    if (attt == "none"){
+
+      for(var i = 0; i < activeCells.length; i++) {
+        activeCells[i].style.backgroundColor = "white"
+        if (totalWeekend.indexOf(activeCells[i]) > -1){
+          activeCells[i].className = activeCells[i].className.replace( /(?:^|\s)selected(?!\S)/g , ' nonclinic' );
+        }
+        else if (totalHoliday.indexOf(activeCells[i]) > -1){
+          activeCells[i].className = activeCells[i].className.replace( /(?:^|\s)selected(?!\S)/g , ' publicholiday' );
+        }
+        else if (field.getAttribute('date') == activeCells[i].getAttribute('date')){
+          field.className = field.className.replace( /(?:^|\s)selected(?!\S)/g , ' ' );
+          field.className +=  ' selected';
+        }
+        else{
+          activeCells[i].className = activeCells[i].className.replace( /(?:^|\s)selected(?!\S)/g , '' );
+        }
+      }
+    }
+
+    else {
+      for(var i = 0; i < activeCells.length; i++) {
+        activeCells[i].style.backgroundColor = "white"
+        if (totalWeekend.indexOf(activeCells[i]) > -1){
+          if (field.getAttribute('date') == activeCells[i].getAttribute('date')){
+            field.className = field.className.replace( /(?:^|\s)nonclinic(?!\S)/g , ' selected' );
+          }
+          else {
+            activeCells[i].className = activeCells[i].className.replace( /(?:^|\s)selected(?!\S)/g , ' nonclinic' );
+          }
+        }
+        else if (totalHoliday.indexOf(activeCells[i]) > -1){
+          if (field.getAttribute('date') == activeCells[i].getAttribute('date')){
+            field.className = field.className.replace( /(?:^|\s)publicholiday(?!\S)/g , ' selected' );
+          }
+          else {
+            activeCells[i].className = activeCells[i].className.replace( /(?:^|\s)selected(?!\S)/g , ' publicholiday' );
+          }
+        }
+        else{
+          activeCells[i].className = activeCells[i].className.replace( /(?:^|\s)selected(?!\S)/g , '' );
+        }
+      }
+
+      var ele = document.getElementById('cover')
+      ele.style.display = "block";
+      document.body.appendChild(ele);
+
+      var newDiv = document.createElement('div');
+      newDiv.id = "alertPage";
+      newDiv.innerHTML = "<p class='message'>" + attt + "</p>";
+      document.body.appendChild(newDiv);
+
+      var newBtn = document.createElement('button');
+      newBtn.className = "blue";
+      newBtn.innerHTML = "<span>Ok</span>";
+      newDiv.appendChild(newBtn);
+      newBtn.setAttribute('onclick', "document.getElementById('cover').style.display='none'; this.parentNode.style.display='none';");
+    }
+  }
+
+  function getTotal() {
+    var aUrl = "/patients/number_of_booked_patients?date=" + globalDate.getAttribute('date');
+    var httpRequest = new XMLHttpRequest();
+    httpRequest.onreadystatechange = function() {
+      set_total(httpRequest);
+    };
+    try {
+      httpRequest.open('GET', aUrl, true);
+      httpRequest.send(null);
+    } catch(e){
+    }
+  }
+
+  function set_total(req) {
+    if (req.readyState == 4 && req.status == 200) {
+      total = JSON.parse(req.responseText);
+      if(globalDate.getElementsByTagName("div").length <= 0){
+        var daycount = document.createElement('div');
+        daycount.className = "dayCount";
+        globalDate.appendChild(daycount);
+      }
+
+      globalDate.getElementsByTagName("div")[0].innerHTML = total[globalDate.getAttribute('date')];
+      __$('observations__value_datetime').value = globalDate.getAttribute('date');
+    }
+  }
+
+</script>
+<% session_date = session[:datetime].to_date rescue nil %>
+<body>
+  <div id="cover">
+  </div>
+  <form id="frmMain" action="/encounters/create/" method="post">
+    <% sdate = (session[:datetime].to_date rescue Date.today).strftime("%Y-%m-%d") %>
+
+    <%= hidden_field_tag "encounter[encounter_type_name]", "APPOINTMENT" %>
+    <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+    <%= hidden_field_tag "encounter[encounter_datetime]", session_date %>
+    <%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+
+    <%= hidden_field_tag("observations[][concept_name]", "Appointment date") %>
+    <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+    <%= hidden_field_tag("observations[][obs_datetime]", session_date) %>
+    <%= hidden_field_tag("change_appointment_date", "true")%>
+    <%= text_field_tag("observations[][value_datetime]", (@suggested_appointment_date ? @suggested_appointment_date.to_date : session_date).strftime("%Y-%m-%d"),
+      {
+        :field_type => 'calendar',
+        :tt_onLoad => "setAttributes();showSelectedDates();showCategory('Next Appointment'); __$('category').style.display = 'none'; __$('cover').style.display = 'none';setBtn();setCurrentMonthDays();",
+        :ajaxCalendarUrl => "/patients/number_of_booked_patients?date=#{@suggested_appointment_date}",
+        :min => "#{sdate}", :max => "#{@max_date.to_date.strftime("%Y-%m-%d")}",
+        :tt_onUnLoad => "__$('observations__value_datetime').value = hideInfo();"
+      }) %>
+
+    <%if session_date %>
+      <p><label for="filter_provider">Staff who provided the information (Provider)</label></br>
+        <%= text_field "filter" , 'provider', :helpText => 'Staff who provided the information (Provider)', :ajaxURL => '/user/username?username=' %></p>
+    <% else %>
+      <%= hidden_field_tag "filter[provider]", nil %>
+    <%end%>
+
+  </form>
+
+</body>
+
+<script>
+
+function setCurrentMonthDays() {
+  var days     = document.getElementsByClassName('cCell');
+  var classes  = 'cCell day cellActive';
+  var classes2 = 'cCell day cellInactive';
+  var classes3 = 'cCell day cellActive nonclinic';
+  var month    = document.getElementById('month').innerHTML;
+  var year     = document.getElementById('year').innerHTML;
+  var firstDay = null ; var setDates = [];
+
+  for(var i = 0; i < days.length; i++) {
+    day = days[i].innerHTML;
+    day = parseInt(day);
+    if(isNaN(day) == true)
+      continue;
+
+    if(firstDay == null && day > 1)
+      continue;
+
+    if(contains(setDates, day) == true)
+      continue;
+
+    curr_class = days[i].getAttribute('class'); 
+
+    if(firstDay == null && !day ==1){
+      continue;
+    }else if(firstDay == null){
+      firstDay = 1;
+    }else if(days[i].id.match(/week/i)){
+      continue;
+    }  
+
+    days[i].setAttribute('class', curr_class + ' boldblack');
+    setDates.push(day);
+  }
+
+}
+function contains(a, obj) {
+  for (var i = 0; i < a.length; i++) {
+    if (a[i] === obj) {
+      return true;
+    }
+  }
+  return false;
+}
+
+
+function fullMonths(m) {
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December']
+  month = parseInt(m) - 1;
+  return months[month]
+}
+
+
+function setBtn() {
+  btns = document.getElementsByClassName('btn');
+  for(var i = 0; i < btns.length; i++){
+    onclicks = btns[i].getAttribute('onclick');
+    btns[i].setAttribute('onclick', onclicks + ' setCurrentMonthDays();');
+  }
+}
+
+</script>
+
+<style>
+.boldblack {
+  border-color: #c7001e;
+  border-width: 1.1px !important;
+}
+
+</style>
+
+
+
+
+<!-- New code --------------------- -->
+
+<style>
+#alert-cover{
+  display: none;
+  position: absolute;
+  background-color: black;
+  width: 100%;
+  height: 102%;
+  left: 0%;
+  top: 0%;
+  z-index: 990;
+  opacity: 0.65;
+}
+
+#alert-popup-div, #alert-popup-div2 {
+  display: none;
+  background-color: #F4F4F4;
+  border: 2px solid #E0E0E0;
+  border-radius: 15px;
+  height: 220px;
+  padding: 5px;
+  position: absolute;
+  margin-top: 100px;
+  width: 530px;
+  /*margin-left: 430px;*/
+  left: 20%;
+  z-index: 991;
+}
+
+#YesBtn {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  bottom: 0px;
+  margin-right: 40px;
+}
+
+#NoBtn {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  bottom: 0px;
+  background-color: #ff0000;
+}
+
+.popupBtn {
+  -moz-user-select: none;
+  background-image: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 16px;
+  font-weight: bolder;
+  line-height: 2.29;
+  margin-bottom: 0;
+  padding: 6px 56px;
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+  background-color: #337ab7;
+  border-color: #2e6da4;
+  color: #fff;
+  float: right;
+  margin-top: -5px;
+}
+</style>
+
+
+
+
+
+<div id="alert-cover"></div>
+
+<div id="alert-popup-div">
+  <div style="text-align: center; border-style: solid; border-width: 0px 0px 1px;">
+    <span style="color: tomato; font-weight: bold; font-size: 25px;">Over Booking</span>
+  </div>
+
+  <div>
+    <p>The selected date has&nbsp;<b><span id="number_of_booked_patients"></span></b>&nbsp;patient(s) booked already, 
+       the clinic limit is&nbsp;<b><%= @appointment_limit %></b>&nbsp;patients/day. Please select a different date.</p>
+  </div>
+
+
+  <div style="padding-top: 65px;">
+    <span id="NoBtn" onclick="recordNotification('Over booking','Look for another date');hideAlertPopup();"
+          class="popupBtn"
+          style="position: relative;">Cancel</span>
+    
+    <span id="YesBtn" onclick="recordNotification('Over booking','Continue with selected date');hideAlertPopup();resetOverBookingAttr();" 
+          class="popupBtn"
+          style="position: relative;">Continue with select date</span>
+
+  </div>
+
+</div>
+
+
+<script>
+
+function showAlertPopup(){
+  document.getElementById("alert-cover").style.display = 'inline';
+  document.getElementById("alert-popup-div").style.display = 'inline';
+}
+
+function hideAlertPopup(){
+  document.getElementById("alert-cover").style.display = 'none';
+  document.getElementById("alert-popup-div").style.display = 'none';
+
+  document.getElementById("alert-popup-div2").style.display = 'none';
+
+}
+
+function resetOverBookingAttr() {
+  var nextBtn = document.getElementById('nextButton');
+  nextBtn.setAttribute('onmousedown', 'gotoNextPage();');
+  gotoNextPage();
+}
+
+function showHolidayPopup(){
+  document.getElementById("alert-cover").style.display = 'inline';
+  document.getElementById("alert-popup-div2").style.display = 'inline';
+}
+</script>
+
+
+<div id="alert-popup-div2">
+  <div style="text-align: center; border-style: solid; border-width: 0px 0px 1px;">
+    <span style="color: tomato; font-weight: bold; font-size: 25px;">Holiday</span>
+  </div>
+
+  <div>
+    <p>The selected date is a&nbsp;<b>holiday</b>&nbsp; 
+       Please select a different date.</p>
+  </div>
+
+  <div style="padding-top: 65px;">
+    <span id="YesBtn" onclick="recordNotification('Booking on a holiday','Look for another date');hideAlertPopup();"
+          class="popupBtn"
+          style="position: relative;">OK</span>
+    
+  </div>
+
+</div>
+
+

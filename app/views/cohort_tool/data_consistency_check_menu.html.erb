@@ -1,0 +1,106 @@
+<style>
+
+img {
+  user-drag: none;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  pointer-events: none;
+}
+
+.main-container-table {
+  display: table;
+  width: 99%;
+  margin: 0px 15px 0px 10px;
+}
+
+.table-rows  {
+  display: table-row;
+}
+
+.table-cells {
+  display: table-cell;
+}
+
+/* ..................................... */
+
+
+.divbtn {
+  height: 200px;
+  display: table;
+  margin-top: 10px;
+  cursor:pointer;
+  box-shadow: 10px 10px 5px #888888;
+  text-align: center;
+}
+
+.icons {
+  width: 120px;
+  height: 120px;
+  margin-top: 10%;
+  text-align: middle;
+}
+
+.divbtn p {
+  font-weight: bold;
+}
+</style>
+
+
+
+<div class="main-container-table">
+  <div class="table-rows">
+    
+    <div class="table-cells" style="width: 20%;">
+      <div class="divbtn" style="background-color: white;border: 1px solid #2e6da4; width: 99%;" onclick="javascript:drillDown('died');" >
+        <!-- loop -->
+          <span class="icons">
+            <%=image_tag("folder.png", :class => 'icons')%>
+            <p style="color:black; margin-left: -30px;">Dead patients with<br />follow up visits</p>
+          </span>
+        <!-- loop end -->
+      </div>
+    </div>
+
+    <div class="table-cells" style="width: 20%;">
+      <div class="divbtn" style="background-color: white;border: 1px solid #2e6da4; width: 99%;" 
+        onclick="javascript:location='/cohort_tool/males_allegedly_pregnant';" >
+        <!-- loop -->
+          <span class="icons">
+            <%=image_tag("folder.png", :class => 'icons')%>
+            <p style="color:black; margin-left: -30px;">Male patients<br />with a pregnant obs</p>
+          </span>
+        <!-- loop end -->
+      </div>
+    </div>
+
+    <div class="table-cells" style="width: 20%;">
+      <div class="divbtn" style="background-color: white;border: 1px solid #2e6da4; width: 99%;" onclick="javascript:drillDown('#');" >
+        <!-- loop -->
+          <span class="icons">
+            <%=image_tag("folder.png", :class => 'icons')%>
+            <p style="color:black; margin-left: -30px;">Patients with date enrolled<br />less than earliest start date</p>
+          </span>
+        <!-- loop end -->
+      </div>
+    </div>
+
+
+  </div>
+  
+    
+</div>
+
+
+<script>
+
+function drillDown(name) {
+  if(name == '#') 
+    return;
+
+  document.location = '/cohort_tool/data_consistency_check?type=' + name
+}
+
+</script>

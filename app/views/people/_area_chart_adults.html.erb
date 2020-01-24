@@ -1,0 +1,222 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>ART - Weight chart</title>
+    <style>
+      
+      .highcharts-button {
+         display: none;
+      }
+
+    </style>
+		<%= javascript_include_tag "Highcharts/js/jquery.min.js" %>
+		<script type="text/javascript">
+	
+		var weights = JSON.parse('<%=@weights%>');
+   
+  function getDates() {
+    dates = [];
+    for(var i = 0; i < weights.length; i++) {
+      dates.push(weights[i][0]);
+    }
+    return dates;
+  }
+
+/*
+$(function () {
+        $('#container').highcharts({
+            chart: {
+                type: 'column',
+                className: 'skies',
+                borderWidth: 0,
+                plotShadow: true,
+                backgroundColor: 'lightyellow',
+                plotBackgroundColor: {
+                   linearGradient: [0, 0, 250, 500],
+                   stops: [
+                      [0, 'rgba(255, 255, 255, 1)'],
+                      [1, 'rgba(255, 255, 255, 0)']
+                   ]
+                },
+                plotBorderWidth: 1
+            },
+            title: {
+                text: ''
+            },
+            subtitle: {
+                text: ''
+            },
+            xAxis: {
+                categories:  getDates(),
+                lineColor: '#C0D0E0',
+                tickmarkPlacement: 'on',
+                title: {
+                    enabled: false
+                }
+            },
+            yAxis: {
+                alternateGridColor: 'rgba(255, 255, 255, .5)',
+                lineColor: '#C0D0E0',
+                tickColor: '#C0D0E0',
+                tickWidth: 1,
+                title: {
+                    text: 'Weight (KG)'
+                },
+                labels: {
+                    formatter: function() {
+                        return this.value;
+                    }
+                }
+            },
+            tooltip: {
+                shared: true,
+                valueSuffix: ' (KG)'
+            },
+            plotOptions: {
+               column: {
+                color: "lightblue",
+                dataLabels: {
+                    color: "black",
+                    enabled: true
+                },
+                pointPadding: 0.2,
+                borderWidth: 0
+            }
+            },
+            series: dataG()
+        });
+    });
+ */
+
+ function plotChart() {
+    jQuery('#container').highcharts({
+            chart: {
+                zoomType: 'x'
+            },
+            title: {
+                text: 'Weight history'
+            },
+            subtitle: {
+                text: document.ontouchstart === undefined ?
+                        'Click and drag in the plot area to zoom in' : 'Pinch the chart to zoom in'
+            },
+            xAxis: {
+                type: 'datetime'
+            },
+            yAxis: {
+              min: 0,
+                title: {
+                    text: 'Weight (kg)'
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            credits: {
+                enabled: false
+            },
+            plotOptions: {
+                area: {
+                    fillColor: {
+                        linearGradient: {
+                            x1: 0,
+                            y1: 0,
+                            x2: 0,
+                            y2: 1
+                        },
+                        stops: [
+                            [0, Highcharts.getOptions().colors[0]],
+                            [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                        ]
+                    },
+                    marker: {
+                      enabled: true,
+                      symbol: 'circle',
+                      radius: 10
+                    },
+                    lineWidth: 1,
+                    states: {
+                        hover: {
+                            lineWidth: 1
+                        }
+                    },
+                    threshold: null
+                }
+            },
+            series: [{
+                type: 'area',
+                name: 'Weight',
+                data: formatData(weights)
+            }]
+        });
+    //});
+  }
+
+  function formatData(obs) {
+    data = [];
+    for(var i = 0; i < obs.length; i++) {
+      data.push([ getDateWithFormat(obs[i][0]), obs[i][1] ]);
+    }
+    return data;
+  }
+ 
+ function getDateWithFormat(d) {
+    newDate = new Date(d);
+    var day = newDate.getDate();
+    var monthIndex = newDate.getMonth();
+    var year = newDate.getFullYear();
+
+    return Date.UTC(year,monthIndex,day);
+ 
+    months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return day + "/" + months[monthIndex] + '/' + year;
+    return day + "/" + months[monthIndex] + '/' + year;
+  }
+ 
+ function dataG() {
+      var correctedWeights = [];
+      
+      for(var i = 0; i < weights.length; i++) {
+        correctedWeights.push(weights[i][1]);
+      }
+      return [{name: 'Weight', data: correctedWeights}];
+    }
+
+
+    </script>
+  </head>
+  <body>
+
+<%= javascript_include_tag "Highcharts/js/highcharts" %>
+<%= javascript_include_tag "Highcharts/js/modules/exporting" %>
+
+<div id="container" style="width: 100%; height: 100%; margin: 0 auto">
+</div>
+
+<script> 
+  function removeHighcharts() { 
+/*    try {
+      document.getElementsByClassName('highcharts-button')[0].innerHTML = null;
+    }catch(e){}
+ */   
+    tspan = document.getElementsByTagName('tspan');
+    for(var i = 0; i < tspan.length; i++){
+      if(tspan[i].innerHTML == 'Highcharts.com'){
+        tspan[i].innerHTML = null;
+        break;
+      }
+    }
+
+  }
+
+  setInterval("removeHighcharts();",300);
+
+  plotChart();
+
+</script>
+
+	</body>
+</html>
+
+

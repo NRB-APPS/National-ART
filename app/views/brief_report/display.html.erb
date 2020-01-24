@@ -1,0 +1,1209 @@
+<style>
+#table-container {
+  height: 80%;
+  overflow-x: hidden;
+  padding-right: 70px;
+  border: thick solid black;
+  border: 8px solid black;
+  padding: 15px;
+    
+}
+.border-null-left {
+        border-left: none;
+    }
+  
+
+#td {
+    height: 50px;
+    vertical-align: bottom;
+}
+
+#tr{
+  padding: 10px;
+  vertical-align: top;
+  border-bottom: 1px solid #ddd;
+  width: 100px;
+}
+
+</style>
+
+<div id="table-container">
+
+<table style="width: 100%; height: 100%; border: 4px solid black; margin-left: 5px;">
+  <thead class="thead" >
+    <tr >
+      <td style="font-weight: bold; font-size: 20px;" rowspan="2">Indicator</td>
+      
+      <td style="font-weight: bold; font-size: 20px; " colspan="0"><%= @quarter %></td>
+      <td style="font-weight: bold; font-size: 20px; " colspan="0"></td>
+      
+      
+      <td style="font-weight: bold; font-size: 20px; " colspan="0"><%= @quart %></td>
+    </tr>
+    
+    
+    
+    <tr>
+      
+       
+      <td>Cumulative</td>
+      <td>Newly Registered</td>
+      <td >Cumulative</td>
+      <td>Expected Cumulative</td>
+      <td>Difference</td>
+      
+      
+      
+    </tr>
+   <tr><td colspan="9"><hr size="1" width="100%" border="thin solid dotted" float="right"/>
+ </td></tr>
+</thead>
+
+<tbody>
+  <td id="tr" style="width: 50%; font-weight: bold; font-size: 15px;">Patients registration details</td>
+<tr>
+  <td id="tr">Total registered</td>
+  
+  <td id="prevcum_total_registered" style="border: 1px solid #E8E8E8";></td>
+   <td id ="quarter_diff_total_registered"style="border: 1px solid #999999";></td>
+ 
+  
+  <td style="border: 1px solid #E8E8E8";><span id="curcum_total_registered"></span></td>
+  <td id ="cum_diff_total_registered"style="border: 1px solid #999999";></td>
+  <td id ="diff_total_registered" style="border: 1px solid #999999";></td>
+</tr>
+
+<tr>
+  <td id="tr" style="width: 50%">Patients initiated on ART first time</td>
+  <td id="prevcum_patients_initiated_on_ART_first_time" style="border: 1px solid #E8E8E8";></td>
+  
+  <td id ="quarter_diff_patients_initiated_on_ART_first_time"style="border: 1px solid #999999";></td>
+ 
+  
+  <td style="border: 1px solid #E8E8E8";><span id="curcum_patients_initiated_on_ART_first_time"></span></td>
+  <td id ="cum_diff_patients_initiated_on_ART_first_time"style="border: 1px solid #999999";></td>
+   <td id ="diff_patients_initiated_on_ART_first_time"style="border: 1px solid #999999";></td>
+</tr>
+
+<tr>
+  <td id="tr" style="width: 50%">Patients re-initiated on ART </td>
+ <td id="prevcum_patients_re_initiated_on_ART" style="border: 1px solid #E8E8E8";></td>
+  
+  
+  <td id ="quarter_diff_patients_re_initiated_on_ART"style="border: 1px solid #999999";></td>
+  
+  <td style="border: 1px solid #E8E8E8";><span id="curcum_patients_re_initiated_on_ART"></span></td>
+  <td id ="cum_diff_patients_re_initiated_on_ART"style="border: 1px solid #999999";></td>
+  <td id ="diff_patients_re_initiated_on_ART"style="border: 1px solid #999999";></td>
+
+</tr>
+
+<tr>
+<td id="tr" style="width: 50%">
+Patients transferred in on ART
+</td>
+<td id="prevcum_patients_transferred_in_on_ART" style="border: 1px solid #E8E8E8";></td>
+
+
+<td id ="quarter_diff_prevquart_patients_transferred_in_on_ART"style="border: 1px solid #999999";></td>
+
+<td style="border: 1px solid #E8E8E8";><span id="curcum_patients_transferred_in_on_ART"></span></td>
+<td id ="cum_diff_patients_transferred_in_on_ART"style="border: 1px solid #999999";></td>
+<td id ="diff_patients_transferred_in_on_ART"style="border: 1px solid #999999";></td>
+
+</tr>
+<td id="tr" style="width: 50%; font-weight: bold; font-size: 15px;">Total Transfer-ins</td>
+<tr>
+<td id="tr" style="width: 50%">
+Males (all ages)
+</td>
+<td id="prevcum_males_all_ages" style="border: 1px solid #E8E8E8";></td>
+
+<td id ="quarter_diff_males_all_ages"style="border: 1px solid #999999";></td>
+
+
+<td style="border: 1px solid #E8E8E8";><span id="curcum_males_all_ages"></span></td>
+<td id ="cum_diff_males_all_ages"style="border: 1px solid #999999";></td>
+<td id ="diff_males_all_ages"style="border: 1px solid #999999";></td>
+
+</tr>
+<tr>
+<td id="tr" style="width: 50%">
+Non-pregnant Females (all ages)
+</td>
+<td id="prevcum_non_pregnant_females" style="border: 1px solid #E8E8E8";></td>
+
+<td id ="quarter_diff_non_pregnant_females"style="border: 1px solid #999999";></td>
+
+
+
+<td style="border: 1px solid #E8E8E8";><span id="curcum_non_pregnant_females"></span></td>
+<td id ="cum_diff_non_pregnant_females"style="border: 1px solid #999999";></td>
+<td id ="diff_non_pregnant_females"style="border: 1px solid #999999";></td>
+
+</tr>
+<tr>
+<td id="tr" style="width: 50%">
+Pregnant Females (all ages)
+</td>
+<td id="prevcum_pregnant_females" style="border: 1px solid #E8E8E8";></td>
+
+<td id ="quarter_diff_pregnant_females"style="border: 1px solid #999999";></td>
+
+
+<td style="border: 1px solid #E8E8E8";><span id="curcum_pregnant_females"></span></td>
+<td id ="cum_diff_pregnant_females"style="border: 1px solid #999999";></td>
+<td id ="diff_pregnant_females"style="border: 1px solid #999999";></td>
+
+</tr>
+ <tr><td colspan="9"><hr size="1" width="100%" border="thin solid dotted" float="right"/>
+ </td></tr>
+ 
+ <td id="tr" style="width: 50%; font-weight: bold; font-size: 15px;">Reason for starting ART</td>
+<tr>
+<td id="tr" style="width: 50%">
+Children below 24 m at ART initiation
+</td>
+<td id="prevcum_children_below_24m_at_ART_ initiation" style="border: 1px solid #E8E8E8";></td>
+
+
+<td id ="quarter_diff_children_below_24m_at_ART_ initiation"style="border: 1px solid #999999";></td>
+
+<td style="border: 1px solid #E8E8E8";><span id="curcum_children_below_24m_at_ART_ initiation"></span></td>
+<td id ="cum_diff_children_below_24m_at_ART_ initiation"style="border: 1px solid #999999";></td>
+<td id ="diff_children_below_24m_at_ART_ initiation"style="border: 1px solid #999999";></td>
+
+</tr>
+<tr>
+<td id="tr" style="width: 50%">
+Children 24 m - 14 yrs at ART initiation
+</td>
+<td id="prevcum_children_24m_14_yrs_at_ART_ initiation" style="border: 1px solid #E8E8E8";></td>
+
+
+<td id ="quarter_diff_children_24m_14_yrs_at_ART_ initiation"style="border: 1px solid #999999";></td>
+
+<td style="border: 1px solid #E8E8E8";><span id="curcum_children_24m_14_yrs_at_ART_ initiation"></span></td>
+<td id ="cum_diff_children_24m_14_yrs_at_ART_ initiation"style="border: 1px solid #999999";></td>
+<td id ="diff_children_24m_14_yrs_at_ART_ initiation"style="border: 1px solid #999999";></td>
+
+</tr>
+<tr>
+<td id="tr" style="width: 50%">
+Adults 15 years or older at ART initiation
+</td>
+<td id="prevcum_adults_15_years_or_older_at_ART_ initiation"style="border: 1px solid #E8E8E8";></td>
+
+
+<td id ="quarter_diff_adults_15_years_or_older_at_ART_ initiation"style="border: 1px solid #999999";></td>
+
+<td style="border: 1px solid #E8E8E8";><span id="curcum_adults_15_years_or_older_at_ART_ initiation"></span></td>
+<td id ="cum_diff_adults_15_years_or_older_at_ART_ initiation"style="border: 1px solid #999999";></td>
+<td id ="diff_adults_15_years_or_older_at_ART_ initiation"style="border: 1px solid #999999";></td>
+
+</tr>
+
+<tr>
+<td id="tr" style="width: 50%">
+Unknown age
+</td>
+<td id="prevcum_unknown_age" style="border: 1px solid #E8E8E8";></td>
+
+<td id ="quarter_diff_unknown_age"style="border: 1px solid #999999";></td>
+
+
+<td style="border: 1px solid #E8E8E8";><span id="curcum_unknown_age"></span></td>
+<td id ="cum_diff_unknown_age"style="border: 1px solid #999999";></td>
+<td id ="diff_unknown_age"style="border: 1px solid #999999";></td>
+
+</tr>
+<tr>
+<td id="tr" style="width: 50%"> Pres. Sev. HIV disease age < 12 m</td>
+<td id="prevcum_pres_sev_HIV_disease_age<12m"style="border: 1px solid #E8E8E8";></td>
+
+
+<td id ="quarter_diff_pres_sev_HIV_disease_age<12m"style="border: 1px solid #999999";></td>
+
+<td style="border: 1px solid #E8E8E8";><span id="curcum_prev_pres_sev_HIV_disease_age<12m"></span></td>
+<td id ="cum_diff_pres_sev_HIV_disease_age<12m"style="border: 1px solid #999999";></td>
+<td id ="diff_pres_sev_HIV_disease_age<12m"style="border: 1px solid #999999";></td>
+</tr>
+<tr>
+<td id="tr" style="width: 50%">
+Infants < 12 mths PCR+
+</td>
+<td id="prevcum_infants<12mths_PCR" style="border: 1px solid #E8E8E8";></td>
+
+<td id ="quarter_diff_infants<12mths_PCR"style="border: 1px solid #999999";></td>
+
+
+<td style="border: 1px solid #E8E8E8";><span id="curcum_infants<12mths_PCR"></span></td>
+<td id ="cum_diff_infants<12mths_PCR" style="border: 1px solid #999999";></td>
+<td id ="diff_infants<12mths_PCR" style="border: 1px solid #999999";></td>
+
+</tr>
+<tr>
+<td id="tr" style="width: 50%">
+Children 12-59 mths
+</td>
+<td id="prevcum_children_12_59_mths" style="border: 1px solid #E8E8E8";></td>
+
+<td id ="quarter_diff_children_12_59_mths"style="border: 1px solid #999999";></td>
+
+
+<td style="border: 1px solid #E8E8E8";><span id="curcum_children_12_59_mths"></span></td>
+<td id ="cum_diff_children_12_59_mths"style="border: 1px solid #999999";></td>
+<td id ="diff_children_12_59_mths"style="border: 1px solid #999999";></td>
+
+</tr>
+<tr>
+<td id="tr" style="width: 50%">
+Pregnant women
+</td>
+<td id="prevcum_pregnant_women" style="border: 1px solid #E8E8E8";></td>
+
+<td id ="quarter_diff_pregnant_women"style="border: 1px solid #999999";></td>
+
+
+<td style="border: 1px solid #E8E8E8";><span id="curcum_pregnant_women"></span></td>
+<td id ="cum_diff_pregnant_women"style="border: 1px solid #999999";></td>
+<td id ="diff_pregnant_women"style="border: 1px solid #999999";></td>
+</tr>
+<tr>
+<td id="tr" style="width: 50%">
+Breastfeeding mothers
+</td>
+<td id="prevcum_breastfeeding_mothers" style="border: 1px solid #E8E8E8";></td>
+
+
+<td id ="quarter_diff_breastfeeding_mothers"style="border: 1px solid #999999";></td>
+
+<td style="border: 1px solid #E8E8E8";><span id="curcum_breastfeeding_mothers"></span></td>
+<td id ="cum_diff_breastfeeding_mothers"style="border: 1px solid #999999";></td>
+<td id ="diff_breastfeeding_mothers"style="border: 1px solid #999999";></td>
+
+</tr>
+<tr>
+<td id="tr" style="width: 50%">
+CD4 below threshold
+</td>
+<td id="prevcum_cd4_below_threshold" style="border: 1px solid #E8E8E8";></td>
+
+<td id ="quarter_diff_cd4_below_threshold"style="border: 1px solid #999999";></td>
+
+
+<td style="border: 1px solid #E8E8E8";><span id="curcum_cd4_below_threshold"></span></td>
+<td id ="cum_diff_cd4_below_threshold"style="border: 1px solid #999999";></td>
+<td id ="diff_cd4_below_threshold"style="border: 1px solid #999999";></td>
+
+</tr>
+<tr>
+<td id="tr" style="width: 50%">
+Asymptomatic / mild
+</td>
+<td id="prevcum_asymptomatic_mild" style="border: 1px solid #E8E8E8";></td>
+
+<td id ="quarter_diff_asymptomatic_mild"style="border: 1px solid #999999";></td>
+
+
+<td style="border: 1px solid #E8E8E8";><span id="curcum_asymptomatic_mild"></span></td>
+<td id ="cum_diff_asymptomatic_mild"style="border: 1px solid #999999";></td>
+<td id ="diff_asymptomatic_mild"style="border: 1px solid #999999";></td>
+
+</tr>
+ <tr><td colspan="9">
+ <hr size="1" width="100%" border="thin solid dotted" float="right"/>
+ </td></tr>
+<tr>
+<td id="tr" style="width: 50%">
+WHO stage 3
+</td>
+<td id="prevcum_who_stage3" style="border: 1px solid #E8E8E8";></td>
+
+<td id ="quarter_diff_who_stage3"style="border: 1px solid #999999";></td>
+
+
+<td style="border: 1px solid #E8E8E8";><span id="curcum_who_stage3"></span></td>
+<td id ="cum_diff_who_stage3"style="border: 1px solid #999999";></td>
+<td id ="diff_who_stage3"style="border: 1px solid #999999";></td>
+
+</tr>
+<tr>
+<td id="tr" style="width: 50%">
+WHO stage 4
+</td>
+<td id="prevcum_who_stage4" style="border: 1px solid #E8E8E8";></td>
+
+<td id ="quarter_diff_who_stage4"style="border: 1px solid #999999";></td>
+
+
+<td style="border: 1px solid #E8E8E8";><span id="curcum_who_stage4"></span></td>
+<td id ="cum_diff_who_stage4"style="border: 1px solid #999999";></td>
+<td id ="diff_who_stage4"style="border: 1px solid #999999";></td>
+
+</tr>
+<tr>
+<td id="tr" style="width: 50%">
+Unknown / reason outside guidelines
+</td>
+<td id="prevcum_unknown_outside_guidelines" style="border: 1px solid #E8E8E8";></td>
+
+<td id ="quarter_diff_unknown_outside_guidelines"style="border: 1px solid #999999";></td>
+
+</td>
+<td style="border: 1px solid #E8E8E8";><span id="curcum_unknown_outside_guidelines"></span></td>
+<td id ="cum_diff_unknown_outside_guidelines"style="border: 1px solid #999999";></td>
+<td id ="diff_unknown_outside_guidelines"style="border: 1px solid #999999";></td>
+
+</tr>
+<tr>
+<td  id="tr"style="width: 50%">
+Never TB or TB over 2 years ago
+</td>
+<td id="prevcum_never_tb" style="border: 1px solid #E8E8E8";></td>
+
+
+<td id ="quarter_diff_never_tb"style="border: 1px solid #999999";></td>
+
+<td style="border: 1px solid #E8E8E8";><span id="curcum_never_tb"></span></td>
+<td id ="cum_diff_never_tb"style="border: 1px solid #999999";></td>
+<td id ="diff_never_tb"style="border: 1px solid #999999";></td>
+
+</tr>
+<tr>
+<td id="tr" style="width: 50%">
+TB within the last 2 years 
+</td>
+<td id="prevcum_tb_within_the_last_2yrs" style="border: 1px solid #E8E8E8";></td>
+
+<td id ="quarter_diff_tb_within_the_last_2yrs"style="border: 1px solid #999999";></td>
+
+
+<td style="border: 1px solid #E8E8E8";><span id="curcum_tb_within_the_last_2yrs"></span></td>
+<td id ="cum_diff_tb_within_the_last_2yrs"style="border: 1px solid #999999";></td>
+<td id ="diff_tb_within_the_last_2yrs"style="border: 1px solid #999999";></td>
+</tr>
+<tr>
+<td id="tr" style="width: 50%">
+Current episode of TB 
+</td>
+<td id="prevcum_current_episode_of_tb" style="border: 1px solid #E8E8E8";></td>
+
+<td id ="quarter_diff_current_episode_of_tb"style="border: 1px solid #999999";></td>
+
+
+<td style="border: 1px solid #E8E8E8";><span id="curcum_current_episode_of_tb"></span></td>
+<td id ="cum_diff_current_episode_of_tb"style="border: 1px solid #999999";></td>
+<td id ="diff_current_episode_of_tb"style="border: 1px solid #999999";></td>
+</tr>
+<tr>
+<td id="tr" style="width: 50%">
+Kaposi's Sarcoma
+</td>
+<td id="prevcum_kaposi_sarcoma" style="border: 1px solid #E8E8E8";></td>
+
+<td id ="quarter_diff_kaposi_sarcoma"style="border: 1px solid #999999";></td>
+
+
+<td style="border: 1px solid #E8E8E8";><span id="curcum_kaposi_sarcoma"></span></td>
+<td id ="cum_diff_kaposi_sarcoma"style="border: 1px solid #999999";></td>
+<td id ="diff_kaposi_sarcoma"style="border: 1px solid #999999";></td>
+</tr>
+
+</tbody>
+</table>
+
+
+
+
+
+
+<script type="text/javascript">
+
+function __$(id){
+return document.getElementById(id);
+}
+
+// $(document).ready(function() {
+//     //this calculates values automatically 
+//     subtract();
+//     $("#prevquart_total_registered, #curquart_total_registered").on("keydown keyup", function() {
+//         subtract();
+//     });
+// });
+
+// function subtract() {
+//             var prevquart_total_registered = document.getElementById('prevquart_total_registered').value;
+//             var curquart_total_registered = document.getElementById('curquart_total_registered').value;
+			
+// 			var result1 = parseInt(curquart_total_registered) - parseInt(prevquart_total_registered);
+//             if (!isNaN(result)) {
+                
+// 				document.getElementById('subt').value = result1;
+//             }
+//         }
+
+
+
+function compare(){
+        
+        var prevquart_desc = "<%= @quarter %>";
+        var prevcum_desc = "<%= @quarter %>";
+        var currquart_desc = "<%= @quart %>";
+        var currcum_desc = "<%= @quart %>";
+        var result = <%= @results %>;
+        
+        
+        for(var i = 0; i < result.length; i++){
+           
+           
+                    //for previous Quarter-Quarterly
+                   
+
+                    //Previous Quarter-cumulative
+
+                    if (result[i]["description"] == prevcum_desc) {
+                         var indicator = result[i]['name']
+                        
+                        if (indicator.toLowerCase() == "cumulative total registered"){
+                                document.getElementById('prevcum_total_registered').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative patients initiated on art first time"){
+                                document.getElementById('prevcum_patients_initiated_on_ART_first_time').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative patients transferred in on art "){
+                                document.getElementById('prevcum_patients_transferred_in_on_ART').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative patients re-initiated on art"){
+                                document.getElementById('prevcum_patients_re_initiated_on_ART').innerHTML = result[i]['contents'];
+                        }
+
+
+                        if (indicator.toLowerCase() == "cumulative males (all ages)"){
+                                document.getElementById('prevcum_males_all_ages').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative fnp:non-pregnant females (all ages)"){
+                                document.getElementById('prevcum_non_pregnant_females').innerHTML = result[i]['contents'];
+                        }
+
+                         if (indicator.toLowerCase() == "cumulative pcr:infants < 12 mths pcr+"){
+                                document.getElementById('prevcum_infants<12mths_PCR').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative female pregnant patients (all ages)"){
+                                document.getElementById('prevcum_pregnant_females').innerHTML = result[i]['contents'];
+                        }
+                        if (indicator.toLowerCase() == "cumulative asymptomatic / mild"){
+                                document.getElementById('prevcum_asymptomatic_mild').innerHTML = result[i]['contents'];
+                        }
+
+                        
+
+                       
+
+                        if (indicator.toLowerCase() == "cumulative fnp:non-pregnant females (all ages)"){
+                                document.getElementById('prevcum_non_pregnant_females').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative children below 24 m at art initiation"){
+                                document.getElementById('prevcum_children_below_24m_at_ART_ initiation').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative children 24 m - 14 yrs at art initiation"){
+                                document.getElementById('prevcum_children_24m_14_yrs_at_ART_ initiation').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative adults 15 years or older at art initiation"){
+                                document.getElementById('prevcum_adults_15_years_or_older_at_ART_ initiation').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative unknown age"){
+                                document.getElementById('prevcum_unknown_age').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative pres.sev.hiv disease age < 12 m"){
+                                document.getElementById('prevcum_pres_sev_HIV_disease_age<12m').innerHTML = result[i]['contents'];
+                        }
+
+                       if (indicator.toLowerCase() == "cumulative pcr: infants < 12 mths pcr+"){
+                                document.getElementById('prevcum_infants<12mths_PCR').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative children 12-59 months"){
+                                document.getElementById('prevcum_children_12_59_mths').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative pregnant women"){
+                                document.getElementById('prevcum_pregnant_women').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative breastfeeding mothers "){
+                                document.getElementById('prevcum_breastfeeding_mothers').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative cd4 below threshold"){
+                                document.getElementById('prevcum_cd4_below_threshold').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative cd4 below threshold"){
+                                document.getElementById('prevcum_cd4_below_threshold').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative asymptomatic/mild"){
+                                document.getElementById('prevcum_asymptomatic_mild').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative who stage 3"){
+                                document.getElementById('prevcum_who_stage3').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative  who stage 4"){
+                                document.getElementById('prevcum_who_stage4').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative unknown / reason outside guidelines"){
+                                document.getElementById('prevcum_unknown_outside_guidelines').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative never tb or tb over 2 years ago"){
+                                document.getElementById('prevcum_never_tb').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative tb within the last 2 years"){
+                                document.getElementById('prevcum_tb_within_the_last_2yrs').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative current episode of tb"){
+                                document.getElementById('prevcum_current_episode_of_tb').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative kaposi's sarcoma"){
+                                document.getElementById('prevcum_kaposi_sarcoma').innerHTML = result[i]['contents'];
+                        }
+                        if (indicator.toLowerCase() == "cumulative pres. sev. hiv disease age < 12 m"){
+                                document.getElementById('prevcum_pres_sev_HIV_disease_age<12m').innerHTML = result[i]['contents'];
+                        }
+                      }
+
+                    if (result[i]["description"] == currcum_desc) {
+                         var indicator = result[i]['name']
+                        
+                        if (indicator.toLowerCase() == "cumulative total registered"){
+                                document.getElementById('curcum_total_registered').innerHTML = result[i]['contents'];
+                        }
+
+                         if (indicator.toLowerCase() == "cumulative patients initiated on art first time"){
+                                document.getElementById('curcum_patients_initiated_on_ART_first_time').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative patients re-initiated on art"){
+                                document.getElementById('curcum_patients_re_initiated_on_ART').innerHTML = result[i]['contents'];
+                        }
+
+
+                        if (indicator.toLowerCase() == "cumulative patients transferred in on art "){
+                                document.getElementById('curcum_patients_transferred_in_on_ART').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative males (all ages)"){
+                                document.getElementById('curcum_males_all_ages').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative fnp:non-pregnant females (all ages)"){
+                                document.getElementById('curcum_non_pregnant_females').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative female pregnant patients (all ages)"){
+                                document.getElementById('curcum_pregnant_females').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative asymptomatic / mild"){
+                                document.getElementById('curcum_asymptomatic_mild').innerHTML = result[i]['contents'];
+                        }
+
+                       
+
+                       
+
+                        if (indicator.toLowerCase() == "cumulative children below 24 m at art initiation"){
+                                document.getElementById('curcum_children_below_24m_at_ART_ initiation').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative children 24 m - 14 yrs at art initiation"){
+                                document.getElementById('curcum_children_24m_14_yrs_at_ART_ initiation').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative adults 15 years or older at art initiation"){
+                                document.getElementById('curcum_adults_15_years_or_older_at_ART_ initiation').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative unknown age"){
+                                document.getElementById('curcum_unknown_age').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative pres.sev.hiv disease age < 12 m"){
+                                document.getElementById('curcum_pres_sev_HIV_disease_age<12m').innerHTML = result[i]['contents'];
+                        }
+
+                       if (indicator.toLowerCase() == "cumulative pcr: infants < 12 mths pcr+"){
+                                document.getElementById('curcum_infants<12mths_PCR').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative children 12-59 months"){
+                                document.getElementById('curcum_children_12_59_mths').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative pregnant women"){
+                                document.getElementById('curcum_pregnant_women').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative breastfeeding mothers "){
+                                document.getElementById('curcum_breastfeeding_mothers').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative cd4 below threshold"){
+                                document.getElementById('curcum_cd4_below_threshold').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative cd4 below threshold"){
+                                document.getElementById('curcum_cd4_below_threshold').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative asymptomatic/mild"){
+                                document.getElementById('curcum_asymptomatic_mild').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative who stage 3"){
+                                document.getElementById('curcum_who_stage3').innerHTML = result[i]['contents'];
+                        }
+
+                       if (indicator.toLowerCase() == "cumulative  who stage 4"){
+                                document.getElementById('curcum_who_stage4').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative unknown / reason outside guidelines"){
+                                document.getElementById('curcum_unknown_outside_guidelines').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative never tb or tb over 2 years ago"){
+                                document.getElementById('curcum_never_tb').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative tb within the last 2 years"){
+                                document.getElementById('curcum_tb_within_the_last_2yrs').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative current episode of tb"){
+                                document.getElementById('curcum_current_episode_of_tb').innerHTML = result[i]['contents'];
+                        }
+
+                        if (indicator.toLowerCase() == "cumulative kaposi's sarcoma"){
+                                document.getElementById('curcum_kaposi_sarcoma').innerHTML = result[i]['contents'];
+                        }
+                        if (indicator.toLowerCase() == "cumulative pres. sev. hiv disease age < 12 m"){
+                                document.getElementById('curcum_prev_pres_sev_HIV_disease_age<12m').innerHTML = result[i]['contents'];
+                        }
+
+
+
+                        
+                        
+                    }
+
+                    //for previous Quarter-Cumulative
+                    
+
+                    //for Current Quarter-Quarterly
+                    
+
+                    // Current Quarter_Cumulative
+                             
+                    
+            
+                }
+    }
+
+    function subtract(){
+      
+      var init_first_time_1 = __$('prevcum_patients_initiated_on_ART_first_time').innerHTML
+      var init_first_time_2 = __$('curcum_patients_initiated_on_ART_first_time').innerHTML
+      var diff_init_first_time = parseInt(init_first_time_2) - parseInt(init_first_time_1)
+      __$('quarter_diff_patients_initiated_on_ART_first_time').innerHTML = diff_init_first_time
+      
+      
+      //total_registered
+      var init_total_registered_1 = __$('prevcum_total_registered').innerHTML
+      var init_total_registered_2 = __$('curcum_total_registered').innerHTML
+      var diff_total_registered = parseInt(init_total_registered_2) - parseInt(init_total_registered_1)
+      __$('quarter_diff_total_registered').innerHTML = diff_total_registered
+      
+      //patient_reinititated on ART
+      var init_patients_re_initiated_1 = __$('prevcum_patients_re_initiated_on_ART').innerHTML
+      var init_patients_re_initiated_2 = __$('curcum_patients_re_initiated_on_ART').innerHTML
+      var diff_patients_re_initiated = parseInt(init_patients_re_initiated_2) - parseInt(init_patients_re_initiated_1)
+      __$('quarter_diff_patients_re_initiated_on_ART').innerHTML = diff_patients_re_initiated
+      
+     //patients_transfered in on ART
+      var init_transferred_in_on_ART_1 = __$('prevcum_patients_transferred_in_on_ART').innerHTML
+      var init_transferred_in_on_ART_2 = __$('curcum_patients_transferred_in_on_ART').innerHTML
+      var diff_transferred_in_on_ART = parseInt(init_transferred_in_on_ART_2) - parseInt(init_transferred_in_on_ART_1)
+      __$('quarter_diff_prevquart_patients_transferred_in_on_ART').innerHTML = diff_transferred_in_on_ART
+      
+      //males(all ages)
+      var init_males_all_ages_1 = __$('prevcum_males_all_ages').innerHTML
+      var init_males_all_ages_2 = __$('curcum_males_all_ages').innerHTML
+      var diff_males_all_ages = parseInt(init_males_all_ages_2) - parseInt(init_males_all_ages_1)
+      __$('quarter_diff_males_all_ages').innerHTML = diff_males_all_ages
+      
+      //Non Pregnant females
+      var init_non_pregnant_females_1 = __$('prevcum_non_pregnant_females').innerHTML
+      var init_non_pregnant_females_2 = __$('curcum_non_pregnant_females').innerHTML
+      var diff_non_pregnant_females = parseInt(init_non_pregnant_females_2) - parseInt(init_non_pregnant_females_1)
+      __$('quarter_diff_non_pregnant_females').innerHTML = diff_non_pregnant_females
+      
+      //Pregnant females
+      var init_pregnant_females_1 = __$('prevcum_pregnant_females').innerHTML
+      var init_pregnant_females_2 = __$('curcum_pregnant_females').innerHTML
+      var diff_pregnant_females = parseInt(init_pregnant_females_2) - parseInt(init_pregnant_females_1)
+      __$('quarter_diff_pregnant_females').innerHTML = diff_pregnant_females
+      
+      //Children below 24months on ART
+      var init_children_below_24m_1 = __$('prevcum_children_below_24m_at_ART_ initiation').innerHTML
+      var init_children_below_24m_2 = __$('curcum_children_below_24m_at_ART_ initiation').innerHTML
+      var diff_children_below_24m = parseInt(init_children_below_24m_2) - parseInt(init_children_below_24m_1)
+      __$('quarter_diff_children_below_24m_at_ART_ initiation').innerHTML = diff_children_below_24m
+      
+      //Children 24m-14yrs on ART
+      var init_children_24m_14yrs_1 = __$('prevcum_children_24m_14_yrs_at_ART_ initiation').innerHTML
+      var init_children_24m_14yrs_2 = __$('curcum_children_24m_14_yrs_at_ART_ initiation').innerHTML
+      var diff_children_24m_14yrs = parseInt(init_children_24m_14yrs_2) - parseInt(init_children_24m_14yrs_1)
+      __$('quarter_diff_children_24m_14_yrs_at_ART_ initiation').innerHTML = diff_children_24m_14yrs
+      
+      
+      //Adullts 15yrs or older
+      var init_adults_15years_orOlder_1 = __$('prevcum_adults_15_years_or_older_at_ART_ initiation').innerHTML
+      var init_adults_15years_orOlder_2 = __$('curcum_adults_15_years_or_older_at_ART_ initiation').innerHTML
+      var diff_adults_15years_orOlder = parseInt(init_adults_15years_orOlder_2) - parseInt(init_adults_15years_orOlder_1)
+      __$('quarter_diff_adults_15_years_or_older_at_ART_ initiation').innerHTML = diff_adults_15years_orOlder
+      
+      //unknown_age
+      var init_unknown_age_1 = __$('prevcum_unknown_age').innerHTML
+      var init_unknown_age_2 = __$('curcum_unknown_age').innerHTML
+      var diff_unknown_age = parseInt(init_unknown_age_2) - parseInt(init_unknown_age_1)
+      __$('quarter_diff_unknown_age').innerHTML = diff_unknown_age
+      
+       //pres sev HIV
+      var init_pres_sev_HIV_1 = __$('prevcum_pres_sev_HIV_disease_age<12m').innerHTML
+      var init_pres_sev_HIV_2 = __$('curcum_prev_pres_sev_HIV_disease_age<12m').innerHTML
+      var diff_pres_sev_HIV = parseInt(init_pres_sev_HIV_2) - parseInt(init_pres_sev_HIV_1)
+      __$('quarter_diff_pres_sev_HIV_disease_age<12m').innerHTML = diff_pres_sev_HIV
+      
+      //Infants<12months
+      var init_infants_PCR_1 = __$('prevcum_infants<12mths_PCR').innerHTML
+      var init_infants_PCR_2 = __$('curcum_infants<12mths_PCR').innerHTML
+      var diff_infants_PCR = parseInt(init_infants_PCR_2) - parseInt(init_infants_PCR_1)
+      __$('quarter_diff_infants<12mths_PCR').innerHTML = diff_infants_PCR
+      
+      //children 12-59months
+      var init_children_12_59_1 = __$('prevcum_children_12_59_mths').innerHTML
+      var init_children_12_59_2 = __$('curcum_children_12_59_mths').innerHTML
+      var diff_children_12_59 = parseInt(init_children_12_59_2) - parseInt(init_children_12_59_1)
+      __$('quarter_diff_children_12_59_mths').innerHTML = diff_children_12_59
+      
+      //pregnant women
+      var init_pregnant_women_1 = __$('prevcum_pregnant_women').innerHTML
+      var init_pregnant_women_2 = __$('curcum_pregnant_women').innerHTML
+      var diff_pregnant_women = parseInt(init_pregnant_women_2) - parseInt(init_pregnant_women_1)
+      __$('quarter_diff_pregnant_women').innerHTML = diff_pregnant_women
+      
+      //breastfeeding mothers
+      var init_breastfeeding_mothers_1 = __$('prevcum_breastfeeding_mothers').innerHTML
+      var init_breastfeeding_mothers_2 = __$('curcum_breastfeeding_mothers').innerHTML
+      var diff_breastfeeding_mothers = parseInt(init_breastfeeding_mothers_2) - parseInt(init_breastfeeding_mothers_1)
+      __$('quarter_diff_breastfeeding_mothers').innerHTML = diff_breastfeeding_mothers
+      
+      //cd4 below threshold
+      var init_cd4_below_1 = __$('prevcum_cd4_below_threshold').innerHTML
+      var init_cd4_below_2 = __$('curcum_cd4_below_threshold').innerHTML
+      var diff_cd4_below = parseInt(init_cd4_below_2) - parseInt(init_breastfeeding_mothers_1)
+      __$('quarter_diff_cd4_below_threshold').innerHTML = diff_breastfeeding_mothers
+    
+      //Asymptomic
+      var init_asymptomatic_1 = __$('prevcum_asymptomatic_mild').innerHTML
+      var init_asymptomatic_2 = __$('curcum_asymptomatic_mild').innerHTML
+      var diff_asymptomatic = parseInt(init_asymptomatic_2) - parseInt(init_asymptomatic_1)
+      __$('quarter_diff_asymptomatic_mild').innerHTML = diff_asymptomatic
+      
+      //Asymptomic
+      var init_asymptomatic_1 = __$('prevcum_asymptomatic_mild').innerHTML
+      var init_asymptomatic_2 = __$('curcum_asymptomatic_mild').innerHTML
+      var diff_asymptomatic = parseInt(init_asymptomatic_2) - parseInt(init_asymptomatic_1)
+      __$('quarter_diff_asymptomatic_mild').innerHTML = diff_asymptomatic
+    
+     //Who stage 3
+      var init_who_stage3_1 = __$('prevcum_who_stage3').innerHTML
+      var init_who_stage3_2 = __$('curcum_who_stage3').innerHTML
+      var diff_who_stage3 = parseInt(init_who_stage3_2) - parseInt(init_who_stage3_1)
+      __$('quarter_diff_who_stage3').innerHTML = diff_who_stage3
+    
+    //Who stage 4
+      var init_who_stage4_1 = __$('prevcum_who_stage4').innerHTML
+      var init_who_stage4_2 = __$('curcum_who_stage4').innerHTML
+      var diff_who_stage4 = parseInt(init_who_stage4_2) - parseInt(init_who_stage4_1)
+      __$('quarter_diff_who_stage4').innerHTML = diff_who_stage4
+    
+     //Unknown /reason outside guidelines
+      var init_unknown_outside_1 = __$('prevcum_unknown_outside_guidelines').innerHTML
+      var init_unknown_outside_2 = __$('curcum_unknown_outside_guidelines').innerHTML
+      var diff_unknown_outside = parseInt(init_unknown_outside_2) - parseInt(init_unknown_outside_1)
+      __$('quarter_diff_unknown_outside_guidelines').innerHTML = diff_unknown_outside
+    
+    //Never TB or TB for 2 years
+      var init_never_tb_1 = __$('prevcum_never_tb').innerHTML
+      var init_never_tb_2 = __$('curcum_never_tb').innerHTML
+      var diff_never_tb = parseInt(init_never_tb_2) - parseInt(init_never_tb_1)
+      __$('quarter_diff_never_tb').innerHTML = diff_never_tb
+    
+    //TB within 2 years
+      var init_tb_within_1 = __$('prevcum_tb_within_the_last_2yrs').innerHTML
+      var init_tb_within_2 = __$('curcum_tb_within_the_last_2yrs').innerHTML
+      var diff_tb_within = parseInt(init_tb_within_2) - parseInt(init_tb_within_1)
+      __$('quarter_diff_tb_within_the_last_2yrs').innerHTML = diff_tb_within
+    
+    //Current episode of TB
+      var init_current_episode_1 = __$('prevcum_current_episode_of_tb').innerHTML
+      var init_current_episode_2 = __$('curcum_current_episode_of_tb').innerHTML
+      var diff_current_episode = parseInt(init_current_episode_2) - parseInt(init_current_episode_1)
+      __$('quarter_diff_current_episode_of_tb').innerHTML = diff_current_episode
+    
+    //Kaposi's Sarcoma
+      var init_kaposi_sarcoma_1 = __$('prevcum_kaposi_sarcoma').innerHTML
+      var init_kaposi_sarcoma_2 = __$('curcum_kaposi_sarcoma').innerHTML
+      var diff_kaposi_sarcoma = parseInt(init_kaposi_sarcoma_2) - parseInt(init_kaposi_sarcoma_1)
+      __$('quarter_diff_kaposi_sarcoma').innerHTML = diff_kaposi_sarcoma
+      
+      
+      
+      //EXpected Cumulative
+      
+      var init_first_time_1 = __$('prevcum_patients_initiated_on_ART_first_time').innerHTML
+      var init_first_time_2 = __$('quarter_diff_patients_initiated_on_ART_first_time').innerHTML
+      var diff_init_first_time = parseInt(init_first_time_1) + parseInt(init_first_time_2)
+      __$('cum_diff_patients_initiated_on_ART_first_time').innerHTML = diff_init_first_time
+     
+      
+      //total_registered
+      var init_total_registered_1 = __$('prevcum_total_registered').innerHTML
+      var init_total_registered_2 = __$('quarter_diff_total_registered').innerHTML
+      var diff_total_registered = parseInt(init_total_registered_1) + parseInt(init_total_registered_2)
+      __$('cum_diff_total_registered').innerHTML = diff_total_registered
+      
+      //patient_reinititated on ART
+      var init_patients_re_initiated_1 = __$('prevcum_patients_re_initiated_on_ART').innerHTML
+      var init_patients_re_initiated_2 = __$('quarter_diff_patients_re_initiated_on_ART').innerHTML
+      var diff_patients_re_initiated = parseInt(init_patients_re_initiated_1) + parseInt(init_patients_re_initiated_2)
+      __$('cum_diff_patients_re_initiated_on_ART').innerHTML = diff_patients_re_initiated
+      
+     //patients_transfered in on ART
+      var init_transferred_in_on_ART_1 = __$('prevcum_patients_transferred_in_on_ART').innerHTML
+      var init_transferred_in_on_ART_2 = __$('quarter_diff_prevquart_patients_transferred_in_on_ART').innerHTML
+      var diff_transferred_in_on_ART = parseInt(init_transferred_in_on_ART_1) + parseInt(init_transferred_in_on_ART_2)
+      __$('cum_diff_patients_transferred_in_on_ART').innerHTML = diff_transferred_in_on_ART
+      
+      //males(all ages)
+      var init_males_all_ages_1 = __$('prevcum_males_all_ages').innerHTML
+      var init_males_all_ages_2 = __$('quarter_diff_males_all_ages').innerHTML
+      var diff_males_all_ages = parseInt(init_males_all_ages_1) + parseInt(init_males_all_ages_2)
+      __$('cum_diff_males_all_ages').innerHTML = diff_males_all_ages
+      
+      //Non Pregnant females
+      var init_non_pregnant_females_1 = __$('prevcum_non_pregnant_females').innerHTML
+      var init_non_pregnant_females_2 = __$('quarter_diff_non_pregnant_females').innerHTML
+      var diff_non_pregnant_females = parseInt(init_non_pregnant_females_1) + parseInt(init_non_pregnant_females_2)
+      __$('cum_diff_non_pregnant_females').innerHTML = diff_non_pregnant_females
+      
+      //Pregnant females
+      var init_pregnant_females_1 = __$('prevcum_pregnant_females').innerHTML
+      var init_pregnant_females_2 = __$('quarter_diff_pregnant_females').innerHTML
+      var diff_pregnant_females = parseInt(init_pregnant_females_1) + parseInt(init_pregnant_females_2)
+      __$('cum_diff_pregnant_females').innerHTML = diff_pregnant_females
+      
+      //Children below 24months on ART
+      var init_children_below_24m_1 = __$('prevcum_children_below_24m_at_ART_ initiation').innerHTML
+      var init_children_below_24m_2 = __$('quarter_diff_children_below_24m_at_ART_ initiation').innerHTML
+      var diff_children_below_24m = parseInt(init_children_below_24m_1) + parseInt(init_children_below_24m_2)
+      __$('cum_diff_children_below_24m_at_ART_ initiation').innerHTML = diff_children_below_24m
+      
+      //Children 24m-14yrs on ART
+      var init_children_24m_14yrs_1 = __$('prevcum_children_24m_14_yrs_at_ART_ initiation').innerHTML
+      var init_children_24m_14yrs_2 = __$('quarter_diff_children_24m_14_yrs_at_ART_ initiation').innerHTML
+      var diff_children_24m_14yrs = parseInt(init_children_24m_14yrs_1) + parseInt(init_children_24m_14yrs_2)
+      __$('cum_diff_children_24m_14_yrs_at_ART_ initiation').innerHTML = diff_children_24m_14yrs
+      
+      
+      //Adullts 15yrs or older
+      var init_adults_15years_orOlder_1 = __$('prevcum_adults_15_years_or_older_at_ART_ initiation').innerHTML
+      var init_adults_15years_orOlder_2 = __$('quarter_diff_adults_15_years_or_older_at_ART_ initiation').innerHTML
+      var diff_adults_15years_orOlder = parseInt(init_adults_15years_orOlder_1) + parseInt(init_adults_15years_orOlder_2)
+      __$('cum_diff_adults_15_years_or_older_at_ART_ initiation').innerHTML = diff_adults_15years_orOlder
+      
+      //unknown_age
+      var init_unknown_age_1 = __$('prevcum_unknown_age').innerHTML
+      var init_unknown_age_2 = __$('quarter_diff_unknown_age').innerHTML
+      var diff_unknown_age = parseInt(init_unknown_age_1) + parseInt(init_unknown_age_2)
+      __$('cum_diff_unknown_age').innerHTML = diff_unknown_age
+      
+       //pres sev HIV
+      var init_pres_sev_HIV_1 = __$('prevcum_pres_sev_HIV_disease_age<12m').innerHTML
+      var init_pres_sev_HIV_2 = __$('quarter_diff_pres_sev_HIV_disease_age<12m').innerHTML
+      var diff_pres_sev_HIV = parseInt(init_pres_sev_HIV_1) + parseInt(init_pres_sev_HIV_2)
+      __$('cum_diff_pres_sev_HIV_disease_age<12m').innerHTML = diff_pres_sev_HIV
+      
+      //Infants<12months
+      var init_infants_PCR_1 = __$('prevcum_infants<12mths_PCR').innerHTML
+      var init_infants_PCR_2 = __$('quarter_diff_infants<12mths_PCR').innerHTML
+      var diff_infants_PCR = parseInt(init_infants_PCR_1) + parseInt(init_infants_PCR_2)
+      __$('cum_diff_infants<12mths_PCR').innerHTML = diff_infants_PCR
+      
+      //children 12-59months
+      var init_children_12_59_1 = __$('prevcum_children_12_59_mths').innerHTML
+      var init_children_12_59_2 = __$('quarter_diff_children_12_59_mths').innerHTML
+      var diff_children_12_59 = parseInt(init_children_12_59_1) + parseInt(init_children_12_59_2)
+      __$('cum_diff_children_12_59_mths').innerHTML = diff_children_12_59
+      
+      //pregnant women
+      var init_pregnant_women_1 = __$('prevcum_pregnant_women').innerHTML
+      var init_pregnant_women_2 = __$('quarter_diff_pregnant_women').innerHTML
+      var diff_pregnant_women = parseInt(init_pregnant_women_1) + parseInt(init_pregnant_women_2)
+      __$('cum_diff_pregnant_women').innerHTML = diff_pregnant_women
+      
+      //breastfeeding mothers
+      var init_breastfeeding_mothers_1 = __$('prevcum_breastfeeding_mothers').innerHTML
+      var init_breastfeeding_mothers_2 = __$('quarter_diff_breastfeeding_mothers').innerHTML
+      var diff_breastfeeding_mothers = parseInt(init_breastfeeding_mothers_1) + parseInt(init_breastfeeding_mothers_2)
+      __$('cum_diff_breastfeeding_mothers').innerHTML = diff_breastfeeding_mothers
+      
+      //cd4 below threshold
+      var init_cd4_below_1 = __$('prevcum_cd4_below_threshold').innerHTML
+      var init_cd4_below_2 = __$('quarter_diff_cd4_below_threshold').innerHTML
+      var diff_cd4_below = parseInt(init_cd4_below_1) + parseInt(init_breastfeeding_mothers_2)
+      __$('cum_diff_cd4_below_threshold').innerHTML = diff_breastfeeding_mothers
+    
+      //Asymptomic
+      var init_asymptomatic_1 = __$('prevcum_asymptomatic_mild').innerHTML
+      var init_asymptomatic_2 = __$('quarter_diff_asymptomatic_mild').innerHTML
+      var diff_asymptomatic = parseInt(init_asymptomatic_1) + parseInt(init_asymptomatic_2)
+      __$('cum_diff_asymptomatic_mild').innerHTML = diff_asymptomatic
+      
+      
+     
+     //Who stage 3
+      var init_who_stage3_1 = __$('prevcum_who_stage3').innerHTML
+      var init_who_stage3_2 = __$('quarter_diff_who_stage3').innerHTML
+      var diff_who_stage3 = parseInt(init_who_stage3_1) + parseInt(init_who_stage3_2)
+      __$('cum_diff_who_stage3').innerHTML = diff_who_stage3
+    
+    //Who stage 4
+      var init_who_stage4_1 = __$('prevcum_who_stage4').innerHTML
+      var init_who_stage4_2 = __$('quarter_diff_who_stage4').innerHTML
+      var diff_who_stage4 = parseInt(init_who_stage4_1) + parseInt(init_who_stage4_2)
+      __$('cum_diff_who_stage4').innerHTML = diff_who_stage4
+    
+     //Unknown /reason outside guidelines
+      var init_unknown_outside_1 = __$('prevcum_unknown_outside_guidelines').innerHTML
+      var init_unknown_outside_2 = __$('quarter_diff_unknown_outside_guidelines').innerHTML
+      var diff_unknown_outside = parseInt(init_unknown_outside_1) + parseInt(init_unknown_outside_2)
+      __$('cum_diff_unknown_outside_guidelines').innerHTML = diff_unknown_outside
+    
+    //Never TB or TB for 2 years
+      var init_never_tb_1 = __$('prevcum_never_tb').innerHTML
+      var init_never_tb_2 = __$('quarter_diff_never_tb').innerHTML
+      var diff_never_tb = parseInt(init_never_tb_1) + parseInt(init_never_tb_2)
+      __$('cum_diff_never_tb').innerHTML = diff_never_tb
+    
+    //TB within 2 years
+      var init_tb_within_1 = __$('prevcum_tb_within_the_last_2yrs').innerHTML
+      var init_tb_within_2 = __$('quarter_diff_tb_within_the_last_2yrs').innerHTML
+      var diff_tb_within = parseInt(init_tb_within_1) + parseInt(init_tb_within_2)
+      __$('cum_diff_tb_within_the_last_2yrs').innerHTML = diff_tb_within
+    
+    //Current episode of TB
+      var init_current_episode_1 = __$('prevcum_current_episode_of_tb').innerHTML
+      var init_current_episode_2 = __$('quarter_diff_current_episode_of_tb').innerHTML
+      var diff_current_episode = parseInt(init_current_episode_1) + parseInt(init_current_episode_2)
+      __$('cum_diff_current_episode_of_tb').innerHTML = diff_current_episode
+    
+    //Kaposi's Sarcoma
+      var init_kaposi_sarcoma_1 = __$('prevcum_kaposi_sarcoma').innerHTML
+      var init_kaposi_sarcoma_2 = __$('quarter_diff_kaposi_sarcoma').innerHTML
+      var diff_kaposi_sarcoma = parseInt(init_kaposi_sarcoma_1) + parseInt(init_kaposi_sarcoma_2)
+      __$('cum_diff_kaposi_sarcoma').innerHTML = diff_kaposi_sarcoma
+    
+    
+    //Difference
+      
+      var init_first_time_1 = __$('curcum_patients_initiated_on_ART_first_time').innerHTML
+      var init_first_time_2 = __$('cum_diff_patients_initiated_on_ART_first_time').innerHTML
+      var diff_init_first_time = parseInt(init_first_time_1) - parseInt(init_first_time_2)
+      __$('diff_patients_initiated_on_ART_first_time').innerHTML = diff_init_first_time
+     
+      
+      //total_registered
+      var init_total_registered_1 = __$('curcum_total_registered').innerHTML
+      var init_total_registered_2 = __$('cum_diff_total_registered').innerHTML
+      var diff_total_registered = parseInt(init_total_registered_1) - parseInt(init_total_registered_2)
+      __$('diff_total_registered').innerHTML = diff_total_registered
+      
+      //patient_reinititated on ART
+      var init_patients_re_initiated_1 = __$('curcum_patients_re_initiated_on_ART').innerHTML
+      var init_patients_re_initiated_2 = __$('cum_diff_patients_re_initiated_on_ART').innerHTML
+      var diff_patients_re_initiated = parseInt(init_patients_re_initiated_1) - parseInt(init_patients_re_initiated_2)
+      __$('diff_patients_re_initiated_on_ART').innerHTML = diff_patients_re_initiated
+      
+     //patients_transfered in on ART
+      var init_transferred_in_on_ART_1 = __$('curcum_patients_transferred_in_on_ART').innerHTML
+      var init_transferred_in_on_ART_2 = __$('cum_diff_patients_transferred_in_on_ART').innerHTML
+      var diff_transferred_in_on_ART = parseInt(init_transferred_in_on_ART_1) - parseInt(init_transferred_in_on_ART_2)
+      __$('diff_patients_transferred_in_on_ART').innerHTML = diff_transferred_in_on_ART
+      
+      //males(all ages)
+      var init_males_all_ages_1 = __$('curcum_males_all_ages').innerHTML
+      var init_males_all_ages_2 = __$('cum_diff_males_all_ages').innerHTML
+      var diff_males_all_ages = parseInt(init_males_all_ages_1) - parseInt(init_males_all_ages_2)
+      __$('diff_males_all_ages').innerHTML = diff_males_all_ages
+      
+      //Non Pregnant females
+      var init_non_pregnant_females_1 = __$('curcum_non_pregnant_females').innerHTML
+      var init_non_pregnant_females_2 = __$('cum_diff_non_pregnant_females').innerHTML
+      var diff_non_pregnant_females = parseInt(init_non_pregnant_females_1) - parseInt(init_non_pregnant_females_2)
+      __$('diff_non_pregnant_females').innerHTML = diff_non_pregnant_females
+      
+      //Pregnant females
+      var init_pregnant_females_1 = __$('curcum_pregnant_females').innerHTML
+      var init_pregnant_females_2 = __$('cum_diff_pregnant_females').innerHTML
+      var diff_pregnant_females = parseInt(init_pregnant_females_1) - parseInt(init_pregnant_females_2)
+      __$('diff_pregnant_females').innerHTML = diff_pregnant_females
+      
+      //Children below 24months on ART
+      var init_children_below_24m_1 = __$('curcum_children_below_24m_at_ART_ initiation').innerHTML
+      var init_children_below_24m_2 = __$('cum_diff_children_below_24m_at_ART_ initiation').innerHTML
+      var diff_children_below_24m = parseInt(init_children_below_24m_1) - parseInt(init_children_below_24m_2)
+      __$('diff_children_below_24m_at_ART_ initiation').innerHTML = diff_children_below_24m
+      
+      //Children 24m-14yrs on ART
+      var init_children_24m_14yrs_1 = __$('curcum_children_24m_14_yrs_at_ART_ initiation').innerHTML
+      var init_children_24m_14yrs_2 = __$('cum_diff_children_24m_14_yrs_at_ART_ initiation').innerHTML
+      var diff_children_24m_14yrs = parseInt(init_children_24m_14yrs_1) - parseInt(init_children_24m_14yrs_2)
+      __$('diff_children_24m_14_yrs_at_ART_ initiation').innerHTML = diff_children_24m_14yrs
+      
+      
+      //Adullts 15yrs or older
+      var init_adults_15years_orOlder_1 = __$('curcum_adults_15_years_or_older_at_ART_ initiation').innerHTML
+      var init_adults_15years_orOlder_2 = __$('cum_diff_adults_15_years_or_older_at_ART_ initiation').innerHTML
+      var diff_adults_15years_orOlder = parseInt(init_adults_15years_orOlder_1) - parseInt(init_adults_15years_orOlder_2)
+      __$('diff_adults_15_years_or_older_at_ART_ initiation').innerHTML = diff_adults_15years_orOlder
+      
+      //unknown_age
+      var init_unknown_age_1 = __$('curcum_unknown_age').innerHTML
+      var init_unknown_age_2 = __$('cum_diff_unknown_age').innerHTML
+      var diff_unknown_age = parseInt(init_unknown_age_1) - parseInt(init_unknown_age_2)
+      __$('diff_unknown_age').innerHTML = diff_unknown_age
+      
+       //pres sev HIV
+      var init_pres_sev_HIV_1 = __$('curcum_prev_pres_sev_HIV_disease_age<12m').innerHTML
+      var init_pres_sev_HIV_2 = __$('cum_diff_pres_sev_HIV_disease_age<12m').innerHTML
+      var diff_pres_sev_HIV = parseInt(init_pres_sev_HIV_1) - parseInt(init_pres_sev_HIV_2)
+      __$('diff_pres_sev_HIV_disease_age<12m').innerHTML = diff_pres_sev_HIV
+      
+      //Infants<12months
+      var init_infants_PCR_1 = __$('curcum_infants<12mths_PCR').innerHTML
+      var init_infants_PCR_2 = __$('cum_diff_infants<12mths_PCR').innerHTML
+      var diff_infants_PCR = parseInt(init_infants_PCR_1) - parseInt(init_infants_PCR_2)
+      __$('diff_infants<12mths_PCR').innerHTML = diff_infants_PCR
+      
+      //children 12-59months
+      var init_children_12_59_1 = __$('curcum_children_12_59_mths').innerHTML
+      var init_children_12_59_2 = __$('cum_diff_children_12_59_mths').innerHTML
+      var diff_children_12_59 = parseInt(init_children_12_59_1) - parseInt(init_children_12_59_2)
+      __$('diff_children_12_59_mths').innerHTML = diff_children_12_59
+      
+      //pregnant women
+      var init_pregnant_women_1 = __$('curcum_pregnant_women').innerHTML
+      var init_pregnant_women_2 = __$('cum_diff_pregnant_women').innerHTML
+      var diff_pregnant_women = parseInt(init_pregnant_women_1) - parseInt(init_pregnant_women_2)
+      __$('diff_pregnant_women').innerHTML = diff_pregnant_women
+      
+      //breastfeeding mothers
+      var init_breastfeeding_mothers_1 = __$('curcum_breastfeeding_mothers').innerHTML
+      var init_breastfeeding_mothers_2 = __$('cum_diff_breastfeeding_mothers').innerHTML
+      var diff_breastfeeding_mothers = parseInt(init_breastfeeding_mothers_1) - parseInt(init_breastfeeding_mothers_2)
+      __$('diff_breastfeeding_mothers').innerHTML = diff_breastfeeding_mothers
+      
+      //cd4 below threshold
+      var init_cd4_below_1 = __$('curcum_cd4_below_threshold').innerHTML
+      var init_cd4_below_2 = __$('cum_diff_cd4_below_threshold').innerHTML
+      var diff_cd4_below = parseInt(init_cd4_below_1) - parseInt(init_breastfeeding_mothers_2)
+      __$('diff_cd4_below_threshold').innerHTML = diff_breastfeeding_mothers
+    
+      //Asymptomic
+      var init_asymptomatic_1 = __$('curcum_asymptomatic_mild').innerHTML
+      var init_asymptomatic_2 = __$('cum_diff_asymptomatic_mild').innerHTML
+      var diff_asymptomatic = parseInt(init_asymptomatic_1) - parseInt(init_asymptomatic_2)
+      __$('diff_asymptomatic_mild').innerHTML = diff_asymptomatic
+      
+      
+     
+     //Who stage 3
+      var init_who_stage3_1 = __$('curcum_who_stage3').innerHTML
+      var init_who_stage3_2 = __$('cum_diff_who_stage3').innerHTML
+      var diff_who_stage3 = parseInt(init_who_stage3_1) - parseInt(init_who_stage3_2)
+      __$('diff_who_stage3').innerHTML = diff_who_stage3
+    
+    //Who stage 4
+      var init_who_stage4_1 = __$('curcum_who_stage4').innerHTML
+      var init_who_stage4_2 = __$('cum_diff_who_stage4').innerHTML
+      var diff_who_stage4 = parseInt(init_who_stage4_1) - parseInt(init_who_stage4_2)
+      __$('diff_who_stage4').innerHTML = diff_who_stage4
+    
+     //Unknown /reason outside guidelines
+      var init_unknown_outside_1 = __$('curcum_unknown_outside_guidelines').innerHTML
+      var init_unknown_outside_2 = __$('cum_diff_unknown_outside_guidelines').innerHTML
+      var diff_unknown_outside = parseInt(init_unknown_outside_1) - parseInt(init_unknown_outside_2)
+      __$('diff_unknown_outside_guidelines').innerHTML = diff_unknown_outside
+    
+    //Never TB or TB for 2 years
+      var init_never_tb_1 = __$('curcum_never_tb').innerHTML
+      var init_never_tb_2 = __$('cum_diff_never_tb').innerHTML
+      var diff_never_tb = parseInt(init_never_tb_1) - parseInt(init_never_tb_2)
+      __$('diff_never_tb').innerHTML = diff_never_tb
+    
+    //TB within 2 years
+      var init_tb_within_1 = __$('curcum_tb_within_the_last_2yrs').innerHTML
+      var init_tb_within_2 = __$('cum_diff_tb_within_the_last_2yrs').innerHTML
+      var diff_tb_within = parseInt(init_tb_within_1) - parseInt(init_tb_within_2)
+      __$('diff_tb_within_the_last_2yrs').innerHTML = diff_tb_within
+    
+    //Current episode of TB
+      var init_current_episode_1 = __$('curcum_current_episode_of_tb').innerHTML
+      var init_current_episode_2 = __$('cum_diff_current_episode_of_tb').innerHTML
+      var diff_current_episode = parseInt(init_current_episode_1) - parseInt(init_current_episode_2)
+      __$('diff_current_episode_of_tb').innerHTML = diff_current_episode
+    
+    //Kaposi's Sarcoma
+      var init_kaposi_sarcoma_1 = __$('curcum_kaposi_sarcoma').innerHTML
+      var init_kaposi_sarcoma_2 = __$('cum_diff_kaposi_sarcoma').innerHTML
+      var diff_kaposi_sarcoma = parseInt(init_kaposi_sarcoma_1) - parseInt(init_kaposi_sarcoma_2)
+      __$('diff_kaposi_sarcoma').innerHTML = diff_kaposi_sarcoma
+    
+    }
+
+    window.load = compare();
+    window.load = subtract()
+</script>
+</body>
+</html>
+

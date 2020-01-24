@@ -1,0 +1,54 @@
+<%= javascript_include_tag "prototype" %>
+<%= javascript_include_tag 'jquery' %>
+<%= stylesheet_link_tag 'extra_buttons' %>
+<style>
+
+    .tt_controls_start_month .keyboard{display:none;}
+    #tt_page_start_month .options{height:515px;}
+    #tt_page_start_month .options li{font-size:30px;}
+
+    .tt_controls_end_month .keyboard{display:none;}
+    #tt_page_end_month .options{height:515px;}
+    #tt_page_end_month .options li{font-size:30px;}
+
+    #tt_page_select_age_group_s .options{height:515px;}
+
+    .tt_controls_start_day #Unknown { display:none; }
+    .tt_controls_end_day #Unknown { display:none; }
+
+</style>
+<form action="/brief_report/display" method="post">
+  <select id="year_one" name="report_year" tt_requireNextClick ='true' helpText="Select Year" tt_pageStyleClass ="NoKeyboard">
+    <option></option>
+
+    <% ((Time.now.year - 10)..(Time.now.year)).map.reverse.each do |year| %>
+
+    <option><%= year %></option>
+
+            <% end %>
+
+          </select>
+
+  <select id="prev_quarter" name="quarter_from" tt_requireNextClick ='true' helpText="Select first Quarter">
+
+     
+    <option>Q 1</option>
+    <option>Q 2</option>
+    <option>Q 3</option>
+    <option>Q 4</option>
+
+           
+          </select>
+
+  <select id="cur_quarter" name="quarter_to" tt_requireNextClick ='true' helpText="Select second Quarter">
+    
+    <option>Q 1</option>
+    <option>Q 2</option>
+    <option>Q 3</option>
+    <option>Q 4</option>
+
+          
+    
+
+          </select>
+</form>

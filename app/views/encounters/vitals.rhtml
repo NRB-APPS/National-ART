@@ -1,0 +1,684 @@
+<script>
+  var tt_cancel_destination = "/patients/show/<%= @patient.patient_id %>";
+</script>
+
+<style type="text/css">
+  #summary {
+    padding: 0px;
+    font-size:1.2em;
+    margin-left: 60px;
+    height: 70px;
+    max-height: 70px;
+    overflow: hide;
+
+  }
+
+  #charts {
+    position: absolute;
+    width: 95% ! important;
+    height: 60% ! important;
+  }
+
+  #char {
+    display: none;
+  }
+  .title {
+    margin-right:10px;
+  }
+
+  .abnormal-weight {
+    color: red;
+  }
+
+  .lowWeightForHeight{color:black;background:red;}
+  .medWeightForHeight {color:black;background:yellow;}
+  .lowBMI {
+    font-weight: bolder;
+    font-size: 14pt;
+    padding: 3px;
+    /*background:red;*/
+  }
+  .lowBMIcounselling {color:black;background:orange;}
+  .lowWeightForAge {color:black;background:red;}
+  .medWeightForAge {color:black;background:yellow;}
+  .goodWeightForAge {color:black;}
+  .lowHeightForAge {color:black;background:red;}
+  .medHeightForAge {color:black;background:yellow;}
+  .goodHeightForAge {color:black;}
+
+  #tt_page_nutritional_status .inputFrameClass { height: 87%;}
+
+  #tt_page_nutritional_status .inputPage{
+    width: 98.7%;
+  }
+
+  #qwerty{ display:none; }
+
+  .unknownButton .numericKeyboard #char, #slash, #star, #plus, #date, #minus, #comma, #percent {
+    display: none;
+  }
+
+</style>
+<script src="/javascripts/jquery-1.3.2.min.js" type="text/javascript"></script>
+<script language="javascript" type="text/javascript" src="/javascripts/jquery.js"></script>
+<script language="javascript" type="text/javascript" src="/javascripts/jquery.flot.js"></script>
+<%= javascript_include_tag "Highcharts/js/jquery.min.js" %>
+<%= javascript_include_tag "Highcharts/js/highcharts" %>
+<script language="javascript">
+  jQuery.noConflict();
+
+
+  var currentBmi;
+  var currentWeight;
+  var currentHeight;
+  var currentHeightPercentile;
+  var currentWeightPercentile;
+  var displayText;
+  var medianWeightHeight;
+  var previousWeight = '<%= @previous_weight %>';
+
+<%
+dateToday = session[:datetime].to_date rescue Date.today
+%>
+  age = "<%=  @patient.person.age(dateToday) rescue 99999%>"
+
+  function $(e) {
+    return document.getElementById(e);
+  }
+
+
+  function growthIndicators(){
+    //These values pulled from the tt_onLoad bit in the third form...
+
+    try{
+      currentHeight = document.getElementById('height').value;
+    }catch(e){
+      currentHeight = <%= @current_height %>
+    }
+
+    currentWeight = document.getElementById('weight').value;
+    medianWeightHeight = [<%= WeightHeightForAge.median_weight_height(@patient_bean.age_in_months, @patient.person.gender).join(',') rescue nil -%>];
+    currentWeightPercentile = (currentWeight/(medianWeightHeight[0])*100).toFixed(0);
+    currentHeightPercentile = (currentHeight/(medianWeightHeight[1])*100).toFixed(0);
+    if (('<%= @patient_bean.age %>') > 14) {
+      showBMI();
+    } else {
+      showWeightHeightForAge();
+      showWeightForHeight();
+    }
+    age = "<%=  @patient.person.age(dateToday) rescue 99999%>";
+    currentWeight = document.getElementById('weight').value;
+
+    document.getElementById('inputFrame'+tstCurrentPage).innerHTML = '<div id="summary">' + displayText + '</div><div id="charts" style="height:185px;margin:2px 6px 6px;padding:2px;width:380px;"></div>' ;
+
+
+    if (age < 5){
+      /*jQuery('#keyboard').empty();
+      jQuery('#charts').load('/patients/baby_chart/<%= @patient.id -%>?patient_id=<%= @patient.id -%>&cur_weight=' + currentWeight, null, function(){jQuery('#keyboard').hide(); hookKeyboard()}); */
+
+      jQuery.ajax({
+        method: "POST",
+        url: "/patients/render_baby_graph_data",
+        data: { patient_id: "<%= @patient.id -%>", data: "weight", currentWeight:currentWeight },
+        success: function(results){
+          obs = JSON.parse(results)
+          //plotBabyGraph(obs);
+          plotGraph(obs);
+        }
+      })
+
+    }else{
+      //jQuery('#keyboard').empty();
+      //jQuery('#charts').empty().load('/patients/graphs/<%= @patient.id -%>?data=weight&currentWeight=' + currentWeight);
+      jQuery.ajax({
+        method: "POST",
+        url: "/patients/render_graph_data",
+        data: { patient_id: "<%= @patient.id -%>", data: "weight", currentWeight:currentWeight },
+        success: function(results){
+          obs = eval(results)
+          plotGraph(obs);
+        }
+      })
+    }
+  }
+
+  var standard_high_weight = [];
+  var standard_low_weight = [];
+  var median_weight = [];
+  var age_in_months = [];
+  var weight_trail = [];
+
+  <%(@weight_height_for_ages || {}).sort_by {|x, y| x }.each do |age, data|%>
+    weight_trail.push(null);
+  <%end%>
+
+  function resetWeightReadings(obs) {
+    standard_high_weight = [];
+    standard_low_weight = [];
+    median_weight = [];
+    age_in_months = [];
+    //weight_trail = [];
+
+    count = 0
+    
+    for(var i = 0; i < obs.length; i++) {
+      m_index = obs[i][0];
+      weight_trail[m_index] = obs[i][1];
+      //weight_trail[19] = 11.1;
+      count++;
+
+    }
+/*
+    data_found = false ; prev_weight = null;
+    
+    for(var i = 0; i < weight_trail.length; i++){
+      if(count == 0)
+        continue;
+
+      if(weight_trail[i] != null && data_found == false){
+        data_found = true ; prev_weight = weight_trail[i];
+        continue;
+      }
+
+      if(weight_trail[i] == null && data_found == true){
+        weight_trail[i] = null;
+        count--;
+        continue;
+      }
+
+    }
+*/
+    <%(@weight_height_for_ages || {}).sort_by {|x, y| x }.each do |age, data|%>
+      standard_low_weight.push(<%=data[:standard_low_weight]%>);
+      standard_high_weight.push(<%=data[:standard_high_weight]%>);
+      median_weight.push(<%=data[:median_weight]%>);
+      age_in_months.push(<%=age%>);
+    <%end%>
+
+  }
+
+  function plotBabyGraph(obs) {
+
+    resetWeightReadings(obs);
+
+    jQuery('#charts').highcharts({
+        chart: {
+            type: 'line'
+        },
+        title: {
+            text: ''
+        },
+        xAxis: {
+            categories: age_in_months ,
+            title: {
+              text: 'Age in months'
+            },
+            plotBands: [{ // visualize the weekend
+                from: 4.5,
+                to: 6.5
+            }]
+        },
+        yAxis: {
+            title: {
+                text: 'Weight'
+            }
+        },
+        tooltip: {
+            shared: true,
+            valueSuffix: ' Kg'
+        },
+        credits: {
+            enabled: false
+        },
+        plotOptions: {
+          series: {
+            fillOpacity: 0.5,
+            connectNulls: true,
+            marker: {
+              enabled: false
+            }
+          }
+        },
+        series: [{
+            name: 'Standard high weight',
+            data: standard_high_weight,
+            marker: {
+              fillColor: '#c70a00',
+              lineWidth: 2,
+              lineColor: '999'
+            }
+        }, {
+            name: 'Median weight',
+            data: median_weight
+        }, {
+            name: "Weight trail (child's weight)",
+            data: weight_trail,
+            marker: { enabled: true }
+        }, {
+            name: 'Standard low weight',
+            data: standard_low_weight
+        }]
+    });
+
+  }
+
+  function plotGraph(obs){
+
+    //jQuery.getJSON('https://www.highcharts.com/samples/data/jsonp.php?filename=usdeur.json&callback=?', function (data) {
+
+    jQuery('#charts').highcharts({
+      chart: {
+        zoomType: 'x'
+      },
+      title: {
+        text: 'Weight history'
+      },
+      subtitle: {
+        text: document.ontouchstart === undefined ?
+          'Click and drag in the plot area to zoom in' : 'Pinch the chart to zoom in'
+      },
+      xAxis: {
+        type: 'datetime',
+        dateTimeLabelFormats:{
+          month: '%b, %Y'
+        }
+      },
+      yAxis: {
+        min: 0,
+        title: {
+          text: 'Weight (kg)'
+        }
+      },
+      tooltip: {
+        headerFormat: '<b>{series.name}</b><br>',
+        pointFormat: '{point.x:%e. %b, %Y}: {point.y:.1f} Kg'
+      },
+      legend: {
+        enabled: false
+      },
+      credits: {
+        enabled: false
+      },
+      plotOptions: {
+        area: {
+          fillColor: {
+            linearGradient: {
+              x1: 0,
+              y1: 0,
+              x2: 0,
+              y2: 1
+            },
+            stops: [
+              [0, Highcharts.getOptions().colors[0]],
+              [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+            ]
+          },
+          marker: {
+            enabled: true,
+            symbol: 'circle',
+            radius: 7
+          },
+          lineWidth: 1,
+          states: {
+            hover: {
+              lineWidth: 1
+            }
+          },
+          threshold: null
+        }
+      },
+      series: [{
+          type: 'area',
+          name: 'Weight',
+          data: formatData(obs)
+        }]
+    });
+    //});
+
+
+  }
+
+
+  function formatData(obs) {
+    data = [];
+    for(var i = 0; i < obs.length; i++) {
+      data.push([ getDateWithFormat(obs[i][0]), obs[i][1] ]);
+    }
+    return data;
+  }
+
+  function getDateWithFormat(d) {
+    newDate = new Date(d);
+    var day = newDate.getDate();
+    var monthIndex = newDate.getMonth();
+    var year = newDate.getFullYear();
+
+    return Date.UTC(year,monthIndex,day);
+    /*
+    months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return day + "/" + months[monthIndex] + '/' + year;
+    return day + "/" + months[monthIndex] + '/' + year;
+     */
+  }
+
+  /*
+  function dataG(obs) {
+    var correctedWeights = [];
+
+    for(var i = 0; i < obs.length; i++) {
+      correctedWeights.push(obs[i][1]);
+    }
+    start_point = obs[0][0].split('/')
+    
+    return [{name: 'Weight', data: correctedWeights}];
+  }
+  
+   */
+  function hookKeyboard(){
+
+    __$("nextButton").onclick = function(){
+      __$('keyboard').style.display = "block";
+    }
+    __$("backButton").onclick = function(){
+      __$('keyboard').style.display = "block";
+
+    }
+
+  }
+
+  function showWeightHeightForAge(){
+    document.getElementById('weight_for_age').value = currentWeightPercentile;
+    document.getElementById('height_for_age').value = currentHeightPercentile;
+
+    displayText = "<div><span class='title'>Weight for age:</span>";
+    if (currentWeightPercentile >= 80){
+      displayText += "<span class='goodWeightForAge'>" + currentWeightPercentile + "%</span><br>";
+    } else if (currentWeightPercentile >= 70 && currentWeightPercentile < 80) {
+      if (weightLossPercent(currentWeight) >= 1){
+        displayText += "<span class='medWeightForAge'>" + currentWeightPercentile + "%</span>" + " <span class='recommendation'> Moderate malnutrition (<span class='medWeightForAge'>" + weightLossPercent(currentWeight) +  "%</span> weight loss)</span><br>";
+      }else{
+        displayText += "<span class='medWeightForAge'>" + currentWeightPercentile + "%</span>" + " <span class='recommendation'> Moderate malnutrition</span><br>";
+      }
+    } else if (currentWeightPercentile < 70) {
+
+      if (weightLossPercent(currentWeight) >= 1){
+        displayText += "<span class='lowWeightForAge'>" + currentWeightPercentile + "%</span>" + " <span class='recommendation'> Severe malnutrition (<span class='lowWeightForAge'>" + weightLossPercent(currentWeight) +  "%</span> weight loss)</span><br>";
+      }else{
+        displayText += "<span class='lowWeightForAge'>" + currentWeightPercentile + "%</span>" + " <span class='recommendation'> Severe malnutrition</span><br>";
+      }
+    } else {
+      displayText += "<span class='lowWeightForAge'>N/A</span><span class='recommendation'> Failed to calculate</span><br>";
+    }
+    displayText += "</div>";
+
+    displayText += "<div><span class='title'>Height for age:</span>";
+    if (currentHeightPercentile >= 80){
+      displayText += "<span class='goodHeightForAge'>" + currentHeightPercentile + "%</span><br>";
+    } else if (currentHeightPercentile >= 75) {
+      displayText += "<span class='medHeightForAge'>" + currentHeightPercentile + "%</span>" + " <span class='recommendation'> Moderate stunted growth </span><br>";
+    } else {
+      displayText += "<span class='lowHeightForAge'>" + currentHeightPercentile + "%</span>" + " <span class='recommendation'> Severe stunted growth </span><br>";
+    }
+    displayText += "</div>";
+
+  }
+
+  function showWeightForHeight() {
+    var currentHeightRounded = (currentHeight % Math.floor(currentHeight) < 0.5 ? 0 : 0.5) + Math.floor(currentHeight);
+    var weightForHeights = <%= WeightForHeight.patient_weight_for_height_values.to_json -%>;
+    var medianWeightHeight = weightForHeights[currentHeightRounded.toFixed(1)];
+    var weightForHeightPercentile = (currentWeight/(medianWeightHeight)*100).toFixed(0);
+
+    document.getElementById('weight_for_height').value = weightForHeightPercentile;
+
+    displayText += "<div id='displayText'><span class='title'>Weight for height:</span>";
+
+    if (weightForHeightPercentile >= 80) {
+      displayText += "<span class='goodWeightForHeight'>" + weightForHeightPercentile + "%</span><br>";
+    } else if (weightForHeightPercentile >= 75) {
+      displayText += "<span class='medWeightForHeight'>" + weightForHeightPercentile + "%</span>" + " <span class='recommendation'> Moderate malnutrition</span><br>";
+    } else if (weightForHeightPercentile < 75) {
+      displayText += "<span class='lowWeightForHeight'>" + weightForHeightPercentile + "%</span>" + "<span class='recommendation'> Severe wasting</span><br>";
+    } else {
+      displayText += "<span class='lowWeightForHeight'>N/A: </span>" + "<span class='recommendation'> Failed to calculate</span><br>";
+    }
+    displayText += "</div>";
+  }
+
+  function showBMI() {
+    currentBmi = (currentWeight/(currentHeight*currentHeight)*10000).toFixed(1);
+    document.getElementById('bmi').value = currentBmi;
+
+    displayText = "<div><span class='title'>Current BMI:</span>";
+    if (currentBmi >= 40 ) {
+      displayText += "<span class='lowBMI'>" + currentBmi + "</span><br/><span class='recommendation abnormal-weight'>";
+      displayText +="Overweight: Obese (class III)</span>";
+    }else if (currentBmi > 35) {
+      displayText += "<span class='lowBMI'>" + currentBmi + "</span><br/><span class='recommendation abnormal-weight'>";
+      displayText +="Overweight: Obese (class II)</span>";
+    }else if (currentBmi > 30) {
+      displayText += "<span class='lowBMI'>" + currentBmi + "</span><br/><span class='recommendation abnormal-weight'>";
+      displayText +="Overweight: Obese (class I)</span>";
+    }else if (currentBmi >= 25) {
+      displayText += "<span class='lowBMI'>" + currentBmi + "</span><br/><span class='recommendation abnormal-weight'>";
+      displayText +="Overweight: Pre-obese</span>";
+    }else if (weightLossPercent(currentWeight) >= 10) {
+      displayText += "<span class='lowBMI'>" + currentBmi + "</span><br/><span class='recommendation abnormal-weight'>";
+      displayText +="Weight loss of : " + weightLossPercent(currentWeight) + "%</span>";
+    }else if (currentBmi > 18.5) {
+      //displayText += currentBmi;
+      displayText += "<span class='normalBMI'>" + currentBmi + "</span>";
+      displayText += "<br/><span class='recommendation'>Normal weight</span>";
+    } else if (currentBmi >= 16.0 && currentBmi <= 18.5) {
+      displayText += "<span class='lowBMI'>" + currentBmi + "</span><br/><span class='recommendation abnormal-weight'>";
+      displayText +="Underweight: Moderate malnutrition</span>";
+    } else if (currentBmi < 16.0) {
+      displayText += "<span class='lowBMI'>" + currentBmi + "</span><br/><span class='recommendation abnormal-weight'>";
+      displayText +="Underweight: Severe malnutrition</span>";
+      /*} else {
+      displayText += "<span class='lowBMI'>" + currentBmi + "</span><br/><span class='recommendation'>Eligible for therapeutic feeding</span>";*/
+    }
+    displayText += "</div>";
+  }
+
+  var sbpInterval;
+  var dbpInterval;
+  var currentSBPValue;
+  var currentDBPValue;
+
+  function updateSBPValues(){
+    sbpInterval = window.setInterval("updateSBP()", 200);
+  }
+
+  function updateDBPValues(){
+    dbpInterval = window.setInterval("updateDBP()", 200);
+  }
+
+  function updateSBP(){
+    currentSBPValue = jQuery('#touchscreenInput'+ tstCurrentPage)[0].value;
+    if (currentSBPValue.length === 0) currentSBPValue = '&nbsp;'
+    jQuery("#helpText" + tstCurrentPage + ">#sbp").html(currentSBPValue);
+  }
+
+  function updateDBP(){
+    currentDBPValue = jQuery('#touchscreenInput'+ tstCurrentPage)[0].value;
+    if (currentDBPValue.length === 0) currentDBPValue = '&nbsp;'
+    jQuery("#helpText" + tstCurrentPage + ">#sbp").html(currentSBPValue);
+    jQuery("#helpText" + tstCurrentPage + ">#dbp").html(currentDBPValue);
+  }
+
+  function updateAbsoluteMaxValue(){
+    sbpValue = jQuery('#systolic_blood_pressure')[0].value;
+    sbpValue = (parseInt(sbpValue) - 10); //DBP has to be less than SPB at least by 10.
+    jQuery('#touchscreenInput'+ tstCurrentPage).attr("absoluteMax", sbpValue);
+  }
+
+  function weightLossPercent(currentWeight){
+    /*Decrease = Original Number - New Number
+    //%Decrease = Decrease ÷ Original Number × 100
+    If your answer is a negative number then this is a percentage increase.
+Find more at: http://www.skillsyouneed.com/num/percent-change.html#ixzz4TIacWujf
+     */
+    decrease = parseFloat(previousWeight) - parseFloat(currentWeight);
+    weight_loss_percent = (decrease/previousWeight) * 100;
+    return Math.round(weight_loss_percent);
+  }
+</script>
+
+<form action="/encounters/create/vitals">
+  <%= hidden_field_tag "encounter[encounter_type_name]", "VITALS" %>
+  <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+  <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+  <%= hidden_field_tag "encounter[provider_id]", current_user.user_id %>
+
+  <% if ask_temperature %>
+    <label for="temperature">Temperature (C)</label>
+    <%= touch_text_field_tag "TEMPERATURE (C)", @patient, nil,
+      {	:id => "temperature",
+      :field_type => "number",
+      :allowFreeText => 'true',
+      :min => 20,
+      :max => 45,
+      :units => 'Celcuis',
+      :validationRule => "([0-9]+\\.[0-9])|Unknown$",
+      :validationMessage => "You must enter a decimal between 0 and 9 (for example: 36<b>.6</b>)",
+      :tt_pageStyleClass => "Numeric NumbersOnlyWithDecimal",
+      :tt_onLoad => "showCategory2('Current vitals');",
+      :helpText => "Temperature (C)" } %>
+  <% end %>
+
+  <% if @retrospective %>
+    <%= touch_numeric_tag "WEIGHT (KG)", @patient, nil,
+      {	:id => "weight",
+      :field_type => "number",
+      :tt_onLoad => "showCategory2('Current vitals');$('clearButton').style.display = 'inline';",
+      :min => number_with_precision(@min_weight, :precision => 1),
+      :max => number_with_precision(@max_weight, :precision => 1),
+      :absoluteMin => 0,
+      :absoluteMax => 250,
+      :units => 'kg',
+      :validationRule => "([0-9]+\\.[0-9])|Unknown$",
+      :validationMessage => "You must enter a decimal between 0 and 9 (for example: 54<b>.6</b>)",
+      :tt_pageStyleClass => "unknownButton",
+      :helpText => "Weight (Kg)" } %>
+
+
+    <% if @patient_bean.age > 18 and not @current_height == 0 %>
+      <%= touch_hidden_tag "HEIGHT (CM)", @patient, @current_height %>
+    <% else %>
+      <% if @patient_bean.age > 18 %>
+        <%= hidden_field_tag "recalculate_bmi", true %>
+      <% end %>
+
+      <%= touch_numeric_tag "HEIGHT (CM)", @patient, nil,
+        {	:id => "height",
+        :field_type => "number",
+        :tt_onLoad => "showCategory2('Current vitals');$('clearButton').style.display = 'inline';",
+        :min => number_with_precision(@min_height, :precision => 1),
+        :max => number_with_precision(@max_height, :precision => 1),
+        :absoluteMin => 10,
+        :absoluteMax => 228,
+        :units => 'cm',
+        :validationRule => "^([0-9]+)|Unknown$",
+        :validationMessage => "You must enter numbers only (for example 157)",
+        :tt_pageStyleClass => "Numeric NumbersOnly",
+        :helpText => "Height (cm)" } %>
+    <% end %>
+  <% else %>
+    <%= touch_numeric_tag "WEIGHT (KG)", @patient, nil,
+      {	:id => "weight",
+      :field_type => "number",
+      :tt_onLoad => "showCategory2('Current vitals');$('clearButton').style.display = 'inline';",
+      :min => number_with_precision(@min_weight, :precision => 1),
+      :max => number_with_precision(@max_weight, :precision => 1),
+      :absoluteMin => 0,
+      :absoluteMax => 250,
+      :units => 'kg',
+      :validationRule => "([0-9]+\\.[0-9])|Unknown$",
+      :validationMessage => "You must enter a decimal between 0 and 9 (for example: 54<b>.6</b>)",
+      :tt_pageStyleClass => "Keyboard Numeric NumbersOnlyWithDecimal",
+      :helpText => "Weight (Kg)" } %>
+
+    <% if @patient_bean.age > 18 and not @current_height == 0 %>
+      <%= touch_hidden_tag "HEIGHT (CM)", @patient, @current_height %>
+    <% else %>
+      <%= touch_numeric_tag "HEIGHT (CM)", @patient, nil,
+        {	:id => "height",
+        :field_type => "number",
+        :tt_onLoad => "showCategory2('Current vitals');$('clearButton').style.display = 'inline';",
+        :min => number_with_precision(@min_height, :precision => 1),
+        :max => number_with_precision(@max_height, :precision => 1),
+        :absoluteMin => 10,
+        :absoluteMax => 228,
+        :units => 'cm',
+        :validationRule => "^([0-9]+)|Unknown$",
+        :validationMessage => "You must enter numbers only (for example 157)",
+        :tt_pageStyleClass => "Numeric NumbersOnly",
+        :helpText => "Height (cm)" } %>
+    <% end %>
+  <% end %>
+
+  <!-- NEW ART GUIDELINES. Screen all adults (30+ years) for hypertension at least once at the time of ART initiation. -->
+  <% if CoreService.get_global_property_value("activate.htn.enhancement").to_s != "true" %>
+    <% if @patient_bean.age >= 30 %>
+
+      <%= select_tag "capture_bp", options_for_select([['Yes','YES'],['No','NO']]),
+          :id => 'capture_bp',
+          :helpText => "Measure <b>blood pressure</b> (BP)?",
+          :tt_onLoad => "showCategory2('Current vitals');",
+          :tt_pageStyleClass => 'NoKeyboard' %>
+
+      <%= touch_text_field_tag "SYSTOLIC BLOOD PRESSURE", @patient, nil,{
+        :id => "systolic_blood_pressure",
+        :field_type => "number",
+        :tt_onLoad => "showCategory2('Current vitals');updateSBPValues();",
+        :tt_onUnLoad => "clearInterval(sbpInterval);",
+        :helpText => "Systolic blood pressure (<span id='sbp'>&nbsp;</span>/<span id='dbp'>&nbsp;</span>)",
+        :absoluteMin => 70,
+        :absoluteMax => 220,
+        :validationRule => "^([0-9]+)|Unknown$",
+        :validationMessage => "You must enter numbers only (for example 157)",
+        :condition => '$("capture_bp").value == "YES"',
+        :tt_pageStyleClass => "KeyboardNumeric NumbersOnly" } %>
+
+
+      <%= touch_text_field_tag "DIASTOLIC BLOOD PRESSURE", @patient, nil,{
+        :id => "diastolic_blood_pressure",
+        :tt_onLoad => "showCategory2('Current vitals');updateDBPValues(); updateAbsoluteMaxValue()",
+        :tt_onUnLoad => "clearInterval(dbpInterval);",
+        :field_type => "number",
+        :helpText => "Diastolic blood pressure (<span id='sbp'>&nbsp;</span>/<span id='dbp'>&nbsp;</span>)",
+        :absoluteMin => 30,
+        :validationRule => "^([0-9]+)|Unknown$",
+        :validationMessage => "You must enter numbers only (for example 157)",
+        :condition => '$("capture_bp").value == "YES"',
+        :tt_pageStyleClass => "Keyboard Numeric NumbersOnly"} %>
+    <% end %>
+  <% end %>
+
+  <% if @patient_bean.age > 14 %>
+    <%= touch_hidden_tag "BODY MASS INDEX, MEASURED", @patient, nil, { :id => 'bmi' , :kind => "value_numeric"} %>
+  <% else %>
+    <%= touch_hidden_tag "WT FOR HT", @patient, nil, {:id => 'weight_for_height'} %>
+    <%= touch_hidden_tag "WT FOR AGE", @patient, nil, {:id => 'weight_for_age'} %>
+    <%= touch_hidden_tag "HT FOR AGE", @patient, nil, {:id => 'height_for_age'} %>
+  <% end %>
+
+  <%= text_field_tag :showSummary, nil, {
+    :tt_onLoad => "growthIndicators();__$('keyboard').style.display = 'none';",
+    :helpText => "Nutritional status",
+    :optional => "true", :tt_pageStyleClass => "NoControls"
+  } %>
+
+  <% if @retrospective %>
+    <%= text_field "filter" , 'provider',
+      {	:helpText => 'Staff who provided the information (Provider)',
+      :ajaxURL => '/user/username?username='} %>
+  <% else %>
+    <%= hidden_field_tag "filter[provider]", nil %>
+  <%end%>
+
+  <%= submit_tag "Finish" %>
+</form>
+
+<script language="javascript" type="text/javascript" src="/javascripts/show_category_hack.js" defer="true"></script>

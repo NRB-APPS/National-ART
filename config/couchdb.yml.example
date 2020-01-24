@@ -1,0 +1,10 @@
+source_address: 127.0.0.1
+source_database : stock_levels
+source_username : username
+source_password : password
+source_port : 5984
+sync_address: 127.0.0.1
+sync_database : stock_levels_sync
+sync_username : username
+sync_password : password
+sync_port : 5984

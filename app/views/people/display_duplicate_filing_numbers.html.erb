@@ -1,0 +1,73 @@
+<style>
+#main-container  {
+  display: table;
+  width: 100%;
+  padding: 0px 1px 0px 1px;
+}
+
+.row  {
+  display: table-row;
+}
+
+.cell {
+  display: table-cell;
+}
+
+.inputFrameClass {
+  width: 95%;
+}
+
+#clearButton {
+  display: none;
+}
+
+</style>
+
+
+<script>
+
+function changeFinishBtn() {
+  var btn = document.getElementById('nextButton');
+  btn.innerHTML = "<span>Void duplicate numbers</span>";
+}
+
+function loadDuplicates() {
+  var mainDiv = document.getElementById('main-container');
+  var filing_numbers = document.getElementById('filing_numbers');
+  filing_numbers.value = "<%=params[:data].split(',')[1]%>";
+  
+  var row = document.createElement('div');
+  row.setAttribute('class','row');
+  var rowCell = document.createElement('div');
+  rowCell.setAttribute('class','cell');
+  rowCell.innerHTML = 'Active number:'
+  row.appendChild(rowCell);
+
+  rowCell = document.createElement('div');
+  rowCell.setAttribute('class','cell');
+  rowCell.innerHTML = "The are " + "<%= params[:data].split(',')[0]%> patients with file #:" + "<%=params[:data].split(',')[1]%>";
+  row.appendChild(rowCell);
+
+  mainDiv.appendChild(row);
+  var inputFrame = document.getElementById('inputFrame' + tstCurrentPage);
+  inputFrame.appendChild(mainDiv);
+}
+
+</script>
+
+
+<div id="main-container"></div>
+
+<form id='appointment' action="/people/void_filing_numbers" method='post'>
+    <%= text_field_tag :summary, nil, { 
+      :tt_onLoad => "changeFinishBtn();loadDuplicates();__$('keyboard').style.display = 'none';", 
+      :helpText => "Duplicate filing numbers",
+      :optional => true,
+      :tt_pageStyleClass => "NoControls" } 
+    %>
+
+    <input type="hidden" id="filing_numbers" name="filing_numbers" />
+    <input type="hidden" value="<%=params[:patient_id]%>" name="patient_id" />
+   
+</form>
+

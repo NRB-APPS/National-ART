@@ -1,0 +1,816 @@
+<html>
+  <head>
+    <title>HIV Viral Load</title>
+    <%= javascript_include_tag "Highcharts/js/jquery.min.js" %>
+    <script type="text/javascript">
+      function changeAttributes(){
+        document.getElementById("btnNext").innerHTML = "<span>Continue</span>"
+<% if vl_routine_check_activated %>
+  <% if repeat_viral_load_requested(@person.patient) == true &&  show_lab_results &&
+      (current_user_roles.include?("Nurse") || current_user_roles.include?("Clinician") || current_user_roles.include?("Doctor"))%>
+        document.getElementById("btnNext").setAttribute("onclick","showVlRepeatPopup();")
+  <% else %>
+    <% unless @repeat_vl_obs_date == Date.today %>
+      <% if improved_viral_load_check(@person.patient) == true &&
+          (@task.encounter_type.upcase == "HIV CLINIC CONSULTATION" || @task.encounter_type.upcase == "HIV STAGING") &&  show_lab_results &&
+          (current_user_roles.include?("Nurse") || current_user_roles.include?("Clinician") || current_user_roles.include?("Doctor"))%>
+            document.getElementById("btnNext").setAttribute("onclick","showPopup();")
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <% if repeat_viral_load_requested(@person.patient) == true && !show_lab_results &&
+      (current_user_roles.include?("Nurse") || current_user_roles.include?("Clinician") || current_user_roles.include?("Doctor"))%>
+        document.getElementById("btnNext").setAttribute("onclick","showVlRepeatPopup();")
+  <% else %>
+    <% unless @repeat_vl_obs_date == Date.today %>
+      <% if viral_load_check_without_lab_results_modified(@person.patient) == true &&
+          !show_lab_results &&
+          (current_user_roles.include?("Nurse") || current_user_roles.include?("Clinician") || current_user_roles.include?("Doctor"))%>
+            document.getElementById("btnNext").setAttribute("onclick","showPopup();")
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>
+  }
+
+  function showPopup(){
+    popup = document.getElementById('popup')
+    content = document.getElementById('content')
+    content.appendChild(popup)
+    if (typeof popup != 'undefined'){
+      document.getElementById('popup').style.display='inline'
+      document.getElementById('cover').style.display='inline'
+    }
+  }
+
+  function showVlRepeatPopup(){
+    popup = document.getElementById('vl_repeat_popup')
+    content = document.getElementById('content')
+    content.appendChild(popup)
+    if (typeof popup != 'undefined'){
+      document.getElementById('vl_repeat_popup').style.display='inline'
+      document.getElementById('cover').style.display='inline'
+    }
+  }
+
+
+  function updateVl(){
+    content = document.getElementById('content');
+    vl_menu = document.getElementById('new_vl_menu');
+    content.appendChild(vl_menu);
+    vl_menu.style.display = 'inline';
+    document.getElementById('vl_lab_trail_cover').style.display='inline';
+    //document.getElementById('cover').style.display='inline'
+  }
+
+  function removeUpdateVlMenu(){
+    vl_menu = document.getElementById('new_vl_menu');
+    vl_menu.style.display='none';
+    cover = document.getElementById('vl_lab_trail_cover');
+    cover.style.display='none'
+  }
+
+  function newVlResultPath(){
+<%  person_id =  params[:patient_id] %>
+    window.location = "/lab/viral_load_result?patient_id=<%= person_id %>"
+  }
+
+  function newVlResultPathWithParam(){
+<%  person_id =  params[:patient_id] %>
+    window.location = "/lab/viral_load_result?patient_id=<%= person_id %>&go_to_next_task=true"
+  }
+
+  function giveResultPath(){
+<%  person_id =  params[:patient_id] %>
+    window.location = "/lab/give_result?patient_id=<%= person_id %>"
+  }
+
+  function secondlineSwitchPath(){
+<%  person_id =  params[:patient_id] %>
+    window.location = "/lab/second_line_switch?patient_id=<%= person_id %>"
+  }
+
+  function viral_load_requested_today(){
+    jQuery.ajax({
+      type: "POST",
+      url: "/patients/viral_load_request",
+      data: "patient_id="+<%=@person.patient.id %> + "&requested_today=true",
+      success: function(nextUrl){
+        window.location = nextUrl;
+      }
+    });
+  }
+
+  function viral_load_not_requested_today(){
+    jQuery.ajax({
+      type: "POST",
+      url: "/patients/viral_load_request",
+      data: "patient_id="+<%=@person.patient.id %>,
+      success: function(){
+        window.location="<%= next_task(@person.patient)%>"
+      }
+    });
+  }
+
+  function repeat_vl_requested(){
+    jQuery.ajax({
+      type: "POST",
+      url: "/patients/repeat_viral_load_request",
+      data: "patient_id="+<%=@person.patient.id %>,
+      success: function(){
+        window.location="/people/confirm?found_person_id=<%=@person.id%>"
+      }
+    });
+  }
+
+  function vl_already_done(){
+    jQuery.ajax({
+      type: "POST",
+      url: "/patients/viral_load_already_done",
+      data: "patient_id="+<%=@person.patient.id %>,
+      success: function(){
+        window.location="<%= next_task(@person.patient)%>"
+      }
+    });
+  }
+
+  function vl_adherence_issue(){
+    jQuery.ajax({
+      type: "POST",
+      url: "/patients/vl_not_done_due_to_adherence",
+      data: "patient_id="+<%=@person.patient.id %>,
+      success: function(){
+        window.location="<%= next_task(@person.patient)%>"
+      }
+    });
+  }
+
+  function hidePopup(){
+    jQuery.ajax({
+      type: "POST",
+      url: "/patients/set_hiv_viral_load_session_variable",
+      data: "patient_id="+<%=@person.patient.id %>,
+      success: function(nextUrl){
+        window.location = nextUrl;
+      }
+    });
+  }
+
+  function captureVl(){
+    window.location="/lab/new?patient_id=<%= @person.patient.id %>&viral_load=true"
+  }
+
+  function showVlLabTrail(){
+    c = document.getElementById('content');
+    v = document.getElementById('vl_lab_trail');
+    c.appendChild(v);
+    document.getElementById('vl_lab_trail_cover').style.display='inline';
+    document.getElementById('vl_lab_trail').style.display='inline';
+  }
+
+  function hideVlLabTrail(){
+    document.getElementById('vl_lab_trail_cover').style.display='none';
+    document.getElementById('vl_lab_trail').style.display='none';
+  }
+
+    </script>
+    <style>
+      #vl_data{
+        position: absolute;
+        -moz-user-select: none;
+        background-color: #FFFFFF;
+        border: 1px solid #999999;
+        border-radius: 20px 20px 20px 20px;
+        display: table;
+        margin: 5px;
+        overflow: hidden;
+        padding: 10px;
+        width: 36%;
+        z-index: 800;
+        right: 10px;
+        top: 0%;
+        height: 26%;
+      }
+
+      #vl_update {
+        position: absolute;
+        border-radius: 17px;
+        background-color: #CD853F;
+        border-bottom: 1px outset black;
+        border-style: outset;
+        border-top: 5px outset #0000CD;
+        color: white;
+        padding: 4px 8px 8px 4px;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 14pt;
+        width: 32%;
+        left: 0%;
+        top: 117%;
+        letter-spacing: 7px;
+      }
+      #view_vl_results{
+        position: absolute;
+        border-radius: 17px;
+        background-color: #CD853F;
+        border-bottom: 1px outset black;
+        border-style: outset;
+        border-top: 5px outset #0000CD;
+        color: white;
+        padding: 4px 8px 8px 4px;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 14pt;
+        width: 38%;
+        right: 6%;
+        top: 117%;
+        letter-spacing: 7px;
+      }
+
+      #update_vl_menu{
+        border-radius: 10px;
+        position: absolute;
+        background-color: #DCDCDC;
+        border: 3px solid black;
+        height: 55%;
+        z-index: 991;
+        left: 40%;
+        top:20%;
+        width: 45%;
+        left: 20%;
+      }
+      #update_vl_button{
+        display: block;
+        border-radius: 17px;
+        background-color: #6E7B8B;
+        border-style: outset;
+        padding: 19px 21px 18px 45px;
+        cursor: pointer;
+        width: 40%;
+        margin-left: 20%;
+        text-align: center;
+        color: white;
+        font-size: 14pt;
+      }
+      #gray_button{
+        background-color: gray;
+        border-radius: 10px;
+        width: 50%;
+      }
+      #update_vl_button_gray{
+        display: block;
+        border-radius: 17px;
+        background-color: #C5C1AA;
+        border-style: outset;
+        padding: 19px 21px 18px 45px;
+        cursor: not-allowed;
+        width: 40%;
+        margin-left: 20%;
+        text-align: center;
+        color: gray;
+        font-size: 14pt;
+      }
+      .popup_vl{
+        border-radius: 10px !important;
+        position: absolute;
+        background-color: #DCDCDC;
+        border: 3px solid black !important;
+        height: 45% !important;
+        left: 40% !important;
+        top:20% !important;
+        width: 45% !important;
+        left: 20% !important;
+      }
+
+      #close{
+        height: 18%;
+        width: 11%;
+        position: absolute;
+        left: 87%;
+      }
+
+      .art_container table{
+        background-color:gold;
+        color: black;
+        font-size: 18pt;
+        font-weight: bold;
+        left: 7px;
+        line-height: 35px;
+        position: absolute;
+        top: 152px;
+        width: 99%;
+        border: 1px solid black;
+      }
+      #popup{
+        -moz-user-select: none;
+        background-color: white;
+        border: 3px solid #C6C6C6;
+        border-radius: 15px 15px 15px 15px;
+        color: black;
+        font-size: 28px;
+        height: 466px;
+        left: 10px;
+        padding: 5px;
+        position: absolute;
+        text-align: center;
+        top: 10%;
+        width: 97%;
+        z-index: 991;
+      }
+      #cover{
+        display:none;
+        position: absolute;
+        background-color: black;
+        width: 100%;
+        height: 102%;
+        left: 0%;
+        top: 0%;
+        z-index: 990;
+        opacity: 0.5;
+      }
+
+      #viral_load_done {
+        position: absolute;
+        border-radius: 7px;
+        background-color:	#2E8B57;
+        border-bottom: 1px outset black;
+        border-style: outset;
+        border-top: 1px outset black;
+        color: white;
+        padding: 9px 16px 16px 19px;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+        bottom: 7px;
+        left: 54px;
+        font-weight: bold;
+        font-size: 18pt;
+      }
+
+      #lab_trail {
+        position: absolute;
+        border-radius: 7px;
+        background-color: #2E8B57;
+        border-bottom: 1px outset black;
+        border-style: outset;
+        border-top: 1px outset black;
+        color: white;
+        padding: 9px 16px 16px 19px;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+        bottom: 0px;
+        left: 372px;
+        font-weight: bold;
+        font-size: 18pt;
+      }
+
+
+      #reminder {
+        position: absolute;
+        border-radius: 7px;
+        background-color: #2E8B57;
+        border-bottom: 1px outset black;
+        border-style: outset;
+        border-top: 1px outset black;
+        color: white;
+        padding: 9px 16px 16px 19px;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+        bottom: 0px;
+        left: 572px;
+        font-weight: bold;
+        font-size: 18pt;
+      }
+
+      .popup_hr{
+        position: absolute;
+        background-color: #669999;
+        height: 5px;
+        width: 99%;
+        bottom: 55px;
+
+      }
+
+      .popup_hr_without_lab{
+        position: absolute;
+        background-color: #669999;
+        height: 5px;
+        width: 99%;
+        bottom: 68px;
+
+      }
+
+      #viral_header{
+        font-family: "Century Gothic", CenturyGothic, AppleGothic, sans-serif;
+        font-weight: bold;
+        font-size: 18pt;
+        color: #1874CD;
+      }
+
+      #more_details{
+        font-family: Georgia, Times, "Times New Roman", serif;
+
+      }
+
+      #viral_load_requested_today {
+        position: absolute;
+        border-radius: 7px;
+        background-color:	#2E8B57;
+        border-bottom: 1px outset black;
+        border-style: outset;
+        border-top: 1px outset black;
+        color: white;
+        padding: 9px 16px 16px 19px;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+        bottom: 0px;
+        left: 4%;
+        font-weight: bold;
+        font-size: 14pt;
+      }
+
+      #viral_load_already_done {
+        position: absolute;
+        border-radius: 7px;
+        background-color:	#2E8B57;
+        border-bottom: 1px outset black;
+        border-style: outset;
+        border-top: 1px outset black;
+        color: white;
+        padding: 9px 16px 16px 19px;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+        bottom: 7px;
+        right: 4%;
+        font-weight: bold;
+        font-size: 18pt;
+      }
+
+      #viral_load_adherence_issues {
+        position: absolute;
+        border-radius: 7px;
+        background-color:	#2E8B57;
+        border-bottom: 1px outset black;
+        border-style: outset;
+        border-top: 1px outset black;
+        color: white;
+        padding: 9px 16px 16px 19px;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+        bottom: 0px;
+        left: 644px;
+        font-weight: bold;
+        font-size: 14pt;
+      }
+
+      #vl_lab_trail, #new_vl_menu, .new_vl_menu{
+        position: absolute;
+        width: 95%;
+        height: 70%;
+        top: 10%;
+        z-index: 991;
+        left: 3%;
+        border: 1px solid black;
+        background-color: #FEE0C6;
+        border-radius: 15px;
+      }
+      #vl_lab_trail_header, #new_vl_menu_header, .new_vl_menu_header{
+        padding: 10px;
+        background-color: gray;
+        color: white;
+        border-radius: 15px 15px 0px 0px;
+
+      }
+      #vl_lab_trail_footer, #new_vl_menu_footer, .new_vl_menu_footer{
+        background-color: gray;
+        height: 60px;
+        width: 100%;
+        position: absolute;
+        width: 100%;
+        position: absolute;
+        bottom: 0px;
+        border-radius: 0px 0px 15px 15px;
+      }
+      #vl_lab_trail_footer span{
+        border-radius: 13px;
+        background-color: #C1CDCD;
+        position: absolute;
+        padding: 12px 20%;
+        left: 27%;
+        bottom: 8px;
+        cursor: pointer;
+      }
+      #new_vl_menu_footer span, .new_vl_menu_footer span{
+        border-radius: 8px;
+        background-color: #C1CDCD;
+        padding-top: 14px;
+        padding-bottom: 14px;
+        position: absolute;
+        width: 98%;
+        left: 1%;
+        bottom: 5px;
+        cursor: pointer;
+      }
+      .vl_tbody td{
+        border-bottom: 1px solid black;
+        border-right: 1px solid black;
+      }
+      .vl_table_header td{
+        border-bottom: 1px solid black;
+        border-top: 1px solid black;
+      }
+
+      #vl_lab_trail_cover{
+        position: absolute;
+        background-color: black;
+        width: 100%;
+        height: 102%;
+        left: 0%;
+        top: 0%;
+        z-index: 990;
+        opacity: 0.25;
+      }
+      #new_vl_menu_content table td, .new_vl_menu_content table td{
+        border-bottom: 1px solid black;
+      }
+      #new_vl_menu_content span, .new_vl_menu_content span{
+        font-size: 14pt;
+        margin-left: 32% !important;
+      }
+      #new_vl_menu_content tr:hover, .new_vl_menu_content tr:hover{
+        background-color: white;
+      }
+      #new_vl_menu_content tr, .new_vl_menu_content tr{
+        cursor: pointer;
+      }
+      #vl_data_footer{
+        background-color: #FEFEF2;
+        height: 60px;
+        width: 100%;
+        position: absolute;
+        width: 99.5%;
+        position: absolute;
+        bottom: 2px;
+        border-radius: 0px 0px 15px 15px;
+        left: 1px;
+        border-top: 2px solid black;
+      }
+
+      #update_span{
+        position: absolute;
+        padding: 2% 13.5%;
+        background-color: #5F9EA0;
+        color: white !important;
+        left: 1.4%;
+        bottom: 8.5px;
+        font-size: 14pt;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+
+      #lab_trail_span{
+        position: absolute;
+        padding: 2% 11.5%;
+        background-color: #5F9EA0;
+        color: white !important;
+        right: 1%;
+        bottom: 8.5px;
+        font-size: 14pt;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+
+      .new_vl_menu{
+        position: absolute;
+        width: 95%;
+        height: 70%;
+        top: 10%;
+        z-index: 991;
+        left: 3%;
+        border: 1px solid black;
+        background-color: #FEE0C6;
+        border-radius: 15px;
+      }
+
+      #patient_details {
+        -moz-user-select: none;
+        background-color: #fff;
+        border: 1px solid #999;
+        border-radius: 5px;
+        display: table;
+        float: left;
+        margin: 5px;
+        overflow: hidden;
+        padding: 10px;
+        width: 97%;
+      }
+
+      .well {
+        position: fixed;
+        background-color: #f5f5f5;
+        border: 1px solid #e3e3e3;
+        border-radius: 4px;
+        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset;     
+        min-height: 20px;
+        padding: 19px;
+        bottom: 5px;
+        width: 94%;
+      }
+
+      .btn-primary {
+        background-color: #006dcc;
+        background-image: linear-gradient(to bottom, #08c, #04c);
+        background-repeat: repeat-x;
+        border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+        color: #fff;
+        text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+      }
+
+      .btn-block {
+        box-sizing: border-box;
+        padding-left: 0;
+        padding-right: 0;
+        width: 30%;
+      }
+
+      .btn-large {
+        border-radius: 6px;
+        font-size: 17.5px;
+        padding: 11px 19px;
+      }
+
+      .btn {
+        border-radius: 4px;
+        border-style: solid;
+        border-width: 1px;
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 1px 2px rgba(0, 0, 0, 0.05);
+        color: #333;
+        cursor: pointer;
+        display: inline-block;
+        font-size: 18pt;
+        color: white;
+        line-height: 20px;
+        margin-bottom: 0;
+        padding: 9px 16px 16px 19px;
+        text-align: center;
+        text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+        vertical-align: middle;
+      }
+
+      .btn:hover, .btn:focus, .btn:active, .btn.active, .btn.disabled, .btn[disabled] {
+        background-color: #e6e6e6;
+      }
+    </style>
+  </head>
+  <body onload = "">
+    <div id="patient_details">
+      <span style="margin-left:5%;">Patient Name: <i style="font-weight:bold;"><%= @patient_bean.name.to_s + ' (' + @patient_bean.sex.first.to_s +  ')' %></i></span>
+      <span style="margin-left:10%;">National ID: <i style="font-weight:bold;"><%= @patient_bean.national_id_with_dashes %></i></span>
+      <span style="margin-left:10%;">Age: <i style="font-weight:bold;"><%= @patient_bean.age %></i></span>
+      <span style="margin-left:10%;">Residence: <i style="font-weight:bold;"><%= @patient_bean.address %></i></span>
+    </div>
+    <% if improved_viral_load_check(@person.patient) == true && show_lab_results &&
+        (current_user_roles.include?("Nurse") || current_user_roles.include?("Clinician") || current_user_roles.include?("Doctor"))%>
+      <!-------------------------------------------->
+      <% if @vl_request == "YES" %>
+        <div id="popup">
+          <div class="art_container">
+            <div class="header" style="position: absolute; left: 20%">
+              <div id="viral_header">
+                Routine Viral Load Screening: <i style="color:#da4f49;">Viral load result available?</i>
+              </div>
+            </div>
+            <table  border=0.5 style = "border-radius:10px; top:78px;">
+              <tr>
+                <td><span>ART start date</span></td>
+                <td style='text-align:left'><span><%= @art_start_date.strftime("%A, %d %B %Y") rescue '' %></span></td>
+              </tr>
+              <tr><td colspan =2><hr/></td></tr>
+              <tr>
+                <td><span>Duration on ART (Months)</span></td>
+                <td style='text-align:left'><span><%= @duration_in_months %></span></td>
+              </tr>
+              <tr><td colspan =2><hr/></td></tr>
+
+              <% unless @second_line_treatment_start_date.blank? %>
+                <tr>
+                  <td><span>Duration on 2<sup>nd</sup>Line ART (Months)</span></td>
+                  <td style='text-align:left'><span><%= @second_line_duration_in_months %></span></td>
+                </tr>
+                <tr><td colspan =2><hr/></td></tr>
+              <% end  %>
+
+              <% unless @results.blank?%>
+                <tr>
+                  <td><span>Latest viral load (<%= @latest_date.strftime("%A, %d %B %Y")%>)</span></td>
+                  <td style='text-align:left'><span><%= @modifier + ' ' + @latest_result.to_s %></span></td>
+                </tr>
+                <tr><td colspan =2><hr/></td></tr>
+              <% end %>
+
+              <tr>
+                <td><span>Outcome</span></td>
+                <td style='text-align:left'><span><%= @outcome %></span></td>
+              </tr>
+              <tr><td colspan =2><hr/></td></tr>
+              <tr>
+                <td><span>Reason for starting</span></td>
+                <td style='text-align:left'><span><%=@reason_for_art%></span></td>
+              </tr>
+
+            </table>
+          </div>
+
+
+
+          <div class="well">
+            <button style="float:left;" onclick = "newVlResultPathWithParam();" class="btn btn-large btn-block btn-primary" type="button">Enter VL result</button>
+            <button style="float:right;" onclick="hidePopup();" class="btn btn-large btn-block btn-primary" type="button">No VL result available</button>
+          </div>
+
+        </div>
+        <!-------------------------------------------->
+      <% else %>
+
+        <div id="popup" style="">
+          <div class="art_container">
+            <div class="header" style="position: absolute; left: 20%">
+              <div id="viral_header">
+                <u>Routine Viral Load Screening Due</u><br />
+                <u>Assess Adherence:</u> <br />
+              </div>
+              <div id="more_details" style="font-size: 16pt; font-weight:bold; ">
+                If good then request VL today <br />
+                If poor then defer VL for three months after intensive adherence support
+              </div>
+            </div>
+            <table  border=0.5 style = "border-radius:10px;">
+              <tr>
+                <td><span>ART start date</span></td>
+                <td style='text-align:left'><span><%= @art_start_date.strftime("%A, %d %B %Y") rescue '' %></span></td>
+              </tr>
+              <tr><td colspan =2><hr/></td></tr>
+              <tr>
+                <td><span>Duration on ART (Months)</span></td>
+                <td style='text-align:left'><span><%= @duration_in_months %></span></td>
+              </tr>
+              <tr><td colspan =2><hr/></td></tr>
+
+              <% unless @second_line_treatment_start_date.blank? %>
+                <tr>
+                  <td><span>Duration on 2<sup>nd</sup>Line ART (Months)</span></td>
+                  <td style='text-align:left'><span><%= @second_line_duration_in_months %></span></td>
+                </tr>
+                <tr><td colspan =2><hr/></td></tr>
+              <% end  %>
+
+              <% unless @results.blank?%>
+                <tr>
+                  <td><span>Latest viral load (<%= @latest_date.strftime("%A, %d %B %Y")%>)</span></td>
+                  <td style='text-align:left'><span><%= @modifier + ' ' + @latest_result.to_s %></span></td>
+                </tr>
+                <tr><td colspan =2><hr/></td></tr>
+              <% end %>
+
+              <tr>
+                <td><span>Outcome</span></td>
+                <td style='text-align:left'><span><%= @outcome %></span></td>
+              </tr>
+              <tr><td colspan =2><hr/></td></tr>
+              <tr>
+                <td><span>Reason for starting</span></td>
+                <td style='text-align:left'><span><%=@reason_for_art%></span></td>
+              </tr>
+
+            </table>
+          </div>
+
+          <!--<hr class="popup_hr"></hr>-->
+          <div class="well">
+            <button style="float:left;" onclick = "viral_load_requested_today();" class="btn btn-large btn-block btn-primary" type="button">VL Requested Today</button>
+            <button style="float:right;" onclick="hidePopup();" class="btn btn-large btn-block btn-primary" type="button">VL Not Requested Today</button>
+          </div>
+
+          <!--<a id='viral_load_done' onclick = "viral_load_requested_today();" ><span>VL Requested Today</span></a>
+
+          <a id='viral_load_already_done' onclick="removePopup();"><span>VL Not Requested Today</span></a>-->
+        </div>
+      <% end %>
+      <div id="cover">
+      </div>
+    <% end %>
+    <script type="text/javascript">
+     
+    </script>
+  </body>
+</html>

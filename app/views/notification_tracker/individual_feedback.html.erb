@@ -1,0 +1,353 @@
+<style>
+.div-numbers {
+  text-align: right;
+  padding-right: 10px;
+}
+
+</style>
+
+
+<%=javascript_include_tag "Highcharts/jquery.1.8.2.min"%>
+
+<style type="text/css">
+  ${demo.css}
+</style>
+
+<%=javascript_include_tag "Highcharts/js/highcharts"%>
+<%=javascript_include_tag "Highcharts/js/highcharts-3d"%>
+<%=javascript_include_tag "Highcharts/js/modules/exporting"%>
+
+
+<%=stylesheet_link_tag "recommendation_response" %>
+
+<form action="" method="post">
+
+
+  <%= text_field_tag :summary, nil, 
+    { :tt_onLoad => "__$('keyboard').style.display = 'none'; loadCharts(tstCurrentPage);", 
+    :optional => "true", 
+    :tt_pageStyleClass => "NoControls",
+    :helpText => "Complete/Incomplete transactions (#{User.current.username})" } %>
+
+
+  <%= text_field_tag :summary, nil, 
+    { :tt_onLoad => "__$('keyboard').style.display = 'none'; recommendationResponse(tstCurrentPage);", 
+    :optional => "true", 
+    :tt_pageStyleClass => "NoControls",
+    :helpText => "<span style='font-size: 25px;'>System recommendation(s): will show if provider responded different<span>" } %>
+
+  <%= text_field_tag :summary, nil, 
+    { :tt_onLoad => "__$('keyboard').style.display = 'none'; yesterdaysSummary(tstCurrentPage);", 
+    :optional => "true", 
+    :tt_pageStyleClass => "NoControls",
+    :helpText => "<span style='font-size: 25px;'>#{@main_date.strftime('%d/%b/%Y')} Incomplete encounter(s) summary<span>" } %>
+
+
+
+</form>
+
+
+<script>  
+var dates_data      = [];
+var incomplete_data = [];
+var complete_data   = [];
+var total_seen_data = [];
+
+function yesterdaysSummary(page_num) {
+  var frame = document.getElementById('inputFrame' + page_num);
+  frame.setAttribute('style','height: 90%;');
+
+  var recommendationTableDiv = document.createElement('div');
+  recommendationTableDiv.setAttribute('class', 'recommendation-table');
+  frame.appendChild(recommendationTableDiv);
+
+  var recommendationTableRow = document.createElement('div');
+  recommendationTableRow.setAttribute('class', 'recommendation-table-row');
+  recommendationTableDiv.appendChild(recommendationTableRow);
+
+  var cellText = ['Encounter name', 'Total missed'];
+
+  for(var i = 0; i < cellText.length; i++) {
+    var recommendationTableCell = document.createElement('div');
+    if(i > 0){
+      numbers = 'div-numbers';
+    }else{
+      numbers = null;
+    }
+
+    recommendationTableCell.setAttribute('class', 'recommendation-table-cell ' + numbers);
+    recommendationTableCell.innerHTML =  "<b style='color:black;'>" + cellText[i] + "</b>";
+    recommendationTableRow.appendChild(recommendationTableCell);
+  }
+    
+  for(var i = 0; i < missed_encounters.length; i++) {
+
+    var recommendationTableRow = document.createElement('div');
+    recommendationTableRow.setAttribute('class', 'recommendation-table-row provider-responses');
+    recommendationTableDiv.appendChild(recommendationTableRow);
+
+    var recommendationTableCell = document.createElement('div');
+    recommendationTableCell.setAttribute('class', 'recommendation-table-cell');
+    recommendationTableCell.innerHTML = "<b style='color: green;'>" + missed_encounters[i][0] + "</b>";
+    recommendationTableRow.appendChild(recommendationTableCell);
+
+    var recommendationTableCell = document.createElement('div');
+    recommendationTableCell.setAttribute('class', 'recommendation-table-cell div-numbers');
+    recommendationTableCell.innerHTML = "<b style='color: black;'>" + missed_encounters[i][1] + "</b>";
+    recommendationTableRow.appendChild(recommendationTableCell);
+
+  }
+
+
+}
+
+function calculateTrends() {
+	for(var i = 0; i < data.length; i++){
+		trend_data = data[i];
+		dates_data.push(trend_data['visit_date']);
+		incomplete_data.push(trend_data['incomplete']);
+		complete_data.push(trend_data['complete']);
+		total_seen_data.push(trend_data['total_seen']);
+	}
+}
+  
+var data = JSON.parse('<%= @individual_trends.to_json %>');
+calculateTrends();
+
+  
+function loadCharts(page_num) {
+  var frame = document.getElementById('inputFrame' + page_num);
+
+  if(page_num == 0) {
+    div = patientsSeen();
+  }
+  frame.appendChild(div)
+  frame.setAttribute('style','height: 90%;');
+
+  renderPieChart('container-pie');
+	renderTrends();
+}
+
+function patientsSeen() {
+  var div = document.createElement('div')
+  div.setAttribute('class','div-table');
+
+  var divRow = document.createElement('div')
+  divRow.setAttribute('class','div-row');
+  div.appendChild(divRow)
+
+  var divCell = document.createElement('div')
+  divCell.setAttribute('class','div-cell');
+  divCell.setAttribute('style','min-width: 49%; float: left; min-height: 570px;');
+  divCell.setAttribute('id','container-pie');
+  divRow.appendChild(divCell)
+
+  var divCell2 = document.createElement('div')
+  divCell2.setAttribute('class','div-cell');
+  divCell2.setAttribute('style','min-width: 50%; float: right; min-height: 570px;');
+  divCell2.setAttribute('id','container-trends');
+  divRow.appendChild(divCell2)
+
+
+
+  return div;
+}
+
+function renderPieChart(cellName) {
+
+jQuery(function () {
+    jQuery('#' + cellName).highcharts({
+        chart: {
+            type: 'pie',
+            options3d: {
+                enabled: true,
+                alpha: 45
+            }
+        },
+        title: {
+            text: "Patients' record completeness percentage: " + "<%= @main_date.strftime('%d/%b/%Y') %>" 
+        },
+        subtitle: {
+            text: 'Percentage of "Complete/Incomplete" visits'
+        },
+        plotOptions: {
+            pie: {
+                innerSize: 90,
+                depth: 75,
+						dataLabels: {
+                enabled: true
+            },
+            showInLegend: true
+					}
+        },
+        tooltip: {
+            valueSuffix: '%'
+        },
+				exporting: {
+					enabled: false
+				},
+				credits: {
+					enabled: false
+				},
+        colors: ['#FF0000', '#00FF00'],
+        series: [{
+            name: 'Patients visit',
+            data: [
+								{
+									name: 'Incomplete',
+									y: <%= @incomplete_percentage %>,
+									sliced: true,
+									selected: true
+								},
+                ['Complete', <%= @complete_percentage %>]
+            ]
+        }]
+    });
+});
+
+}
+
+function renderTrends() {
+
+jQuery(function () {
+    jQuery('#container-trends').highcharts({
+				chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Weekly trends (Complete/Incomplete visits)',
+            x: -20 //center
+        },
+        subtitle: {
+            text: '',
+            x: -20
+        },
+        xAxis: {
+            categories: dates_data
+        },
+        yAxis: {
+            min: 0, 
+            title: {
+                text: 'Number of patients visits'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+				exporting: {
+					enabled: false
+				},
+				credits: {
+					enabled: false
+				},
+        tooltip: {
+            valueSuffix: ''
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle',
+            borderWidth: 0
+        },
+        series: [{
+            name: 'Total seen',
+            data: total_seen_data
+        },{
+            name: 'Incomplete visits',
+            data: incomplete_data
+        }, {
+            name: 'Complete visits',
+            data: complete_data
+        }]
+    });
+});
+
+}
+
+function recommendationResponse(page_num) {
+  var frame = document.getElementById('inputFrame' + page_num);
+  frame.setAttribute('style','height: 90%;');
+
+  var recommendationTableDiv = document.createElement('div');
+  recommendationTableDiv.setAttribute('class', 'recommendation-table');
+  frame.appendChild(recommendationTableDiv);
+
+  var recommendationTableRow = document.createElement('div');
+  recommendationTableRow.setAttribute('class', 'recommendation-table-row');
+  recommendationTableDiv.appendChild(recommendationTableRow);
+
+  var cellText = ['Acitivty / Assessment Question', 'Recommended response', 'Provider response'];
+
+  for(var i = 0; i < cellText.length; i++) {
+    var recommendationTableCell = document.createElement('div');
+    recommendationTableCell.setAttribute('class', 'recommendation-table-cell');
+    recommendationTableCell.innerHTML = cellText[i];
+    recommendationTableRow.appendChild(recommendationTableCell);
+  }
+
+  for(var i = 0; i < provider_responses.length; i++) {
+    var recommendationTableRow = document.createElement('div');
+    recommendationTableRow.setAttribute('class', 'recommendation-table-row provider-responses');
+    recommendationTableDiv.appendChild(recommendationTableRow);
+
+    var recommendationTableCell = document.createElement('div');
+    recommendationTableCell.setAttribute('class', 'recommendation-table-cell');
+    recommendationTableCell.innerHTML = "<b style='color: green;'>" + provider_responses[i].name + "</b>";
+    recommendationTableCell.innerHTML += "<br />";
+    recommendationTableCell.innerHTML += provider_responses[i].description;
+    recommendationTableRow.appendChild(recommendationTableCell);
+
+    var recommendationTableCell = document.createElement('div');
+    recommendationTableCell.setAttribute('class', 'recommendation-table-cell');
+    recommendationTableCell.innerHTML = provider_responses[i].recommendation;
+    recommendationTableRow.appendChild(recommendationTableCell);
+
+    var recommendationTableCell = document.createElement('div');
+    recommendationTableCell.setAttribute('class', 'recommendation-table-cell');
+    recommendationTableCell.innerHTML = "<b>" + provider_responses[i].response + "</b>";
+    recommendationTableRow.appendChild(recommendationTableCell);
+  }
+
+}
+
+jQuery.ajax({
+  type: "POST",
+  url: "/notification_tracker/individual_feedback_clinical_assessment",
+  data: "session_date=<%=@main_date%>" ,
+  success: function(result){
+   formatResponses(JSON.parse(result)); 
+  }
+});   
+
+ 
+jQuery.ajax({
+  type: "POST",
+  url: "/notification_tracker/missed_encounters",
+  data: "session_date=<%=@main_date%>" ,
+  success: function(result){
+   formatResponsesMissedEncounters(JSON.parse(result)); 
+  }
+});   
+
+var provider_responses = [];
+var missed_encounters = [];
+
+function formatResponsesMissedEncounters(responses) {
+  for(var name in responses) {
+    missed_encounters.push([name, responses[name]]);
+  }
+}
+
+function formatResponses(responses) {
+  for(var i = 0; i < responses.length; i++) {
+    provider_responses.push({
+      recommendation: responses[i]['recommendation'],
+      response:       responses[i]['response'],
+      description:    responses[i]['description'],
+      name:           responses[i]['name']
+    });
+  }
+}
+</script>

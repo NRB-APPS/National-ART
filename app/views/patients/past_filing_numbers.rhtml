@@ -1,0 +1,30 @@
+
+<script>
+  var tt_cancel_destination = "/patients/show/<%= params[:id]%>";
+
+  var records = [];
+
+  <%(@patient_identifiers || []).each do |r|%>
+    records.push(["<%= r['identifier']%>", "<%= r['date_created'].to_time.strftime('%A, %Y %B %d') rescue nil %>"]);
+  <%end%>
+
+  function summary() {
+    var view = $('inputFrame'+tstCurrentPage);
+    for(var i = 0; i < records.length; i++){
+      p = document.createElement('p');
+      p.innerHTML = records[i][0];
+      p.innerHTML += "   Date created: " + records[i][1];
+      view.appendChild(p);
+    }
+  }
+
+</script>
+
+<form action="/patients/show/<%=params[:id]%>">
+    <label for='summary'>Summary</label>
+    <%= text_field_tag :summary, nil, 
+    { :tt_onLoad => "summary();__$('keyboard').style.display = 'none';", 
+      :optional => "true", :id => 'summary_view',
+      :tt_pageStyleClass => "NoControls", :helpText => 'Possible filing numbers' }%>
+
+</form>

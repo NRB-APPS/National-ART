@@ -1,0 +1,2 @@
+module PatientMastercardHelper
+end

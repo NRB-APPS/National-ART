@@ -1,0 +1,740 @@
+
+<html>
+  <head>
+    <title>Patient Dashboard</title>
+    <script type="text/javascript" language="javascript"
+    src="/touchscreentoolkit/lib/javascripts/touchScreenToolkit.js" defer  ></script>
+    <%= javascript_include_tag("jquery") %>
+    <%= javascript_include_tag "notification_tracker" %>
+    <meta http-equiv='content-type' content='text/html;charset=UTF-8' />
+    <script language="javascript">
+      tstUsername = "";
+      tstCurrentDate = "<%= @date %>";
+      //tt_cancel_destination = '/clinic';
+      tt_cancel_show = '/clinic';
+
+      function removeUpdateVlMenu(){
+        try {
+          content = window.parent.document.getElementById('content');
+          vl_menu = document.getElementById('new_vl_menu');
+          vl_menu.style.display='none';
+
+          viral_load_frame_body = window.frames['hiv_viral_load'].contentDocument.body;
+          viral_load_frame_body.appendChild(vl_menu);
+
+          vl_lab_trail_cover = document.getElementById('vl_lab_trail_cover');
+          vl_lab_trail_cover.style.display='none';
+          viral_load_frame_body.appendChild(vl_lab_trail_cover);
+        }catch(e) {
+          location.reload();
+        }
+      }
+
+      function hideVlLabTrail(){
+        try {
+          content = window.parent.document.getElementById('content');
+          vl_lab_trail = document.getElementById('vl_lab_trail')
+          vl_lab_trail.style.display='none';
+
+          viral_load_frame_body = window.frames['hiv_viral_load'].contentDocument.body;
+          viral_load_frame_body.appendChild(vl_lab_trail);
+
+          vl_lab_trail_cover = document.getElementById('vl_lab_trail_cover');
+          vl_lab_trail_cover.style.display='none';
+          viral_load_frame_body.appendChild(vl_lab_trail_cover);
+        }catch(e){
+          location.reload();
+        }
+      }
+
+      function newVlResultPath(){
+        window.location = "/lab/viral_load_result?patient_id=<%= @patient.id %>&go_to_patient_dashboard=true"
+      }
+
+      function newVlResultPathWithParam(){
+        window.location = "/lab/viral_load_result?patient_id=<%= @patient.id %>&go_to_next_task=true"
+      }
+
+      function giveResultPath(){
+        window.location = "/lab/give_result?patient_id=<%= @patient.id %>&go_to_patient_dashboard=true"
+      }
+
+      function repeat_vl_requested(){
+        jQuery.ajax({
+          type: "POST",
+          url: "/patients/repeat_viral_load_request",
+          data: "patient_id=<%=@patient.id %>",
+          success: function(){
+              jQuery.ajax({
+                  url: "/lims?json=true&id=<%= @patient.id%>&location_id=<%= session[:location_id]%>&user_id=<%= session['warden.user.user.key']%>",
+                  success: function(data){
+                       var json = JSON.parse(data);
+                       window.location = "/lims/lims_barcode?patient_id=<%= @patient.id%>&tracking_number=" + json['tracking_number']
+                  },
+                  error: function(e){
+                      window.location="/patients/show/<%=@patient.id%>";
+                  }
+              });
+
+          },
+          error: function(e){
+              window.location="/patients/show/<%=@patient.id%>";
+          }
+        });
+      }
+
+    </script>
+    <style>
+        #msg-div{
+            position: absolute;
+            right: 2%;
+            top: 32%;
+            font-weight: bold;
+            background: lightgreen;
+            z-index: 5000;
+            width: 300px;
+            padding: 10px;
+            font-size: 1.3em;
+            height: 5%;
+            text-align: center;
+            vertical-align: middle;
+            border-radius: 3px;
+            color: darkslategray;
+        }
+      #tab6 {
+        background-color: white;
+        border: 0 none;
+        color: black;
+        font-weight: bold;
+      }
+      <% if vl_routine_check_activated %>
+        #tab5 {
+          background-color: green;
+          border: 0 none;
+          color: white;
+          font-weight: bold;
+          border-left: 3px outset yellow;
+          border-radius: 10px;
+          border-right: 3px outset yellow;
+          border-top: 3px outset yellow;
+        }
+
+        .active-tab#tab5{
+          background-color: white !important;
+          border: 0 none;
+          color: black !important;
+          font-weight: bold;
+          border-left: 3px outset #333;
+          border-radius: 10px;
+          border-right: 3px outset #333;
+          border-top: 3px outset #333;
+          color: #fff;
+          cursor: pointer;
+          float: left;
+          font-size: 18px;
+          padding: 3px 8px 8px;
+          font-weight: normal;
+        }
+
+        #vl_lab_trail, #new_vl_menu, .new_vl_menu{
+          position: absolute;
+          width: 95%;
+          height: 70%;
+          top: 10%;
+          z-index: 991;
+          left: 3%;
+          border: 1px solid black;
+          background-color: #FEE0C6;
+          border-radius: 15px;
+        }
+
+        #vl_lab_trail_header, #new_vl_menu_header, .new_vl_menu_header{
+          padding: 10px;
+          background-color: gray;
+          color: white;
+          border-radius: 15px 15px 0px 0px;
+        }
+
+        #vl_lab_trail_footer, #new_vl_menu_footer, .new_vl_menu_footer{
+          background-color: gray;
+          height: 60px;
+          width: 100%;
+          position: absolute;
+          width: 100%;
+          position: absolute;
+          bottom: 0px;
+          border-radius: 0px 0px 15px 15px;
+        }
+
+        #vl_lab_trail_footer span{
+          border-radius: 13px;
+          background-color: #C1CDCD;
+          position: absolute;
+          padding: 12px 20%;
+          left: 27%;
+          bottom: 8px;
+          cursor: pointer;
+        }
+
+        #new_vl_menu_footer span, .new_vl_menu_footer span{
+          border-radius: 8px;
+          background-color: #C1CDCD;
+          padding-top: 14px;
+          padding-bottom: 14px;
+          position: absolute;
+          width: 98%;
+          left: 1%;
+          bottom: 5px;
+          cursor: pointer;
+        }
+
+        .vl_tbody td{
+          border-bottom: 1px solid black;
+          border-right: 1px solid black;
+        }
+
+        .vl_table_header td{
+          border-bottom: 1px solid black;
+          border-top: 1px solid black;
+        }
+
+        #vl_lab_trail_cover{
+          position: absolute;
+          background-color: black;
+          width: 100%;
+          height: 102%;
+          left: 0%;
+          top: 0%;
+          z-index: 990;
+          opacity: 0.3;
+        }
+
+        #new_vl_menu_content table td, .new_vl_menu_content table td{
+          border-bottom: 1px solid black;
+        }
+
+        #new_vl_menu_content span, .new_vl_menu_content span{
+          font-size: 14pt;
+          margin-left: 32% !important;
+        }
+
+        #new_vl_menu_content tr:hover, .new_vl_menu_content tr:hover{
+          background-color: white;
+        }
+
+        #new_vl_menu_content tr, .new_vl_menu_content tr{
+          cursor: pointer;
+        }
+
+        #vl_data{
+          position: absolute;
+          -moz-user-select: none;
+          background-color: #FFFFFF;
+          border: 1px solid #999999;
+          border-radius: 20px 20px 20px 20px;
+          display: table;
+          margin: 5px;
+          overflow: hidden;
+          padding: 10px;
+          width: 55%;
+          z-index: 800;
+          left: 22%;
+          top: 10%;
+          height: 55%;
+        }
+
+        #vl_data_footer{
+          background-color: #FEFEF2;
+          height: 69px;
+          width: 100%;
+          position: absolute;
+          width: 99.5%;
+          position: absolute;
+          bottom: 2px;
+          border-radius: 0px 0px 15px 15px;
+          left: 1px;
+          border-top: 2px solid black;
+        }
+
+        #update_span {
+          position: absolute;
+          padding: 2% 13.5%;
+          background-color: #5F9EA0;
+          color: white !important;
+          left: 1.4%;
+          bottom: 8.5px;
+          font-size: 14pt;
+          border-radius: 10px;
+          cursor: pointer;
+        }
+
+        #lab_trail_span{
+          position: absolute;
+          padding: 2% 11.5%;
+          background-color: #5F9EA0;
+          color: white !important;
+          right: 1%;
+          bottom: 8.5px;
+          font-size: 14pt;
+          border-radius: 10px;
+          cursor: pointer;
+        }
+      <%  else %>
+        #tab5 {
+          background-color: white;
+          border: 0 none;
+          color: black;
+          font-weight: bold;
+        }
+      <% end %>
+    </style>
+  </head>
+
+  <body onload="recallSetValidationRules();"><div id='content'>
+      <div id='description' style='color:#777;position:absolute;margin-top:-70px;'></div><center>
+        <form id = 'dashboard' action='/clinic'>
+          <table cellpadding=10>
+            <tr>
+              <th colspan=2>Patient Dashboard</th>
+            </tr>
+            <h1 id='project_name'>
+              <span style="font-size: 55px;"><%=what_app?%></span>
+            </h1>
+            <span id='patient_name'><%= @patient_bean.name rescue "" %></span>
+            <span id='patient_id'><%= @patient_bean.national_id_with_dashes rescue "" %></span>
+            <span id='patient_residence'><%= @patient_bean.current_residence rescue "" %></span>
+            <% @patient_age = @patient_bean.age rescue 0 %>
+            <% if @patient_age < 2 %>
+              <span id='patient_age'><%= "#{@patient_bean.age_in_months} Months" rescue "" %></span>
+            <% else %>
+              <span id='patient_age'><%= @patient_bean.age rescue "" %></span>
+            <% end %>
+
+            <span id='patient_gender'><%= @patient_bean.sex rescue "" %></span>
+
+            <div id="patient_card">
+              <% session_date = session[:datetime].to_date rescue Date.today %>
+              <% if !@art_start_date.blank?  %>
+                <span value="<%= "#{PatientService.period_on_treatment(@art_start_date, session_date).to_i} month(s)" %>"> Period on ART </span>
+              <% end %>
+              <% unless @second_line_treatment_start_date.blank? %>
+                <span value="<%= "#{PatientService.period_on_treatment(@second_line_treatment_start_date, session_date).to_i} month(s)" %>"> Period on 2<sup>nd</sup>Line</span>
+              <% end %>
+              <% if !@tb_registration_date.blank? and @show_period == true %>
+                <span value="<%= "#{PatientService.period_on_treatment(@tb_registration_date.to_date, session_date).to_i} month(s)" %>"> Period on TB </span>
+              <% end %>
+
+              <% unless @current_regimen.blank?  %>
+                <span value="<%= "#{@current_regimen}" %>"> Current Regimen </span>
+              <% end %>
+
+              <% unless @vl_results.blank?  %>
+                <span value="<%= "#{@vl_modifier.to_s + @vl_latest_result.to_s + '(' + (@vl_latest_date.strftime("%a, %d-%b-%Y") rescue '') +')'}" %>"> Last VL result </span>
+              <% end %>
+
+              <% if @current_hiv_program_status == "Pre-ART (Continue)" %>
+                <% unless @cd4_results.blank? %>
+                  <span value="<%= "#{@cd4_modifier.to_s + @cd4_latest_result.to_s + '(' + @cd4_latest_date.strftime("%a, %d-%b-%Y") +')'}" %>"> Last CD4 </span>
+                <% end %>
+              <% end %>
+
+              <% if (@reason_for_art_eligibility rescue nil) != nil && (@reason_for_art_eligibility) != "" %>
+                <span value="<%= @reason_for_art_eligibility rescue "" %>">Reason for Starting</span>
+              <% end %>
+
+              <!--<% if (@hiv_status rescue nil) != nil && (@hiv_status) != "" %>
+                <span value="<%= @hiv_status rescue "" %>">HIV Status</span>
+              <% end %>-->
+
+               <% if (@confirmatory_hiv_test_type rescue nil) != nil && (@confirmatory_hiv_test_type) != "" %>
+                <span value="<%= @confirmatory_hiv_test_type rescue "" %>">HIV Confirmatory Test</span>
+              <% end %>
+
+              <% if (@arv_number rescue nil) != nil && (@arv_number) != " " %>
+                <span value="<%= @arv_number rescue "" %>">ARV Number</span>
+              <% end %>
+              <% if (@tb_number rescue nil) != nil && (@tb_number) != " " %>
+                <span value="<%= @tb_number rescue '' %>">TB Number</span>
+              <% end %>
+
+              <% if (@patient_bean.eid_number rescue nil) != nil && (@patient_bean.eid_number) != " " %>
+                <span value="<%= @patient_bean.eid_number rescue "" %>">EID Number</span>
+              <% end %>
+              <% if (@patient_bean.filing_number rescue nil) != nil && (@patient_bean.filing_number) != " " %>
+                <span value="<%= @patient_bean.filing_number rescue "" %>">Filing Number</span>
+              <% end %>
+              <% if (@patient_bean.archived_filing_number rescue nil) != nil && (@patient_bean.archived_filing_number) != " " %>
+                <span value="<%= @patient_bean.archived_filing_number rescue "" %>">Archived Filing Number</span>
+              <% end %>
+
+              <% if @art_start_date.blank? and @pre_art_start_date != "" and @pre_art_start_date != nil %>
+                <span value="<%= "#{PatientService.period_on_treatment(@pre_art_start_date.to_date, session_date).to_i} month(s)" %>">Period on Pre-ART</span>
+              <% end %>
+              <% if (@patient_bean.pre_art_number rescue nil) != nil && (@patient_bean.pre_art_number) != " " %>
+                <span value="<%= @patient_bean.pre_art_number rescue "" %>">Pre-ART Number</span>
+              <% end
+              session_date = session[:datetime].to_date rescue Date.today
+              task = @task
+              task_name = (task.encounter_type || 'NONE').upcase rescue 'NONE'
+            %>
+            </div>
+
+            <select id="tabs">
+              <option value='/patients/overview?patient_id=<%= @patient.id %>'>Overview</option>
+              <option value='/patients/visit_history?patient_id=<%= @patient.id %>'>Current Visit</option>
+              <option value='/patients/past_visits_summary?patient_id=<%= @patient.id %>'>Past Visits</option>
+              <option value='/patients/personal/<%= @patient.id -%>'>Printouts/Other</option>
+
+              <% if vl_routine_check_activated %>
+                <option value='/patients/viral_load_page?patient_id=<%= @patient.id %>'>HIV viral load</option>
+              <% end %>
+
+              <option value='/patients/next_task_description?task_id=<%= task.id -%>'>
+                NEXT TASK: <%= task_name.gsub('_',' ') %>
+              </option>
+
+            </select>
+            <% if @died == 1%>
+              <select id="links">
+                <optgroup value='/patients/programs_dashboard/<%= @patient.id -%>' label="Outcomes"></optgroup>
+              </select>
+              <select id="navigation_links">
+                <option link="/patients/mastercard?patient_id=<%= @patient.id -%>&source=<%= @source -%>">Mastercard</option>
+                <option link='<%= ((session[:datetime].to_date rescue '') != '' ?
+                            "/people/reset_datetime/#{@patient.id}" : "/people/set_datetime/#{@patient.id}") %>'  ttSize="160px">
+                  <%= ((session[:datetime].to_date rescue '') != '' ? "Reset Date" : "Set Date") %></option>
+              </select>
+            <% else %>
+              <select id="links">
+                <optgroup value='/patients/treatment_dashboard/<%= @patient.id -%>' label="Treatment"></optgroup>
+                <optgroup value='/patients/guardians_dashboard/<%= @patient.id -%>' label="Guardians"></optgroup>
+                <!--%if current_user.activities.include?('Manage Patient Programs')%-->
+                <optgroup value='/patients/programs_dashboard/<%= @patient.id -%>'  label="Outcomes"></optgroup>
+                <!--%end%-->
+                <!--option value='/patients/show/<%#= @patient.id -%>?source=opd'>OPD</option-->
+              </select>
+              <select id="navigation_links">
+                <option link="/encounter_types?patient_id=<%= @patient.id -%>" ttSize = "160px">Tasks</option>
+
+                <option link="/patients/mastercard?patient_id=<%= @patient.id -%>&source=<%= @source -%>">Mastercard</option>
+
+                <% if @show_change_app_date %>
+                  <option link="/encounter_types/show?encounter_type=Appointment&change_app=true&id=show&patient_id=<%=@patient.id -%>">Change appointment</option>
+                <%end%>
+                <option link='<%= ((session[:datetime].to_date rescue '') != '' ?
+                            "/people/reset_datetime/#{@patient.id}" : "/people/set_datetime/#{@patient.id}") %>'  ttSize="160px">
+                  <%= ((session[:datetime].to_date rescue '') != '' ? "Reset Date" : "Set Date") %></option>
+              </select>
+            <% end %>
+            <tr>
+              <td align='center'>
+                <input type='submit' value='Finish' />
+              </td>
+            </tr>
+          </table>
+        </form>
+      </center>
+    </div>
+  </body>
+
+</html>
+
+<script>
+    <%if @vl_results_ready %>
+
+        function hideMsg(div){
+            setTimeout(function(){fade(div, 1);}, 2500);
+        }
+
+        function fade(div, opacity){
+            __$(div).style.opacity = opacity;
+            if (opacity >= 0){
+                opacity = opacity - 0.01;
+                setTimeout(function(){fade(div, opacity)}, 20)
+            }
+        }
+
+        jQuery( document ).ready(function() {
+            var msgDiv = document.createElement("div");
+            msgDiv.id = "msg-div";
+            msgDiv.innerHTML = "<span>Viral Load Results Available</span>";
+            document.body.appendChild(msgDiv);
+
+//            setTimeout(function(){
+//                hideMsg("msg-div");
+//            }, 2500);
+        });
+    <%end%>
+</script>
+
+
+
+
+
+
+
+<!-- New code --------------------- -->
+
+<style>
+#alert-cover{
+  display: none;
+  position: absolute;
+  background-color: black;
+  width: 100%;
+  height: 102%;
+  left: 0%;
+  top: 0%;
+  z-index: 990;
+  opacity: 0.65;
+}
+
+#alert-popup-div {
+  display: none;
+  background-color: #F4F4F4;
+  border: 2px solid #E0E0E0;
+  border-radius: 15px;
+  height: 220px;
+  padding: 5px;
+  position: absolute;
+  margin-top: 100px;
+  width: 530px;
+  /*margin-left: 430px;*/
+  left: 25%;
+  z-index: 991;
+}
+
+#YesBtn {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  bottom: 0px;
+  margin-right: 10px;
+}
+
+#NoBtn {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  bottom: 0px;
+  background-color: #ff0000;
+  margin-right: 40px;
+}
+
+.popupBtn {
+  -moz-user-select: none;
+  background-image: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 16px;
+  font-weight: bolder;
+  line-height: 2.29;
+  margin-bottom: 0;
+  padding: 6px 56px;
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+  background-color: #337ab7;
+  border-color: #2e6da4;
+  color: #fff;
+  float: right;
+  margin-top: -5px;
+}
+
+#alert-popup-div2 {
+  display: none;
+  background-color: #F4F4F4;
+  border: 2px solid #E0E0E0;
+  border-radius: 15px;
+  height: 220px;
+  padding: 5px;
+  position: absolute;
+  margin-top: 100px;
+  width: 590px;
+  /*margin-left: 430px;*/
+  left: 25%;
+  z-index: 991;
+}
+
+.continue_to_dashboard {
+  left: 5% !important;
+}
+
+</style>
+
+
+
+
+
+<div id="alert-cover"></div>
+
+<div id="alert-popup-div">
+  <div style="text-align: center; border-style: solid; border-width: 0px 0px 1px;">
+    <span style="color: tomato; font-weight: bold; font-size: 25px;">Filing number creation</span>
+  </div>
+
+  <div>
+    <p>You can choose between creating<b>&nbsp;Active filing number</b>&nbsp;or&nbsp;  
+       <b>Dormant filing number&nbsp;</b></p>
+  </div>
+
+
+  <div style="padding-top: 65px;">
+    <span id="YesBtn" onclick="hideAlertPopup();printFilingNumber('Active');" 
+          class="popupBtn"
+          style="position: relative;">Active number</span>
+
+    <span id="NoBtn" onclick="hideAlertPopup();printFilingNumber('dormant');"
+          class="popupBtn"
+          style="position: relative;">Dormant number</span>
+    
+  </div>
+
+</div>
+
+<script>
+
+function showAlertPopup(){
+  document.getElementById("alert-cover").style.display = 'inline';
+  document.getElementById("alert-popup-div").style.display = 'inline';
+}
+
+function hideAlertPopup(){
+  document.getElementById("alert-cover").style.display = 'none';
+  document.getElementById("alert-popup-div").style.display = 'none';
+  document.getElementById("alert-popup-div2").style.display = 'none';
+}
+
+function printFilingNumber(fnumber) {
+  if(fnumber == 'Active') {
+    document.location = "/people/redirections?person_id=<%=params[:id]%>";
+  }else{
+    document.location = "/patients/create_dormant_filing_number?id=<%=params[:id]%>";
+  }
+}
+
+function pringFilingNumber() {
+}
+
+var user_activities = [];
+
+function setValidationRules() {
+  try {
+    var finishBtn = window.document.getElementById('btnNext');
+    finishBtn.setAttribute('onmousedown','checkIfAllTaskDone();');
+    finishBtn.setAttribute('onclick','');
+    document.getElementById("alert-cover").style.display = 'none';
+    <%(User.current.activities || []).each do |activitie|
+      if activitie.match(/Dispensations/i)%>
+        user_activities.push("Dispensing");
+      <%elsif activitie.match(/Manage HIV first visits/i)%>
+        user_activities.push("HIV CLINIC REGISTRATION");
+      <%else%>
+        user_activities.push("<%=activitie%>");
+    <%end
+    end%>
+  }catch(e) {
+    recallSetValidationRules();
+  }
+}
+
+var next_task_url = null;
+var userClinician = false;
+
+<%(User.current.user_roles || []).each do |r|
+  next unless r.role.match(/Clinician|Doctor/i) %>
+  userClinician = true;
+<%end%>
+
+
+function checkIfAllTaskDone() {
+  var tasksTabContainer = window.document.getElementById('tabContainer');
+  var lastTab = tasksTabContainer.children[tasksTabContainer.children.length - 1];
+  var nextTask = lastTab.innerHTML.replace("NEXT TASK: ",'');
+
+  for(var i = 0; i < user_activities.length; i++){
+    re = new RegExp(nextTask, 'gi')
+    if(user_activities[i].match(re)){
+      document.getElementById('selected_ativity').innerHTML = user_activities[i];
+      document.getElementById('next_task').innerHTML = nextTask;
+      next_task_url = "<%= next_task(@patient) %>";
+      alertIncompleteVisit();
+      return;
+    }else if(userClinician && user_activities[i].match(/Consultation/gi) && nextTask.match(/clinician/gi)){
+      document.getElementById('selected_ativity').innerHTML = user_activities[i];
+      document.getElementById('next_task').innerHTML = nextTask;
+      next_task_url = "<%= next_task(@patient) %>";
+      alertIncompleteVisit();
+      return;
+    }
+
+  }
+
+  <%if current_program_location.match(/HIV/i) %>
+     var appointment_not_done = <%= Encounter.find(:first, 
+      :conditions => ["patient_id = ? AND encounter_type = ?
+      AND encounter_datetime BETWEEN ? AND ?",
+      params[:id],EncounterType.find_by_name('Appointment').id,
+      session_date.to_date.strftime('%Y-%m-%d 00:00:00'),
+      session_date.to_date.strftime('%Y-%m-%d 23:59:59')]).blank? == true%>
+
+    if(nextTask.match(/None/i) && appointment_not_done) {
+      for(var i = 0; i < user_activities.length; i++){
+        if(user_activities[i].match(/appointment/gi)){
+          document.getElementById('selected_ativity').innerHTML = user_activities[i];
+          document.getElementById('next_task').innerHTML = user_activities[i];
+          next_task_url = "/encounters/new/appointment?action=show"
+          next_task_url += "&controller=encounter_types&encounter_type=";
+          next_task_url += '<%= "Appointment&id=show&patient_id=#{params[:id]}" %>';
+          alertIncompleteVisit();
+          return;
+        }
+      }
+    }
+  <%end%>
+  document.location = '/';
+}
+
+function recallSetValidationRules() {
+  <%if @encounters.blank? != true %>
+    document.getElementById("alert-cover").style.display = 'inline';
+    setTimeout("setValidationRules()", 1000);
+  <%end%>
+}
+
+function alertIncompleteVisit() {
+  document.getElementById("alert-cover").style.display = 'inline';
+  document.getElementById("alert-popup-div2").style.display = 'inline';
+}
+
+function goToNextTask() {
+  window.location = next_task_url;
+}
+
+</script>
+
+<div id="alert-popup-div2">
+  <div style="text-align: center; border-style: solid; border-width: 0px 0px 1px;">
+    <span style="color: tomato; font-weight: bold; font-size: 25px;">Incomplete patient visit</span>
+  </div>
+
+  <div>
+    <p>You have&nbsp;<b><span id="selected_ativity"></span></b>
+    &nbsp;as one of your task(s) and the next task is:&nbsp;<b><span id="next_task"></span></b>.</p>
+  </div>
+
+
+  <div style="padding-top: 65px;">
+    <span id="YesBtn" 
+      onclick="recordNotification('Incomplete visit','Go to next task');hideAlertPopup();goToNextTask();" 
+          class="popupBtn"
+          style="position: relative;">Go to next task</span>
+
+    <span id="NoBtn" onclick="recordNotification('Incomplete visit','Continue to dashboard');location='/';"
+          class="popupBtn continue_to_dashboard"
+          style="position: relative;">Continue to dashboard</span>
+    
+  </div>
+
+</div>
